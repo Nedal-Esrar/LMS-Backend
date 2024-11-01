@@ -1,0 +1,13 @@
+using MLMS.API.Departments.Requests;
+using MLMS.Domain.Departments;
+using Riok.Mapperly.Abstractions;
+
+namespace MLMS.API.Departments;
+
+[Mapper]
+public static partial class DepartmentMapper
+{
+    public static partial Department ToDomain(this CreateDepartmentRequest request);
+    
+    public static partial CreateDepartmentResponse ToContract(this Department department);
+}
