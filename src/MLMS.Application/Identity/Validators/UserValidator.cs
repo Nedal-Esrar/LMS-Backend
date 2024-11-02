@@ -12,7 +12,7 @@ public class UserValidator : AbstractValidator<User>
         RuleFor(x => x.WorkId)
             .NotEmpty();
 
-        RuleFor(x => x.Name)
+        RuleFor(x => x.UserName)
             .NotEmpty()
             .MaximumLength(100);
 

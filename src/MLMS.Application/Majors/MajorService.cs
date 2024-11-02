@@ -18,6 +18,11 @@ public class MajorService(
         {
             return validationResult.ExtractErrors();
         }
+
+        if (await majorRepository.ExistsByNameAsync(major.DepartmentId, major.Name))
+        {
+            return MajorErrors.NameAlreadyExists;
+        }
         
         var createdMajor = await majorRepository.CreateAsync(major);
 

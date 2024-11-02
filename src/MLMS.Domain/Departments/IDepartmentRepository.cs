@@ -11,4 +11,6 @@ public interface IDepartmentRepository
     Task<Department?> GetByIdAsync(int id);
     
     Task<List<Department>> GetAsync();
+    
+    Task<bool> ExistsByNameAsync(string departmentName);
 }

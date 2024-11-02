@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MLMS.Domain.Entities;
+using MLMS.Domain.Enums;
 using MLMS.Domain.Identity.Interfaces;
 using MLMS.Domain.Models;
 using MLMS.Infrastructure.Identity.Models;
@@ -22,6 +23,8 @@ public class AuthService(UserManager<ApplicationUser> userManager) : IAuthServic
         {
             return null;
         }
+
+        user.Roles = (await userManager.GetRolesAsync(user)).Select(Enum.Parse<UserRole>).ToList();
 
         return user.ToDomain();
     }

@@ -18,9 +18,8 @@ public class TokenGenerator(IOptions<AuthSettings> authSettings) : ITokenGenerat
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new(ClaimTypes.Name, user.Name),
-            new(ClaimTypes.Email, user.Email),
-            new(ClaimTypes.Expiration, DateTime.UtcNow.AddMinutes(_authSettings.AccessTokenLifeTimeMinutes).ToString(CultureInfo.InvariantCulture))
+            new(ClaimTypes.Name, user.UserName),
+            new(ClaimTypes.Email, user.Email)
         };
 
         claims.AddRange(user.Roles.Select(r => new Claim(ClaimTypes.Role, r.ToString())));

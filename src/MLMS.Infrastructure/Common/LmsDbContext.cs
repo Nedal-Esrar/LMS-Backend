@@ -4,7 +4,10 @@ using Microsoft.EntityFrameworkCore;
 using MLMS.Domain.Departments;
 using MLMS.Domain.Entities;
 using MLMS.Domain.Majors;
+using MLMS.Infrastructure.Departments;
+using MLMS.Infrastructure.Identity;
 using MLMS.Infrastructure.Identity.Models;
+using MLMS.Infrastructure.Majors;
 
 namespace MLMS.Infrastructure.Common;
 
@@ -23,12 +26,9 @@ public class LmsDbContext : IdentityDbContext<ApplicationUser, IdentityRole<int>
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-        
-        var cascadeDeleteFKs = builder.Model.GetEntityTypes()
-            .SelectMany(t => t.GetForeignKeys())
-            .Where(fk => !fk.IsOwnership && fk.DeleteBehavior != DeleteBehavior.Restrict);
 
-        foreach (var fk in cascadeDeleteFKs)
-            fk.DeleteBehavior = DeleteBehavior.NoAction;
+        builder.ApplyConfiguration(new DepartmentConfiguration());
+        builder.ApplyConfiguration(new MajorConfiguration());
+        builder.ApplyConfiguration(new ApplicationUserConfiguration());
     }
 }

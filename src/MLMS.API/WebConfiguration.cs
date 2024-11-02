@@ -1,4 +1,6 @@
+using System.Reflection;
 using System.Text.Json.Serialization;
+using Microsoft.OpenApi.Models;
 using MLMS.API.Common;
 using MLMS.API.Common.Middlewares;
 using MLMS.API.Identity;
@@ -20,10 +22,53 @@ public static class WebConfiguration
         
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
+        
+        services.AddSwaggerGen(setup =>
+        {
+            setup.SwaggerDoc("v1", new OpenApiInfo { Title = "Makassed LMS API", Version = "v1" });
+
+            var xmlCommentsFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+
+            var xmlCommentsFullPath = Path.Combine(AppContext.BaseDirectory, xmlCommentsFile);
+
+            if (File.Exists(xmlCommentsFullPath))
+            {
+                setup.IncludeXmlComments(xmlCommentsFullPath);
+            }
+
+            setup.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                In = ParameterLocation.Header,
+                Description = "Please enter a valid token",
+                Name = "Authorization",
+                Type = SecuritySchemeType.Http,
+                BearerFormat = "JWT",
+                Scheme = "Bearer"
+            });
+
+            setup.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    Array.Empty<string>()
+                }
+            });
+            
+            setup.UseDateOnlyTimeOnlyStringConverters();
+        });
 
         services.AddAuthorizationBuilder()
             .AddPolicy(AuthorizationPolicies.SuperAdmin, policy => policy.RequireRole(UserRole.Admin.ToString()));
-
+        
+        services.AddDateOnlyTimeOnlyStringConverters();
+        
         services.AddControllers()
             .AddJsonOptions(options =>
             {

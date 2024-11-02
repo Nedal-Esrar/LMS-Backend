@@ -164,7 +164,7 @@ public class IdentityService(
 
     public async Task<ErrorOr<None>> ChangePasswordAsync(string currentPassword, string newPassword)
     {
-        if (!await authService.IsOwnPasswordAsync(userContext.Id, currentPassword))
+        if (!await authService.IsOwnPasswordAsync(userContext.Id.Value, currentPassword))
         {
             return IdentityErrors.WrongCurrentPassword;
         }
@@ -174,7 +174,7 @@ public class IdentityService(
             return IdentityErrors.WeakPassword;
         }
         
-        await authService.ChangePasswordAsync(userContext.Id, currentPassword, newPassword);
+        await authService.ChangePasswordAsync(userContext.Id.Value, currentPassword, newPassword);
 
         return None.Value;
     }

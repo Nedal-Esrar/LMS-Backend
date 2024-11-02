@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MLMS.Domain.Entities;
+using MLMS.Domain.Enums;
 using MLMS.Domain.Identity.Interfaces;
 using MLMS.Infrastructure.Common;
 using MLMS.Infrastructure.Identity.Models;
@@ -17,8 +18,15 @@ public class UserRepository(
         var user = await userManager.Users
             .Include(u => u.Major)
             .Include(u => u.Department)
-            .Include(u => u.Roles)
             .FirstOrDefaultAsync();
+
+        if (user is null)
+        {
+            return null;
+        }
+
+        user.Roles = (await userManager.GetRolesAsync(user)).Select(Enum.Parse<UserRole>)
+            .ToList();
 
         return user?.ToDomain();
     }

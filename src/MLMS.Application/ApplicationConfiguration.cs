@@ -24,7 +24,8 @@ public static class ApplicationConfiguration
         services.AddScoped<IMajorService, MajorService>();
         services.AddScoped<IPasswordGenerationService, PasswordGenerationService>();
 
-        services.AddOptions<ClientOptions>(nameof(ClientOptions));
+        services.AddOptions<ClientOptions>()
+            .BindConfiguration(nameof(ClientOptions));
         
         return services;
     }

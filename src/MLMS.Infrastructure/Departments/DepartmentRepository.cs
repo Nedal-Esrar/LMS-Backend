@@ -43,4 +43,9 @@ public class DepartmentRepository(LmsDbContext context) : IDepartmentRepository
     {
         return await context.Departments.ToListAsync();
     }
+
+    public async Task<bool> ExistsByNameAsync(string departmentName)
+    {
+        return await context.Departments.AnyAsync(d => d.Name == departmentName);
+    }
 }

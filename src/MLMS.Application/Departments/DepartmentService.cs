@@ -19,6 +19,11 @@ public class DepartmentService(
             return validationResult.ExtractErrors();
         }
         
+        if (await departmentRepository.ExistsByNameAsync(department.Name))
+        {
+            return DepartmentErrors.NameAlreadyExists;
+        }
+        
         var createdDepartment = await departmentRepository.CreateAsync(department);
 
         return createdDepartment;

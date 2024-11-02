@@ -44,4 +44,9 @@ public class MajorRepository(LmsDbContext context) : IMajorRepository
         return await context.Majors.Where(m => m.DepartmentId == departmentId)
             .ToListAsync();
     }
+
+    public async Task<bool> ExistsByNameAsync(int majorDepartmentId, string majorName)
+    {
+        return await context.Majors.AnyAsync(m => m.DepartmentId == majorDepartmentId && m.Name == majorName);
+    }
 }

@@ -10,8 +10,6 @@ public class ApplicationUser : IdentityUser<int>
 {
     public string WorkId { get; set; }
     
-    public string Name { get; set; }
-    
     public string Email { get; set; }
     
     public string PhoneNumber { get; set; }
@@ -21,8 +19,6 @@ public class ApplicationUser : IdentityUser<int>
     public DateOnly BirthDate { get; set; }
     
     public EducationalLevel EducationalLevel { get; set; }
-
-    public List<IdentityRole> Roles { get; set; } = [];
     
     public int MajorId { get; set; }
     
@@ -33,4 +29,6 @@ public class ApplicationUser : IdentityUser<int>
     public Department Department { get; set; }
     
     public List<RefreshToken> RefreshTokens { get; set; } = [];
+    
+    public List<UserRole> Roles { get; set; } = [];
 }

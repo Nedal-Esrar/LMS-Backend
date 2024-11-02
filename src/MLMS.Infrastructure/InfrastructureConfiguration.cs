@@ -31,13 +31,23 @@ public static class InfrastructureConfiguration
             options.Password.RequireNonAlphanumeric = true;
             options.User.RequireUniqueEmail = false;
         })
-        .AddEntityFrameworkStores<LmsDbContext>();
+        .AddEntityFrameworkStores<LmsDbContext>()
+        .AddDefaultTokenProviders();
+
+        services.Configure<DataProtectionTokenProviderOptions>(opt => opt.TokenLifespan = TimeSpan.FromHours(1));
         
         services.AddDbContext<LmsDbContext>(options =>
-            options.UseSqlServer(configuration.GetConnectionString("LmsDb")));
+        {
+            options.UseSqlServer(configuration.GetConnectionString("LmsDb"));
+            options.LogTo(Console.WriteLine);
+            options.EnableSensitiveDataLogging();
+        });
 
-        services.AddOptions<AuthSettings>(nameof(AuthSettings));
-        services.AddOptions<EmailSettings>(nameof(EmailSettings));
+        services.AddOptions<AuthSettings>()
+            .BindConfiguration(nameof(AuthSettings));
+        
+        services.AddOptions<EmailSettings>()
+            .BindConfiguration(nameof(EmailSettings));
 
         services.AddAuthentication(options =>
         {
@@ -48,7 +58,7 @@ public static class InfrastructureConfiguration
         .AddJwtBearer(options =>
         {
             using var scope = services.BuildServiceProvider().CreateScope();
-
+            
             var config = scope.ServiceProvider
                 .GetRequiredService<IOptions<AuthSettings>>().Value;
 
