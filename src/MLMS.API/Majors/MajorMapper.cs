@@ -18,5 +18,5 @@ public static partial class MajorMapper
 
     private static partial Major ToDomainInternal(this CreateMajorRequest request);
     
-    public static partial CreateMajorResponse ToContract(this Major major);
+    public static partial MajorResponse ToContract(this Major major);
 }

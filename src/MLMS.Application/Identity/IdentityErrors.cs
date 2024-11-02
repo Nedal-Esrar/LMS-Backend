@@ -21,7 +21,7 @@ public static class IdentityErrors
         code: "Identity.InvalidRefreshToken",
         description: "Invalid refresh token provided.");
     
-    public static Error WrongCurrentPassword => Error.Validation(
+    public static Error WrongCurrentPassword => Error.Conflict(
         code: "Identity.WrongCurrentPassword",
         description: "Current password is incorrect.");
     

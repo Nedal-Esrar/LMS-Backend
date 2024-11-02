@@ -7,9 +7,10 @@ using MLMS.Domain.Departments;
 namespace MLMS.API.Departments;
 
 [Authorize]
-[Route("v1/departments")]
+[Route("api/v1/departments")]
 public class DepartmentController(IDepartmentService departmentService) : ApiController
 {
+    
     [HttpPost]
     [Authorize(Policy = AuthorizationPolicies.SuperAdmin)]
     public async Task<IActionResult> Create(CreateDepartmentRequest request)

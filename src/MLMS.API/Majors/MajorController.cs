@@ -1,13 +1,14 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MLMS.API.Common;
+using MLMS.API.Departments.Requests;
 using MLMS.API.Majors.Requests;
 using MLMS.Domain.Majors;
 
 namespace MLMS.API.Majors;
 
 [Authorize]
-[Route("v1/departments/{departmentId:int}/majors")]
+[Route("api/v1/departments/{departmentId:int}/majors")]
 public class MajorController(IMajorService majorService) : ApiController
 {
     [HttpPost]

@@ -9,5 +9,5 @@ public static partial class DepartmentMapper
 {
     public static partial Department ToDomain(this CreateDepartmentRequest request);
     
-    public static partial CreateDepartmentResponse ToContract(this Department department);
+    public static partial DepartmentResponse ToContract(this Department department);
 }

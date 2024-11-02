@@ -43,7 +43,7 @@ public class ApiController : ControllerBase
             ErrorType.Unauthorized => StatusCodes.Status401Unauthorized,
             ErrorType.Forbidden => StatusCodes.Status403Forbidden,
             ErrorType.NotFound => StatusCodes.Status404NotFound,
-            ErrorType.Validation => StatusCodes.Status406NotAcceptable,
+            ErrorType.Validation => StatusCodes.Status400BadRequest,
             ErrorType.Conflict => StatusCodes.Status409Conflict,
             ErrorType.Unexpected => StatusCodes.Status503ServiceUnavailable,
             _ => StatusCodes.Status500InternalServerError

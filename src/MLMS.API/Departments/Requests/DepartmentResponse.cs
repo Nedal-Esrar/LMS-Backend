@@ -1,6 +1,6 @@
 namespace MLMS.API.Departments.Requests;
 
-public class CreateDepartmentResponse
+public class DepartmentResponse
 {
     public int Id { get; set; }
     

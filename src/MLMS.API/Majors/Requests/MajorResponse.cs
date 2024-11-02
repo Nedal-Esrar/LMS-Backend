@@ -1,6 +1,6 @@
 namespace MLMS.API.Majors.Requests;
 
-public class CreateMajorResponse
+public class MajorResponse
 {
     public int Id { get; set; }
     

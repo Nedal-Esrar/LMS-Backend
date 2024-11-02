@@ -1,6 +1,8 @@
 using ErrorOr;
 using FluentValidation;
 using MLMS.Application.Common;
+using MLMS.Application.Departments;
+using MLMS.Domain.Departments;
 using MLMS.Domain.Entities;
 using MLMS.Domain.Majors;
 
@@ -8,7 +10,8 @@ namespace MLMS.Application.Majors;
 
 public class MajorService(
     IValidator<Major> majorValidator,
-    IMajorRepository majorRepository) : IMajorService
+    IMajorRepository majorRepository,
+    IDepartmentRepository departmentRepository) : IMajorService
 {
     public async Task<ErrorOr<Major>> CreateAsync(Major major)
     {
@@ -17,6 +20,11 @@ public class MajorService(
         if (!validationResult.IsValid)
         {
             return validationResult.ExtractErrors();
+        }
+        
+        if (!await departmentRepository.ExistsAsync(major.DepartmentId)) 
+        {
+            return DepartmentErrors.NotFound;
         }
 
         if (await majorRepository.ExistsByNameAsync(major.DepartmentId, major.Name))
@@ -31,6 +39,11 @@ public class MajorService(
 
     public async Task<ErrorOr<None>> DeleteAsync(int departmentId, int id) 
     {
+        if (!await departmentRepository.ExistsAsync(departmentId)) 
+        {
+            return DepartmentErrors.NotFound;
+        }
+        
         if (!await majorRepository.ExistsAsync(departmentId, id))
         {
             return MajorErrors.NotFound;
@@ -43,6 +56,11 @@ public class MajorService(
 
     public async Task<ErrorOr<Major>> GetByIdAsync(int departmentId, int id)
     {
+        if (!await departmentRepository.ExistsAsync(departmentId)) 
+        {
+            return DepartmentErrors.NotFound;
+        }
+        
         var major = await majorRepository.GetByIdAsync(departmentId, id);
 
         return major is null ? MajorErrors.NotFound : major;
@@ -50,6 +68,11 @@ public class MajorService(
 
     public async Task<ErrorOr<List<Major>>> GetByDepartmentAsync(int departmentId)
     {
+        if (!await departmentRepository.ExistsAsync(departmentId)) 
+        {
+            return DepartmentErrors.NotFound;
+        }
+        
         return await majorRepository.GetByDepartmentAsync(departmentId);
     }
 }

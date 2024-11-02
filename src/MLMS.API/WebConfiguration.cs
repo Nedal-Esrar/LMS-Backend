@@ -78,7 +78,7 @@ public static class WebConfiguration
         
         services.AddCors(c =>
         {
-            c.AddPolicy("AllowOrigin",
+            c.AddPolicy("AllowAll",
                 options =>
                     options
                         .AllowAnyOrigin()
