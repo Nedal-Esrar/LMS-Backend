@@ -1,9 +1,8 @@
 using FluentValidation;
-using MLMS.Application.Common;
-using MLMS.Domain.Entities;
-using MLMS.Domain.Enums;
+using MLMS.Domain.Common;
+using MLMS.Domain.Identity;
 
-namespace MLMS.Application.Identity.Validators;
+namespace MLMS.Domain.Users;
 
 public class UserValidator : AbstractValidator<User>
 {
@@ -12,7 +11,15 @@ public class UserValidator : AbstractValidator<User>
         RuleFor(x => x.WorkId)
             .NotEmpty();
 
-        RuleFor(x => x.UserName)
+        RuleFor(x => x.FirstName)
+            .NotEmpty()
+            .MaximumLength(100);
+        
+        RuleFor(x => x.MiddleName)
+            .NotEmpty()
+            .MaximumLength(100);
+        
+        RuleFor(x => x.LastName)
             .NotEmpty()
             .MaximumLength(100);
 
@@ -35,9 +42,5 @@ public class UserValidator : AbstractValidator<User>
         RuleFor(x => x.EducationalLevel)
             .NotEmpty()
             .IsInEnum();
-
-        RuleForEach(x => x.Roles)
-            .Must(x => x is UserRole.SubAdmin or UserRole.Staff)
-            .WithMessage("Role must be SubAdmin or Staff");
     }
 }

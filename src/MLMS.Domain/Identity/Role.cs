@@ -1,4 +1,6 @@
-namespace MLMS.Domain.Entities;
+using MLMS.Domain.Entities;
+
+namespace MLMS.Domain.Identity;
 
 public class Role : EntityBase<int>
 {

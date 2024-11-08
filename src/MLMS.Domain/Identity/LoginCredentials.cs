@@ -1,4 +1,4 @@
-namespace MLMS.Domain.Models;
+namespace MLMS.Domain.Identity;
 
 public class LoginCredentials
 {

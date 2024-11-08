@@ -1,5 +1,5 @@
 using MLMS.Domain.Entities;
-using MLMS.Domain.Models;
+using MLMS.Domain.Users;
 
 namespace MLMS.Domain.Identity.Interfaces;
 
@@ -12,4 +12,10 @@ public interface IUserRepository
     Task<bool> ExistsByWorkIdAsync(string workId);
     
     Task<User?> GetByWorkIdAsync(string workId);
+    
+    Task UpdateAsync(User userToUpdate);
+    
+    Task<bool> ExistsAsync(int id);
+    
+    Task DeleteAsync(int id);
 }

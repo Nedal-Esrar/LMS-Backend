@@ -1,11 +1,11 @@
 using MLMS.API;
-using MLMS.Application;
+using MLMS.Domain;
 using MLMS.Infrastructure;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddApplication();
+builder.Services.AddDomain();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddWeb();
 

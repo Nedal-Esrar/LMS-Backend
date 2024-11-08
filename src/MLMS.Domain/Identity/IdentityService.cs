@@ -1,22 +1,17 @@
 using ErrorOr;
-using FluentValidation;
 using Microsoft.Extensions.Options;
-using MLMS.Application.Common;
-using MLMS.Application.Departments;
-using MLMS.Application.Majors;
+using MLMS.Domain.Common;
 using MLMS.Domain.Common.Interfaces;
 using MLMS.Domain.Departments;
 using MLMS.Domain.Entities;
-using MLMS.Domain.Identity;
 using MLMS.Domain.Identity.Interfaces;
+using MLMS.Domain.Identity.Validators;
 using MLMS.Domain.Majors;
-using MLMS.Domain.Models;
+using MLMS.Domain.Users;
 
-namespace MLMS.Application.Identity;
+namespace MLMS.Domain.Identity;
 
 public class IdentityService(
-    IValidator<LoginCredentials> loginValidator,
-    IValidator<User> userValidator,
     IUserRepository userRepository,
     IAuthService authService,
     ITokenGenerator tokenGenerator,
@@ -29,11 +24,13 @@ public class IdentityService(
     IUserContext userContext,
     IOptions<ClientOptions> clientOptions) : IIdentityService
 {
+    private readonly LoginValidator _loginValidator = new();
+    private readonly RegisterValidator _registerValidator = new();
     private readonly ClientOptions _clientOptions = clientOptions.Value;
     
     public async Task<ErrorOr<UserTokens>> AuthenticateAsync(LoginCredentials loginCredentials)
     {
-        var validationResult = await loginValidator.ValidateAsync(loginCredentials);
+        var validationResult = await _loginValidator.ValidateAsync(loginCredentials);
 
         if (!validationResult.IsValid)
         {
@@ -61,7 +58,7 @@ public class IdentityService(
 
     public async Task<ErrorOr<None>> RegisterAsync(User user)
     {
-        var validationResult = await userValidator.ValidateAsync(user);
+        var validationResult = await _registerValidator.ValidateAsync(user);
 
         if (!validationResult.IsValid)
         {
@@ -70,7 +67,7 @@ public class IdentityService(
         
         if (await userRepository.ExistsByWorkIdAsync(user.WorkId))
         {
-            return IdentityErrors.WorkIdExists;
+            return UserErrors.WorkIdExists;
         }
 
         if (!await departmentRepository.ExistsAsync(user.DepartmentId))
@@ -98,7 +95,7 @@ public class IdentityService(
             {
                 ToEmails = [user.Email],
                 Subject = "Your LMS account has been created successfully",
-                Body = $"Your account has been created successfully.\n Login with your work ID: {user.WorkId} and password: {passwordResult.Value}."
+                Body = EmailUtils.GetRegistrationEmailBody($"{user.FirstName} {user.MiddleName} {user.LastName}", user.WorkId, passwordResult.Value, $"{_clientOptions.BaseUrl}/{_clientOptions.LoginRoute}")
             });
         });
 
@@ -111,7 +108,7 @@ public class IdentityService(
 
         if (user is null)
         {
-            return IdentityErrors.UserNotFound;
+            return UserErrors.NotFound;
         }
 
         return user;
@@ -185,7 +182,7 @@ public class IdentityService(
 
         if (user is null)
         {
-            return IdentityErrors.UserNotFound;
+            return UserErrors.NotFound;
         }
         
         var token = await authService.GenerateResetPasswordTokenAsync(user.Id);
@@ -194,7 +191,7 @@ public class IdentityService(
         {
             ToEmails = [user.Email],
             Subject = "Reset your Makassed LMS password",
-            Body = $"Please click the link below to reset your password.\n {_clientOptions.BaseUrl}/{_clientOptions.ResetPasswordRoute}?token={token}&workId={user.WorkId}"
+            Body = EmailUtils.GetResetPasswordEmailBody($"{user.FirstName} {user.MiddleName} {user.LastName}", $"{_clientOptions.BaseUrl}/{_clientOptions.ResetPasswordRoute}?token={token}&workId={user.WorkId}")
         });
 
         return None.Value;
@@ -206,7 +203,7 @@ public class IdentityService(
 
         if (user is null)
         {
-            return IdentityErrors.UserNotFound;
+            return UserErrors.NotFound;
         }
 
         if (!Utilities.IsStrongPassword(newPassword))

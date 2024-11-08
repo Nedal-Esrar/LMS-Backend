@@ -1,7 +1,7 @@
 using ErrorOr;
 using FluentValidation.Results;
 
-namespace MLMS.Application.Common;
+namespace MLMS.Domain.Common;
 
 public static class ErrorExtensions
 {

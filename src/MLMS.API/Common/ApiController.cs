@@ -16,10 +16,10 @@ public class ApiController : ControllerBase
 
         if (errors.Any(e => e.Type != ErrorType.Validation))
         {
-            return ConstructValidationProblem(errors);
+            return ConstructProblem(errors);
         }
 
-        return ConstructProblem(errors);
+        return ConstructValidationProblem(errors);
     }
     
     private IActionResult ConstructValidationProblem(List<Error> errors)

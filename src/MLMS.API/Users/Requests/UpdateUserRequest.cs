@@ -1,8 +1,10 @@
+using MLMS.Domain.Departments;
 using MLMS.Domain.Identity;
+using MLMS.Domain.Majors;
 
-namespace MLMS.API.Identity.Requests;
+namespace MLMS.API.Users.Requests;
 
-public class RegisterRequest
+public class UpdateUserRequest
 {
     public string WorkId { get; set; }
     
@@ -21,8 +23,6 @@ public class RegisterRequest
     public DateOnly BirthDate { get; set; }
     
     public EducationalLevel EducationalLevel { get; set; }
-
-    public UserRole Role { get; set; }
     
     public int MajorId { get; set; }
     

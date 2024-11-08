@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using MLMS.Domain.Departments;
 using MLMS.Domain.Entities;
-using MLMS.Domain.Enums;
+using MLMS.Domain.Identity;
 using MLMS.Domain.Majors;
 
 namespace MLMS.Infrastructure.Identity.Models;
@@ -9,6 +9,12 @@ namespace MLMS.Infrastructure.Identity.Models;
 public class ApplicationUser : IdentityUser<int>
 {
     public string WorkId { get; set; }
+    
+    public string FirstName { get; set; }
+    
+    public string MiddleName { get; set; }
+    
+    public string LastName { get; set; }
     
     public string Email { get; set; }
     

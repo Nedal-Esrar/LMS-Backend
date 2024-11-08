@@ -4,7 +4,7 @@ using Microsoft.OpenApi.Models;
 using MLMS.API.Common;
 using MLMS.API.Common.Middlewares;
 using MLMS.API.Identity;
-using MLMS.Domain.Enums;
+using MLMS.Domain.Identity;
 using MLMS.Domain.Identity.Interfaces;
 
 namespace MLMS.API;

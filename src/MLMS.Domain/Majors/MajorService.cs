@@ -1,12 +1,10 @@
 using ErrorOr;
 using FluentValidation;
-using MLMS.Application.Common;
-using MLMS.Application.Departments;
+using MLMS.Domain.Common;
 using MLMS.Domain.Departments;
 using MLMS.Domain.Entities;
-using MLMS.Domain.Majors;
 
-namespace MLMS.Application.Majors;
+namespace MLMS.Domain.Majors;
 
 public class MajorService(
     IValidator<Major> majorValidator,

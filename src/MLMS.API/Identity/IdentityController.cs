@@ -44,19 +44,6 @@ public class IdentityController(IIdentityService identityService) : ApiControlle
         
         return response.Match(_ => NoContent(), Problem);
     }
-
-    /// <response code="404">If the user is not found.</response>
-    /// <response code="200">With the user data.</response>
-    [Authorize]
-    [HttpGet("users/{id:int}")]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(UserResponse), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetUser(int id)
-    {
-        var response = await identityService.GetUserAsync(id);
-
-        return response.Match(u => Ok(u.ToContract()), Problem);
-    }
     
     /// <response code="401">If the refresh token is invalid or expired.</response>
     /// <response code="200">With new authentication token (access and refresh tokens).</response>

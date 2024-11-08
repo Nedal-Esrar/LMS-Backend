@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace MLMS.Application.Common;
+namespace MLMS.Domain.Common;
 
 public static class Utilities
 {

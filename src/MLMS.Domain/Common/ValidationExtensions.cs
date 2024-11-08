@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace MLMS.Application.Common;
+namespace MLMS.Domain.Common;
 
 public static class ValidationExtensions
 {

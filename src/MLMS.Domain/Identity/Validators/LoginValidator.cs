@@ -1,9 +1,7 @@
-using System.Data;
 using FluentValidation;
-using MLMS.Application.Common;
-using MLMS.Domain.Models;
+using MLMS.Domain.Common;
 
-namespace MLMS.Application.Identity.Validators;
+namespace MLMS.Domain.Identity.Validators;
 
 public class LoginValidator : AbstractValidator<LoginCredentials>
 {

@@ -1,5 +1,5 @@
 using MLMS.Domain.Entities;
-using MLMS.Domain.Models;
+using MLMS.Domain.Users;
 
 namespace MLMS.Domain.Identity.Interfaces;
 

@@ -1,8 +1,7 @@
 using System.Text;
 using ErrorOr;
-using MLMS.Domain.Identity;
 
-namespace MLMS.Application.Identity;
+namespace MLMS.Domain.Identity;
 
 public class PasswordGenerationService : IPasswordGenerationService
 {

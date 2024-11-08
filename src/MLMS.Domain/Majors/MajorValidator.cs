@@ -1,7 +1,6 @@
 using FluentValidation;
-using MLMS.Domain.Majors;
 
-namespace MLMS.Application.Majors;
+namespace MLMS.Domain.Majors;
 
 public class MajorValidator : AbstractValidator<Major>
 {

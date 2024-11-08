@@ -1,4 +1,4 @@
-namespace MLMS.Domain.Enums;
+namespace MLMS.Domain.Identity;
 
 public enum EducationalLevel
 {

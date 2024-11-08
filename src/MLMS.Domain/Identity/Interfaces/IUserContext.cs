@@ -1,5 +1,3 @@
-using MLMS.Domain.Enums;
-
 namespace MLMS.Domain.Identity.Interfaces;
 
 public interface IUserContext

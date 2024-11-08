@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using MLMS.Domain.Entities;
-using MLMS.Domain.Enums;
+using MLMS.Domain.Identity;
+using MLMS.Domain.Users;
 using MLMS.Infrastructure.Identity.Models;
 using Riok.Mapperly.Abstractions;
 

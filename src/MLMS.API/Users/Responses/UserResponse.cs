@@ -1,10 +1,8 @@
 using MLMS.API.Departments.Requests;
 using MLMS.API.Majors.Requests;
-using MLMS.Domain.Departments;
-using MLMS.Domain.Enums;
-using MLMS.Domain.Majors;
+using MLMS.Domain.Identity;
 
-namespace MLMS.API.Identity.Responses;
+namespace MLMS.API.Users.Responses;
 
 public class UserResponse
 {
@@ -12,7 +10,11 @@ public class UserResponse
     
     public string WorkId { get; set; }
     
-    public string UserName { get; set; }
+    public string FirstName { get; set; }
+    
+    public string MiddleName { get; set; }
+    
+    public string LastName { get; set; }
     
     public string Email { get; set; }
     

@@ -5,7 +5,9 @@ using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using MLMS.Domain.Entities;
+using MLMS.Domain.Identity;
 using MLMS.Domain.Identity.Interfaces;
+using MLMS.Domain.Users;
 
 namespace MLMS.Infrastructure.Identity;
 
@@ -18,7 +20,7 @@ public class TokenGenerator(IOptions<AuthSettings> authSettings) : ITokenGenerat
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new(ClaimTypes.Name, user.UserName),
+            new(ClaimTypes.Name, $"{user.FirstName} {user.MiddleName} {user.LastName}"),
             new(ClaimTypes.Email, user.Email)
         };
 

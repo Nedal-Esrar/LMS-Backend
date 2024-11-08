@@ -1,7 +1,6 @@
 using FluentValidation;
-using MLMS.Domain.Departments;
 
-namespace MLMS.Application.Departments;
+namespace MLMS.Domain.Departments;
 
 public class DepartmentValidator : AbstractValidator<Department>
 {

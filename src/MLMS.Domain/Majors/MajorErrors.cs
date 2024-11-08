@@ -1,6 +1,6 @@
 using ErrorOr;
 
-namespace MLMS.Application.Majors;
+namespace MLMS.Domain.Majors;
 
 public static class MajorErrors
 {

@@ -1,10 +1,9 @@
 using ErrorOr;
 using FluentValidation;
-using MLMS.Application.Common;
-using MLMS.Domain.Departments;
+using MLMS.Domain.Common;
 using MLMS.Domain.Entities;
 
-namespace MLMS.Application.Departments;
+namespace MLMS.Domain.Departments;
 
 public class DepartmentService(
     IValidator<Department> departmentValidator,

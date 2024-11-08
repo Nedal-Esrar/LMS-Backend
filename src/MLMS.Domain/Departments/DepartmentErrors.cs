@@ -1,6 +1,6 @@
 using ErrorOr;
 
-namespace MLMS.Application.Departments;
+namespace MLMS.Domain.Departments;
 
 public static partial class DepartmentErrors
 {

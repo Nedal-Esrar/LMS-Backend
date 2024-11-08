@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MLMS.Domain.Entities;
-using MLMS.Domain.Enums;
+using MLMS.Domain.Identity;
 using MLMS.Domain.Identity.Interfaces;
+using MLMS.Domain.Users;
 using MLMS.Infrastructure.Common;
 using MLMS.Infrastructure.Identity.Models;
 
@@ -16,6 +17,7 @@ public class UserRepository(
     public async Task<User?> GetByIdAsync(int id)
     {
         var user = await userManager.Users
+            .Where(u => u.Id == id)
             .Include(u => u.Major)
             .Include(u => u.Department)
             .FirstOrDefaultAsync();
@@ -34,6 +36,8 @@ public class UserRepository(
     public async Task CreateAsync(User user, string password)
     {
         var userToCreate = user.ToIdentityUser();
+
+        userToCreate.UserName = Guid.NewGuid().ToString();
         
         var creationResult = await userManager.CreateAsync(userToCreate, password);
 
@@ -60,5 +64,29 @@ public class UserRepository(
         var identityUser = await userManager.Users.FirstOrDefaultAsync(u => u.WorkId == workId);
 
         return identityUser?.ToDomain();
+    }
+
+    public async Task UpdateAsync(User user)
+    {
+        var identityUser = user.ToIdentityUser();
+
+        await userManager.UpdateAsync(identityUser);
+    }
+
+    public async Task<bool> ExistsAsync(int id)
+    {
+        return await context.Users.AnyAsync(u => u.Id == id);
+    }
+
+    public async Task DeleteAsync(int id)
+    {
+        var user = await context.Users.FirstOrDefaultAsync(u => u.Id == id);
+
+        if (user is null)
+        {
+            return;
+        }
+
+        await userManager.DeleteAsync(user);
     }
 }
