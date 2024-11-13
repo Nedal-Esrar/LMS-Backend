@@ -10,8 +10,6 @@ public interface IIdentityService
     
     Task<ErrorOr<None>> RegisterAsync(User user);
     
-    Task<ErrorOr<User>> GetUserAsync(int id);
-    
     Task<ErrorOr<UserTokens>> RefreshTokenAsync(string refreshToken);
     
     Task<ErrorOr<None>> RevokeRefreshTokenAsync(string refreshToken);

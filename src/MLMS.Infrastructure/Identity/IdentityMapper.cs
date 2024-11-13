@@ -10,7 +10,18 @@ namespace MLMS.Infrastructure.Identity;
 [Mapper]
 public static partial class IdentityMapper
 {
-    public static partial User ToDomain(this ApplicationUser userEntity);
+    public static User ToDomain(this ApplicationUser userEntity)
+    {
+        var user = userEntity.ToDomainInternal();
 
+        user.Role = Enum.Parse<UserRole>(userEntity.Role.Name!);
+
+        return user;
+    }
+    
+    [MapperIgnoreSource(nameof(userEntity.Role))]
+    private static partial User ToDomainInternal(this ApplicationUser userEntity);
+
+    [MapperIgnoreSource(nameof(user.Role))]
     public static partial ApplicationUser ToIdentityUser(this User user);
 }

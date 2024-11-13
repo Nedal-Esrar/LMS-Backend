@@ -1,18 +1,22 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using MLMS.Domain.Common.Models;
 using MLMS.Domain.Entities;
 using MLMS.Domain.Identity;
 using MLMS.Domain.Identity.Interfaces;
 using MLMS.Domain.Users;
 using MLMS.Infrastructure.Common;
 using MLMS.Infrastructure.Identity.Models;
+using Sieve.Models;
+using Sieve.Services;
 
 namespace MLMS.Infrastructure.Identity;
 
 public class UserRepository(
     LmsDbContext context,
     UserManager<ApplicationUser> userManager,
-    RoleManager<IdentityRole<int>> roleManager) : IUserRepository
+    RoleManager<IdentityRole<int>> roleManager,
+    ISieveProcessor sieveProcessor) : IUserRepository
 {
     public async Task<User?> GetByIdAsync(int id)
     {
@@ -20,15 +24,9 @@ public class UserRepository(
             .Where(u => u.Id == id)
             .Include(u => u.Major)
             .Include(u => u.Department)
+            .Include(u => u.Role)
+            .Include(u => u.ProfilePicture)
             .FirstOrDefaultAsync();
-
-        if (user is null)
-        {
-            return null;
-        }
-
-        user.Roles = (await userManager.GetRolesAsync(user)).Select(Enum.Parse<UserRole>)
-            .ToList();
 
         return user?.ToDomain();
     }
@@ -39,18 +37,15 @@ public class UserRepository(
 
         userToCreate.UserName = Guid.NewGuid().ToString();
         
+        var role = await context.Roles.FirstAsync(r => r.Name == user.Role.ToString());
+        
+        userToCreate.RoleId = role.Id;
+        
         var creationResult = await userManager.CreateAsync(userToCreate, password);
 
         if (!creationResult.Succeeded)
         {
             throw new Exception(string.Join(",", creationResult.Errors.Select(e => e.Description)));
-        }
-
-        var addToRolesResult = await userManager.AddToRolesAsync(userToCreate, user.Roles.Select(r => r.ToString()));
-        
-        if (!addToRolesResult.Succeeded)
-        {
-            throw new Exception(string.Join(",", addToRolesResult.Errors.Select(e => e.Description)));
         }
     }
 
@@ -88,5 +83,47 @@ public class UserRepository(
         }
 
         await userManager.DeleteAsync(user);
+    }
+
+    public async Task<PaginatedList<User>> GetAsync(SieveModel sieveModel)
+    {
+        var query = context.Users
+            .Include(u => u.Role)
+            .Include(u => u.Major)
+            .Include(u => u.Department)
+            .Include(u => u.ProfilePicture)
+            .AsQueryable();
+
+        var totalItems = await sieveProcessor.Apply(sieveModel, query, applyPagination: false).CountAsync();
+        
+        query = sieveProcessor.Apply(sieveModel, query);
+
+        var result = await query.AsNoTracking()
+            .ToListAsync();
+
+        return new PaginatedList<User>
+        {
+            Items = result.Select(u => u.ToDomain()).ToList(),
+            Metadata = new PaginationMetadata
+            {
+                TotalItems = totalItems,
+                PageSize = sieveModel.PageSize!.Value,
+                Page = sieveModel.Page!.Value
+            }
+        };
+    }
+
+    public async Task UpdateProfilePictureAsync(int id, Guid imageId)
+    {
+        var user = await context.Users.FindAsync(id);
+
+        if (user is null)
+        {
+            return;
+        }
+
+        user.ProfilePictureId = imageId;
+
+        await context.SaveChangesAsync();
     }
 }

@@ -1,8 +1,11 @@
+using System.Security.Cryptography;
 using ErrorOr;
 using FluentValidation;
 using MLMS.Domain.Common;
+using MLMS.Domain.Common.Models;
 using MLMS.Domain.Departments;
 using MLMS.Domain.Entities;
+using Sieve.Models;
 
 namespace MLMS.Domain.Majors;
 
@@ -64,13 +67,41 @@ public class MajorService(
         return major is null ? MajorErrors.NotFound : major;
     }
 
-    public async Task<ErrorOr<List<Major>>> GetByDepartmentAsync(int departmentId)
+    public async Task<ErrorOr<PaginatedList<Major>>> GetByDepartmentAsync(int departmentId, SieveModel sieveModel)
     {
         if (!await departmentRepository.ExistsAsync(departmentId)) 
         {
             return DepartmentErrors.NotFound;
         }
         
-        return await majorRepository.GetByDepartmentAsync(departmentId);
+        return await majorRepository.GetByDepartmentAsync(departmentId, sieveModel);
+    }
+
+    public async Task<ErrorOr<None>> UpdateAsync(int departmentId, int id, Major updatedMajor)
+    {
+        if (!await departmentRepository.ExistsAsync(departmentId))
+        {
+            return DepartmentErrors.NotFound;
+        }
+
+        var validationResult = await majorValidator.ValidateAsync(updatedMajor);
+
+        if (!validationResult.IsValid)
+        {
+            return validationResult.ExtractErrors();
+        }
+
+        var major = await majorRepository.GetByIdAsync(departmentId, id);
+
+        if (major is null)
+        {
+            return MajorErrors.NotFound;
+        }
+
+        major.Name = updatedMajor.Name;
+        
+        await majorRepository.UpdateAsync(major);
+
+        return None.Value;
     }
 }

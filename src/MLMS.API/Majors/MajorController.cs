@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using MLMS.API.Common;
 using MLMS.API.Departments.Requests;
 using MLMS.API.Majors.Requests;
+using MLMS.Domain.Common.Models;
 using MLMS.Domain.Majors;
 
 namespace MLMS.API.Majors;
@@ -31,19 +32,32 @@ public class MajorController(IMajorService majorService) : ApiController
         return result.Match(_ => NoContent(), Problem);
     }
     
+    [HttpPut("{id:int}")]
+    [Authorize(Policy = AuthorizationPolicies.SuperAdmin)]
+    public async Task<IActionResult> Update(int departmentId, int id, UpdateMajorRequest request)
+    {
+        var result = await majorService.UpdateAsync(departmentId, id, request.ToDomain());
+        
+        return result.Match(_ => NoContent(), Problem);
+    }
+    
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int departmentId, int id)
     {
         var result = await majorService.GetByIdAsync(departmentId, id);
 
-        return result.Match(Ok, Problem);
+        return result.Match(m => Ok(m.ToContract()), Problem);
     }
 
-    [HttpGet]
-    public async Task<IActionResult> GetByDepartmentAsync(int departmentId)
+    [HttpPost("search")]
+    public async Task<IActionResult> GetByDepartmentAsync(int departmentId, RetrievalRequest request)
     {
-        var result = await majorService.GetByDepartmentAsync(departmentId);
+        var result = await majorService.GetByDepartmentAsync(departmentId, request.ToSieveModel());
 
-        return result.Match(Ok, Problem);
+        return result.Match(majors => Ok(new PaginatedList<MajorResponse>
+        {
+            Items = majors.Items.Select(m => m.ToContract()).ToList(),
+            Metadata = majors.Metadata
+        }), Problem);
     }
 }

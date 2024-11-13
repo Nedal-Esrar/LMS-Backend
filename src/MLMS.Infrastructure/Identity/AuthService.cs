@@ -12,7 +12,9 @@ public class AuthService(UserManager<ApplicationUser> userManager) : IAuthServic
 {
     public async Task<User?> AuthenticateAsync(LoginCredentials loginCredentials)
     {
-        var user = await userManager.Users.FirstOrDefaultAsync(u => u.WorkId == loginCredentials.WorkId);
+        var user = await userManager.Users
+            .Include(u => u.Role)
+            .FirstOrDefaultAsync(u => u.WorkId == loginCredentials.WorkId);
 
         if (user is null)
         {
@@ -23,8 +25,6 @@ public class AuthService(UserManager<ApplicationUser> userManager) : IAuthServic
         {
             return null;
         }
-
-        user.Roles = (await userManager.GetRolesAsync(user)).Select(Enum.Parse<UserRole>).ToList();
 
         return user.ToDomain();
     }

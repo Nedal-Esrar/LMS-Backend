@@ -1,7 +1,9 @@
 using ErrorOr;
 using FluentValidation;
 using MLMS.Domain.Common;
+using MLMS.Domain.Common.Models;
 using MLMS.Domain.Entities;
+using Sieve.Models;
 
 namespace MLMS.Domain.Departments;
 
@@ -47,8 +49,31 @@ public class DepartmentService(
         return department is null ? DepartmentErrors.NotFound : department;
     }
 
-    public async Task<ErrorOr<List<Department>>> GetAsync()
+    public async Task<ErrorOr<PaginatedList<Department>>> GetAsync(SieveModel sieveModel)
     {
-        return await departmentRepository.GetAsync();
+        return await departmentRepository.GetAsync(sieveModel);
+    }
+
+    public async Task<ErrorOr<None>> UpdateAsync(int id, Department toDomain)
+    {
+        var validationResult = await departmentValidator.ValidateAsync(toDomain);
+
+        if (!validationResult.IsValid)
+        {
+            return validationResult.ExtractErrors();
+        }
+        
+        var department = await departmentRepository.GetByIdAsync(id);
+
+        if (department is null)
+        {
+            return DepartmentErrors.NotFound;
+        }
+        
+        department.Name = toDomain.Name;
+        
+        await departmentRepository.UpdateAsync(department);
+
+        return None.Value;
     }
 }

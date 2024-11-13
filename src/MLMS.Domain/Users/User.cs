@@ -2,6 +2,7 @@ using MLMS.Domain.Departments;
 using MLMS.Domain.Entities;
 using MLMS.Domain.Identity;
 using MLMS.Domain.Majors;
+using File = MLMS.Domain.Files.File;
 
 namespace MLMS.Domain.Users;
 
@@ -25,7 +26,7 @@ public class User : EntityBase<int>
     
     public EducationalLevel EducationalLevel { get; set; }
 
-    public List<UserRole> Roles { get; set; } = [];
+    public UserRole Role { get; set; }
     
     public int MajorId { get; set; }
     
@@ -34,4 +35,8 @@ public class User : EntityBase<int>
     public int DepartmentId { get; set; }
     
     public Department Department { get; set; }
+    
+    public Guid? ProfilePictureId { get; set; }
+    
+    public File ProfilePicture { get; set; }
 }

@@ -1,10 +1,15 @@
 using Microsoft.EntityFrameworkCore;
+using MLMS.Domain.Common.Models;
 using MLMS.Domain.Majors;
 using MLMS.Infrastructure.Common;
+using Sieve.Models;
+using Sieve.Services;
 
 namespace MLMS.Infrastructure.Majors;
 
-public class MajorRepository(LmsDbContext context) : IMajorRepository
+public class MajorRepository(
+    LmsDbContext context,
+    ISieveProcessor sieveProcessor) : IMajorRepository
 {
     public async Task<Major> CreateAsync(Major major)
     {
@@ -39,14 +44,39 @@ public class MajorRepository(LmsDbContext context) : IMajorRepository
         return await context.Majors.FirstOrDefaultAsync(m => m.DepartmentId == departmentId && m.Id == id);
     }
 
-    public async Task<List<Major>> GetByDepartmentAsync(int departmentId)
+    public async Task<PaginatedList<Major>> GetByDepartmentAsync(int departmentId, SieveModel sieveModel)
     {
-        return await context.Majors.Where(m => m.DepartmentId == departmentId)
+        var query = context.Majors.Where(m => m.DepartmentId == departmentId)
+            .AsQueryable();
+
+        var totalItems = await sieveProcessor.Apply(sieveModel, query, applyPagination: false).CountAsync();
+
+        query = sieveProcessor.Apply(sieveModel, query);
+
+        var result = await query.AsNoTracking()
             .ToListAsync();
+
+        return new PaginatedList<Major>
+        {
+            Items = result,
+            Metadata = new PaginationMetadata
+            {
+                Page = sieveModel.Page!.Value,
+                PageSize = sieveModel.PageSize!.Value,
+                TotalItems = totalItems
+            }
+        };
     }
 
     public async Task<bool> ExistsByNameAsync(int majorDepartmentId, string majorName)
     {
         return await context.Majors.AnyAsync(m => m.DepartmentId == majorDepartmentId && m.Name == majorName);
+    }
+
+    public async Task UpdateAsync(Major major)
+    {
+        context.Majors.Update(major);
+        
+        await context.SaveChangesAsync();
     }
 }

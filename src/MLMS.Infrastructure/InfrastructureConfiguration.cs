@@ -8,14 +8,17 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using MLMS.Domain.Common.Interfaces;
 using MLMS.Domain.Departments;
+using MLMS.Domain.Files;
 using MLMS.Domain.Identity.Interfaces;
 using MLMS.Domain.Majors;
 using MLMS.Infrastructure.Common;
 using MLMS.Infrastructure.Departments;
 using MLMS.Infrastructure.Email;
+using MLMS.Infrastructure.Files;
 using MLMS.Infrastructure.Identity;
 using MLMS.Infrastructure.Identity.Models;
 using MLMS.Infrastructure.Majors;
+using Sieve.Services;
 
 namespace MLMS.Infrastructure;
 
@@ -39,8 +42,6 @@ public static class InfrastructureConfiguration
         services.AddDbContext<LmsDbContext>(options =>
         {
             options.UseSqlServer(configuration.GetConnectionString("LmsDb"));
-            options.LogTo(Console.WriteLine);
-            options.EnableSensitiveDataLogging();
         });
 
         services.AddOptions<AuthSettings>()
@@ -85,6 +86,13 @@ public static class InfrastructureConfiguration
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IDbTransactionProvider, DbTransactionProvider>();
+        services.AddScoped<IFileRepository, FileRepository>();
+        services.AddScoped<IFileHandler, FileHandler>();
+        
+        services.AddOptions<SieveSettings>()
+            .BindConfiguration(nameof(SieveSettings));
+        
+        services.AddScoped<ISieveProcessor, LmsSieveProcessor>();
         
         return services;
     }

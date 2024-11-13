@@ -1,3 +1,6 @@
+using MLMS.Domain.Common.Models;
+using Sieve.Models;
+
 namespace MLMS.Domain.Departments;
 
 public interface IDepartmentRepository
@@ -10,7 +13,9 @@ public interface IDepartmentRepository
     
     Task<Department?> GetByIdAsync(int id);
     
-    Task<List<Department>> GetAsync();
+    Task<PaginatedList<Department>> GetAsync(SieveModel sieveModel);
     
     Task<bool> ExistsByNameAsync(string departmentName);
+    
+    Task UpdateAsync(Department department);
 }

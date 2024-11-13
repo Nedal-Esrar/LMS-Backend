@@ -44,7 +44,7 @@ public class RegisterValidator : AbstractValidator<User>
             .NotEmpty()
             .IsInEnum();
 
-        RuleForEach(x => x.Roles)
+        RuleFor(x => x.Role)
             .Must(x => x is UserRole.SubAdmin or UserRole.Staff)
             .WithMessage("Role must be SubAdmin or Staff");
     }

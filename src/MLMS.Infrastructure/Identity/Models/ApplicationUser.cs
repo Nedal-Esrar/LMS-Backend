@@ -3,6 +3,7 @@ using MLMS.Domain.Departments;
 using MLMS.Domain.Entities;
 using MLMS.Domain.Identity;
 using MLMS.Domain.Majors;
+using File = MLMS.Domain.Files.File;
 
 namespace MLMS.Infrastructure.Identity.Models;
 
@@ -36,5 +37,11 @@ public class ApplicationUser : IdentityUser<int>
     
     public List<RefreshToken> RefreshTokens { get; set; } = [];
     
-    public List<UserRole> Roles { get; set; } = [];
+    public int RoleId { get; set; }
+
+    public IdentityRole<int> Role { get; set; }
+    
+    public Guid? ProfilePictureId { get; set; }
+    
+    public File ProfilePicture { get; set; }
 }

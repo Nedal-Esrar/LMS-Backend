@@ -10,4 +10,6 @@ public static partial class DepartmentMapper
     public static partial Department ToDomain(this CreateDepartmentRequest request);
     
     public static partial DepartmentResponse ToContract(this Department department);
+    
+    public static partial Department ToDomain(this UpdateDepartmentRequest request);
 }

@@ -1,4 +1,6 @@
 using ErrorOr;
+using MLMS.Domain.Common.Models;
+using Sieve.Models;
 
 namespace MLMS.Domain.Majors;
 
@@ -12,7 +14,9 @@ public interface IMajorRepository
     
     Task<Major?> GetByIdAsync(int departmentId, int id);
     
-    Task<List<Major>> GetByDepartmentAsync(int departmentId);
+    Task<PaginatedList<Major>> GetByDepartmentAsync(int departmentId, SieveModel sieveModel);
     
     Task<bool> ExistsByNameAsync(int majorDepartmentId, string majorName);
+    
+    Task UpdateAsync(Major major);
 }

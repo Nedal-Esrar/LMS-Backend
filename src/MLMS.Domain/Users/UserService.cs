@@ -1,17 +1,22 @@
 using ErrorOr;
 using MLMS.Domain.Common;
+using MLMS.Domain.Common.Models;
 using MLMS.Domain.Departments;
 using MLMS.Domain.Entities;
+using MLMS.Domain.Files;
 using MLMS.Domain.Identity;
 using MLMS.Domain.Identity.Interfaces;
 using MLMS.Domain.Majors;
+using Sieve.Models;
 
 namespace MLMS.Domain.Users;
 
 public class UserService(
     IUserRepository userRepository,
     IDepartmentRepository departmentRepository,
-    IMajorRepository majorRepository) : IUserService
+    IMajorRepository majorRepository,
+    IFileRepository fileRepository,
+    IUserContext userContext) : IUserService
 {
     private readonly UserValidator _userValidator = new();
     
@@ -74,6 +79,30 @@ public class UserService(
 
         await userRepository.DeleteAsync(id);
         
+        return None.Value;
+    }
+
+    public async Task<ErrorOr<PaginatedList<User>>> GetAsync(SieveModel sieveModel)
+    {
+        return await userRepository.GetAsync(sieveModel);
+    }
+
+    public async Task<ErrorOr<None>> SetProfilePictureAsync(Guid imageId)
+    {
+        var image = await fileRepository.GetByIdAsync(imageId);
+
+        if (image is null)
+        {
+            return FileErrors.NotFound;
+        }
+
+        if (!image.IsImage())
+        {
+            return FileErrors.NotImage;
+        }
+
+        await userRepository.UpdateProfilePictureAsync(userContext.Id!.Value, imageId);
+
         return None.Value;
     }
 }

@@ -8,5 +8,7 @@ public class File : EntityBase<Guid>
     
     public string ContentType { get; set; }
     
+    public string Extension { get; set; }
+    
     public string Path { get; set; }
 }

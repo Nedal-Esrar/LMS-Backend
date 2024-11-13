@@ -1,5 +1,8 @@
+using ErrorOr;
+using MLMS.Domain.Common.Models;
 using MLMS.Domain.Entities;
 using MLMS.Domain.Users;
+using Sieve.Models;
 
 namespace MLMS.Domain.Identity.Interfaces;
 
@@ -18,4 +21,8 @@ public interface IUserRepository
     Task<bool> ExistsAsync(int id);
     
     Task DeleteAsync(int id);
+    
+    Task<PaginatedList<User>> GetAsync(SieveModel sieveModel);
+    
+    Task UpdateProfilePictureAsync(int id, Guid imageId);
 }

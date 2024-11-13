@@ -21,10 +21,9 @@ public class TokenGenerator(IOptions<AuthSettings> authSettings) : ITokenGenerat
         {
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new(ClaimTypes.Name, $"{user.FirstName} {user.MiddleName} {user.LastName}"),
-            new(ClaimTypes.Email, user.Email)
+            new(ClaimTypes.Email, user.Email),
+            new(ClaimTypes.Role, user.Role.ToString())
         };
-
-        claims.AddRange(user.Roles.Select(r => new Claim(ClaimTypes.Role, r.ToString())));
 
         var signingCredentials = new SigningCredentials(
             new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_authSettings.Secret)),

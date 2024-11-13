@@ -2,6 +2,7 @@ using System.Reflection;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using MLMS.Domain.Departments;
+using MLMS.Domain.Files;
 using MLMS.Domain.Identity;
 using MLMS.Domain.Identity.Interfaces;
 using MLMS.Domain.Majors;
@@ -20,6 +21,7 @@ public static class DomainConfiguration
         services.AddScoped<IDepartmentService, DepartmentService>();
         services.AddScoped<IMajorService, MajorService>();
         services.AddScoped<IPasswordGenerationService, PasswordGenerationService>();
+        services.AddScoped<IFileService, FileService>();
 
         services.AddOptions<ClientOptions>()
             .BindConfiguration(nameof(ClientOptions));

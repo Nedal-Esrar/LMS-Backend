@@ -16,6 +16,7 @@
     <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
     <PackageReference Include="Riok.Mapperly" Version="4.0.0" />
+    <PackageReference Include="Sieve" Version="2.5.5" />
     </ItemGroup>
 
 </Project>

@@ -25,6 +25,14 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
             .HasForeignKey(rt => rt.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.Ignore(u => u.Roles);
+        builder.HasOne<IdentityRole<int>>(u => u.Role)
+            .WithMany()
+            .HasForeignKey(u => u.RoleId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(u => u.ProfilePicture)
+            .WithOne()
+            .HasForeignKey<ApplicationUser>(u => u.ProfilePictureId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

@@ -1,4 +1,5 @@
 using MLMS.API.Departments.Requests;
+using MLMS.API.Files.Responses;
 using MLMS.API.Majors.Requests;
 using MLMS.Domain.Identity;
 
@@ -31,4 +32,6 @@ public class UserResponse
     public MajorResponse Major { get; set; }
     
     public DepartmentResponse Department { get; set; }
+    
+    public FileResponse? ProfilePicture { get; set; }
 }
