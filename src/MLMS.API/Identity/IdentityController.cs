@@ -8,7 +8,7 @@ using MLMS.Domain.Identity.Interfaces;
 namespace MLMS.API.Identity;
 
 [Route("api/v1/identity")]
-public class IdentityController(IIdentityService identityService) : ApiController
+public class IdentityController(IIdentityService identityService) : ApiControllerBase
 {
     /// <response code="400">If the provided work ID is empty or password is less than 8 characters and missing a lowercase, uppercase, digit, or a special character</response>
     /// <response code="401">If the provided credentials are invalid.</response>
@@ -113,5 +113,13 @@ public class IdentityController(IIdentityService identityService) : ApiControlle
         var response = await identityService.ResetPasswordAsync(request.WorkId, request.NewPassword, request.Token);
         
         return response.Match(_ => NoContent(), Problem);
+    }
+    
+    [HttpPost("reset-password-token-validation")]
+    public async Task<IActionResult> ValidateResetPasswordToken(ResetPasswordTokenValidationRequest request)
+    {
+        var response = await identityService.ValidateResetPasswordTokenAsync(request.WorkId, request.Token);
+        
+        return response.Match(isValid => Ok(new ResetPasswordTokenValidationResponse { IsValid = isValid }), Problem);
     }
 }

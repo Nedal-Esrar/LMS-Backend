@@ -1,4 +1,4 @@
-using MLMS.Domain.Entities;
+using MLMS.Domain.Common.Models;
 using MLMS.Domain.Users;
 
 namespace MLMS.Domain.Identity.Interfaces;

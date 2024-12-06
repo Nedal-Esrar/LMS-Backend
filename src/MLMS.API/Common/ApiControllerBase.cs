@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 namespace MLMS.API.Common;
 
 [ApiController]
-public class ApiController : ControllerBase
+public abstract class ApiControllerBase : ControllerBase
 {
     protected IActionResult Problem(List<Error> errors)
     {

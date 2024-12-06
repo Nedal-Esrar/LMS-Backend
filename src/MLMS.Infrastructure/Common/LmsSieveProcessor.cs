@@ -3,6 +3,7 @@ using MLMS.Domain.Majors;
 using MLMS.Infrastructure.Departments;
 using MLMS.Infrastructure.Identity;
 using MLMS.Infrastructure.Majors;
+using MLMS.Infrastructure.Notifications;
 using Sieve.Models;
 using Sieve.Services;
 
@@ -14,6 +15,7 @@ public class LmsSieveProcessor(IOptions<SieveOptions> options) : SieveProcessor(
     {
         return mapper.ApplyConfiguration<UserSieveConfiguration>()
             .ApplyConfiguration<MajorSieveConfiguration>()
-            .ApplyConfiguration<DepartmentSieveConfiguration>();
+            .ApplyConfiguration<DepartmentSieveConfiguration>()
+            .ApplyConfiguration<NotificationSieveConfiguration>();
     }
 }

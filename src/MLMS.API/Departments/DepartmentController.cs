@@ -10,7 +10,7 @@ namespace MLMS.API.Departments;
 [Authorize]
 [Route("api/v1/departments")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class DepartmentController(IDepartmentService departmentService) : ApiController
+public class DepartmentController(IDepartmentService departmentService) : ApiControllerBase
 {
     [HttpPost]
     [Authorize(Policy = AuthorizationPolicies.SuperAdmin)]

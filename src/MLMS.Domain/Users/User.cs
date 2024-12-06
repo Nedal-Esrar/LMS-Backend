@@ -1,5 +1,5 @@
+using MLMS.Domain.Common.Models;
 using MLMS.Domain.Departments;
-using MLMS.Domain.Entities;
 using MLMS.Domain.Identity;
 using MLMS.Domain.Majors;
 using File = MLMS.Domain.Files.File;
@@ -28,11 +28,11 @@ public class User : EntityBase<int>
 
     public UserRole Role { get; set; }
     
-    public int MajorId { get; set; }
+    public int? MajorId { get; set; }
     
     public Major Major { get; set; }
     
-    public int DepartmentId { get; set; }
+    public int? DepartmentId { get; set; }
     
     public Department Department { get; set; }
     

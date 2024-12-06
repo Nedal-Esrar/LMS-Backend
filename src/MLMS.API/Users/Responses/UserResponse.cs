@@ -29,9 +29,9 @@ public class UserResponse
 
     public UserRole Role { get; set; }
     
-    public MajorResponse Major { get; set; }
+    public MajorResponse? Major { get; set; }
     
-    public DepartmentResponse Department { get; set; }
+    public DepartmentResponse? Department { get; set; }
     
     public FileResponse? ProfilePicture { get; set; }
 }

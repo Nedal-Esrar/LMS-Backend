@@ -4,7 +4,6 @@ using MLMS.API.Identity.Requests;
 using MLMS.API.Identity.Responses;
 using MLMS.API.Majors;
 using MLMS.API.Users.Responses;
-using MLMS.Domain.Entities;
 using MLMS.Domain.Identity;
 using MLMS.Domain.Users;
 using Riok.Mapperly.Abstractions;

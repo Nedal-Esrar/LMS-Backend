@@ -1,4 +1,4 @@
-namespace MLMS.Domain.Entities;
+namespace MLMS.Domain.Common.Models;
 
 public class EntityBase<TId>
 {

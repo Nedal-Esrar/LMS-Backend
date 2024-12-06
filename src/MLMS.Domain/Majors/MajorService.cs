@@ -4,7 +4,6 @@ using FluentValidation;
 using MLMS.Domain.Common;
 using MLMS.Domain.Common.Models;
 using MLMS.Domain.Departments;
-using MLMS.Domain.Entities;
 using Sieve.Models;
 
 namespace MLMS.Domain.Majors;

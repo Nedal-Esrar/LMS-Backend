@@ -2,7 +2,6 @@ using ErrorOr;
 using MLMS.Domain.Common;
 using MLMS.Domain.Common.Models;
 using MLMS.Domain.Departments;
-using MLMS.Domain.Entities;
 using MLMS.Domain.Files;
 using MLMS.Domain.Identity;
 using MLMS.Domain.Identity.Interfaces;
@@ -41,12 +40,12 @@ public class UserService(
             return UserErrors.WorkIdExists;
         }
         
-        if (!await departmentRepository.ExistsAsync(user.DepartmentId))
+        if (!await departmentRepository.ExistsAsync(user.DepartmentId.Value))
         {
             return DepartmentErrors.NotFound;
         }
         
-        if (!await majorRepository.ExistsAsync(user.DepartmentId, user.MajorId))
+        if (!await majorRepository.ExistsAsync(user.DepartmentId.Value, user.MajorId.Value))
         {
             return MajorErrors.NotFound;
         }

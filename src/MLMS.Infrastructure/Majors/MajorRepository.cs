@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using MLMS.Domain.Common.Interfaces;
 using MLMS.Domain.Common.Models;
 using MLMS.Domain.Majors;
 using MLMS.Infrastructure.Common;
@@ -9,6 +10,7 @@ namespace MLMS.Infrastructure.Majors;
 
 public class MajorRepository(
     LmsDbContext context,
+    IDbTransactionProvider dbTransactionProvider,
     ISieveProcessor sieveProcessor) : IMajorRepository
 {
     public async Task<Major> CreateAsync(Major major)
@@ -27,16 +29,23 @@ public class MajorRepository(
 
     public async Task DeleteAsync(int departmentId, int id)
     {
-        var major = await GetByIdAsync(departmentId, id);
-
-        if (major is null)
+        await dbTransactionProvider.ExecuteInTransactionAsync(async () =>
         {
-            return;
-        }
+            var major = await GetByIdAsync(departmentId, id);
 
-        context.Majors.Remove(major);
+            if (major is null)
+            {
+                return;
+            }
 
-        await context.SaveChangesAsync();
+            context.Majors.Remove(major);
+        
+            var users = await context.Users.Where(u => u.MajorId == id).ToListAsync();
+        
+            users.ForEach(u => u.MajorId = null);
+
+            await context.SaveChangesAsync();
+        });
     }
 
     public async Task<Major?> GetByIdAsync(int departmentId, int id)

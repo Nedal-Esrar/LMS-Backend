@@ -18,4 +18,18 @@ public class FileRepository(LmsDbContext context) : IFileRepository
     {
         return await context.Files.FirstOrDefaultAsync(f => f.Id == id);
     }
+
+    public async Task DeleteAsync(Guid id)
+    {
+        var fileModel = await context.Files.FindAsync(id);
+
+        if (fileModel is null)
+        {
+            return;
+        }
+        
+        context.Files.Remove(fileModel);
+
+        await context.SaveChangesAsync();
+    }
 }

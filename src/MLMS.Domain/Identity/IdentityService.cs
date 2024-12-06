@@ -2,8 +2,8 @@ using ErrorOr;
 using Microsoft.Extensions.Options;
 using MLMS.Domain.Common;
 using MLMS.Domain.Common.Interfaces;
+using MLMS.Domain.Common.Models;
 using MLMS.Domain.Departments;
-using MLMS.Domain.Entities;
 using MLMS.Domain.Identity.Interfaces;
 using MLMS.Domain.Identity.Validators;
 using MLMS.Domain.Majors;
@@ -70,12 +70,12 @@ public class IdentityService(
             return UserErrors.WorkIdExists;
         }
 
-        if (!await departmentRepository.ExistsAsync(user.DepartmentId))
+        if (!await departmentRepository.ExistsAsync(user.DepartmentId.Value))
         {
             return DepartmentErrors.NotFound;
         }
         
-        if (!await majorRepository.ExistsAsync(user.DepartmentId, user.MajorId))
+        if (!await majorRepository.ExistsAsync(user.DepartmentId.Value, user.MajorId.Value))
         {
             return MajorErrors.NotFound;
         }
@@ -217,5 +217,17 @@ public class IdentityService(
         }
 
         return None.Value;
+    }
+
+    public async Task<ErrorOr<bool>> ValidateResetPasswordTokenAsync(string workId, string token)
+    {
+        var user = await userRepository.GetByWorkIdAsync(workId);
+
+        if (user is null)
+        {
+            return UserErrors.NotFound;
+        }
+        
+        return await authService.ValidateResetPasswordToken(user.Id, token);
     }
 }

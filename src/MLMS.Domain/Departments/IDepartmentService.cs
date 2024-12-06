@@ -1,6 +1,5 @@
 using ErrorOr;
 using MLMS.Domain.Common.Models;
-using MLMS.Domain.Entities;
 using Sieve.Models;
 
 namespace MLMS.Domain.Departments;

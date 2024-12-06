@@ -1,5 +1,5 @@
+using MLMS.Domain.Common.Models;
 using MLMS.Domain.Departments;
-using MLMS.Domain.Entities;
 
 namespace MLMS.Domain.Majors;
 

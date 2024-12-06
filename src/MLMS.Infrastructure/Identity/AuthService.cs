@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using MLMS.Domain.Entities;
 using MLMS.Domain.Identity;
 using MLMS.Domain.Identity.Interfaces;
 using MLMS.Domain.Users;
@@ -54,8 +53,15 @@ public class AuthService(UserManager<ApplicationUser> userManager) : IAuthServic
     {
         var user = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
 
-        var resetPasswordResult = await userManager.ResetPasswordAsync(user, token, newPassword);
+        var resetPasswordResult = await userManager.ResetPasswordAsync(user!, token, newPassword);
 
         return resetPasswordResult.Succeeded;
+    }
+
+    public async Task<bool> ValidateResetPasswordToken(int userId, string token)
+    {
+        var user = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
+        
+        return await userManager.VerifyUserTokenAsync(user!, userManager.Options.Tokens.PasswordResetTokenProvider, "ResetPassword", token);
     }
 }

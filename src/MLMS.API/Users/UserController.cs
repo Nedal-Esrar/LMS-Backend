@@ -10,7 +10,7 @@ using MLMS.Domain.Users;
 namespace MLMS.API.Users;
 
 [Route("api/v1/")]
-public class UserController(IUserService userService) : ApiController
+public class UserController(IUserService userService) : ApiControllerBase
 {
     [Authorize(Policy = AuthorizationPolicies.SuperAdmin)]
     [HttpPost("users/search")]

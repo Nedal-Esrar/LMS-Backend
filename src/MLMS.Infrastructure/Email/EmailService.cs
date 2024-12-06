@@ -3,7 +3,7 @@ using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
 using MLMS.Domain.Common.Interfaces;
-using MLMS.Domain.Entities;
+using MLMS.Domain.Common.Models;
 
 namespace MLMS.Infrastructure.Email;
 

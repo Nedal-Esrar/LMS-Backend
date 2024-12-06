@@ -17,8 +17,8 @@ public static partial class UserMapper
     {
         var userContract = ToContractInternal(user);
         
-        userContract.Major = user.Major.ToContract();
-        userContract.Department = user.Department.ToContract();
+        userContract.Major = user.Major?.ToContract();
+        userContract.Department = user.Department?.ToContract();
         userContract.ProfilePicture = user.ProfilePicture?.ToContract();
 
         return userContract;

@@ -1,5 +1,5 @@
 using ErrorOr;
-using MLMS.Domain.Entities;
+using MLMS.Domain.Common.Models;
 using MLMS.Domain.Users;
 
 namespace MLMS.Domain.Identity.Interfaces;
@@ -19,4 +19,6 @@ public interface IIdentityService
     Task<ErrorOr<None>> ForgotPasswordAsync(string workId);
     
     Task<ErrorOr<None>> ResetPasswordAsync(string workId, string newPassword, string token);
+    
+    Task<ErrorOr<bool>> ValidateResetPasswordTokenAsync(string workId, string token);
 }

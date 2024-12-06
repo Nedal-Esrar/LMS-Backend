@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using MLMS.Domain.Entities;
+using MLMS.Domain.Common.Models;
 using MLMS.Domain.Identity.Interfaces;
 using MLMS.Infrastructure.Common;
 

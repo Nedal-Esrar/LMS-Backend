@@ -10,7 +10,7 @@ namespace MLMS.API.Majors;
 
 [Authorize]
 [Route("api/v1/departments/{departmentId:int}/majors")]
-public class MajorController(IMajorService majorService) : ApiController
+public class MajorController(IMajorService majorService) : ApiControllerBase
 {
     [HttpPost]
     [Authorize(Policy = AuthorizationPolicies.SuperAdmin)]

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using MLMS.Domain.Common.Interfaces;
 using MLMS.Domain.Common.Models;
 using MLMS.Domain.Departments;
 using MLMS.Infrastructure.Common;
@@ -9,6 +10,7 @@ namespace MLMS.Infrastructure.Departments;
 
 public class DepartmentRepository(
     LmsDbContext context,
+    IDbTransactionProvider dbTransactionProvider,
     ISieveProcessor sieveProcessor) : IDepartmentRepository
 {
     public async Task<Department> CreateAsync(Department department)
@@ -27,16 +29,27 @@ public class DepartmentRepository(
 
     public async Task DeleteAsync(int id)
     {
-        var department = await context.Departments.FindAsync(id);
-
-        if (department is null)
+        await dbTransactionProvider.ExecuteInTransactionAsync(async () =>
         {
-            return;
-        }
+            var department = await context.Departments.FindAsync(id);
+
+            if (department is null)
+            {
+                return;
+            }
         
-        context.Departments.Remove(department);
+            context.Departments.Remove(department);
+            
+            var users = await context.Users.Where(u => u.DepartmentId == id).ToListAsync();
+            
+            users.ForEach(u =>
+            {
+                u.DepartmentId = null;
+                u.MajorId = null;
+            });
         
-        await context.SaveChangesAsync();
+            await context.SaveChangesAsync();
+        });
     }
 
     public async Task<Department?> GetByIdAsync(int id)

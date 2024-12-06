@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MLMS.Domain.Common.Models;
-using MLMS.Domain.Entities;
 using MLMS.Domain.Identity;
 using MLMS.Domain.Identity.Interfaces;
 using MLMS.Domain.Users;
@@ -56,16 +55,25 @@ public class UserRepository(
 
     public async Task<User?> GetByWorkIdAsync(string workId)
     {
-        var identityUser = await userManager.Users.FirstOrDefaultAsync(u => u.WorkId == workId);
+        var identityUser = await userManager.Users
+            .Include(u => u.Role)
+            .FirstOrDefaultAsync(u => u.WorkId == workId);
 
         return identityUser?.ToDomain();
     }
 
     public async Task UpdateAsync(User user)
     {
-        var identityUser = user.ToIdentityUser();
+        var userToUpdate = await context.Users.FindAsync(user.Id);
 
-        await userManager.UpdateAsync(identityUser);
+        if (userToUpdate is null)
+        {
+            return;
+        }
+        
+        userToUpdate.MapForUpdate(user.ToIdentityUser());
+
+        await userManager.UpdateAsync(userToUpdate);
     }
 
     public async Task<bool> ExistsAsync(int id)

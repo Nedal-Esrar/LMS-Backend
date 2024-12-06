@@ -1,4 +1,4 @@
-using MLMS.Domain.Entities;
+using MLMS.Domain.Common.Models;
 
 namespace MLMS.Domain.Files;
 

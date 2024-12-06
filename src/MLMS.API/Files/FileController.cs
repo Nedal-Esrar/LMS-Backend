@@ -7,7 +7,7 @@ using MLMS.Domain.Files;
 namespace MLMS.API.Files;
 
 [Route("api/v1/files")]
-public class FileController(IFileService fileService, IWebHostEnvironment webHostEnvironment) : ApiController
+public class FileController(IFileService fileService, IWebHostEnvironment webHostEnvironment) : ApiControllerBase
 {
     [Authorize]
     [HttpPost]
@@ -24,6 +24,8 @@ public class FileController(IFileService fileService, IWebHostEnvironment webHos
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {
-        return Ok();
+        var result = await fileService.DeleteAsync(id);
+
+        return result.Match(_ => NoContent(), Problem);
     }
 }

@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Identity;
-using MLMS.Domain.Entities;
 using MLMS.Domain.Identity;
 using MLMS.Domain.Users;
 using MLMS.Infrastructure.Identity.Models;
@@ -17,6 +16,22 @@ public static partial class IdentityMapper
         user.Role = Enum.Parse<UserRole>(userEntity.Role.Name!);
 
         return user;
+    }
+
+    public static void MapForUpdate(this ApplicationUser userToUpdate, ApplicationUser updatedUser)
+    {
+        userToUpdate.WorkId = updatedUser.WorkId;
+        userToUpdate.FirstName = updatedUser.FirstName;
+        userToUpdate.MiddleName = updatedUser.MiddleName;
+        userToUpdate.LastName = updatedUser.LastName;
+        userToUpdate.Gender = updatedUser.Gender;
+        userToUpdate.BirthDate = updatedUser.BirthDate;
+        userToUpdate.EducationalLevel = userToUpdate.EducationalLevel;
+        userToUpdate.Email = updatedUser.Email;
+        userToUpdate.PhoneNumber = updatedUser.PhoneNumber;
+        userToUpdate.MajorId = updatedUser.MajorId;
+        userToUpdate.DepartmentId = updatedUser.DepartmentId;
+        
     }
     
     [MapperIgnoreSource(nameof(userEntity.Role))]

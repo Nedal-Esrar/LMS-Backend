@@ -34,7 +34,7 @@ public static class ValidationExtensions
         this IRuleBuilder<T, string> ruleBuilder)
     {
         return ruleBuilder
-            .Matches(@"^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$")
+            .Matches(@"^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{3}[-\s.]?[0-9]{3,6}$")
             .WithMessage("Not a valid phone number");
     }
 }

@@ -22,25 +22,7 @@ namespace MLMS.Infrastructure.Common.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("MLMS.Domain.Departments.Department", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Departments");
-                });
-
-            modelBuilder.Entity("MLMS.Domain.Entities.RefreshToken", b =>
+            modelBuilder.Entity("MLMS.Domain.Common.Models.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -66,6 +48,24 @@ namespace MLMS.Infrastructure.Common.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("RefreshTokens");
+                });
+
+            modelBuilder.Entity("MLMS.Domain.Departments.Department", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Departments");
                 });
 
             modelBuilder.Entity("MLMS.Domain.Files.File", b =>
@@ -118,6 +118,39 @@ namespace MLMS.Infrastructure.Common.Migrations
                     b.ToTable("Majors");
                 });
 
+            modelBuilder.Entity("MLMS.Domain.Notifications.Notification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Link")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Notifications");
+                });
+
             modelBuilder.Entity("MLMS.Infrastructure.Identity.Models.ApplicationUser", b =>
                 {
                     b.Property<int>("Id")
@@ -136,7 +169,7 @@ namespace MLMS.Infrastructure.Common.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("DepartmentId")
+                    b.Property<int?>("DepartmentId")
                         .HasColumnType("int");
 
                     b.Property<int>("EducationalLevel")
@@ -167,7 +200,7 @@ namespace MLMS.Infrastructure.Common.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<int>("MajorId")
+                    b.Property<int?>("MajorId")
                         .HasColumnType("int");
 
                     b.Property<string>("MiddleName")
@@ -368,7 +401,7 @@ namespace MLMS.Infrastructure.Common.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("MLMS.Domain.Entities.RefreshToken", b =>
+            modelBuilder.Entity("MLMS.Domain.Common.Models.RefreshToken", b =>
                 {
                     b.HasOne("MLMS.Infrastructure.Identity.Models.ApplicationUser", null)
                         .WithMany("RefreshTokens")
@@ -392,19 +425,26 @@ namespace MLMS.Infrastructure.Common.Migrations
                     b.Navigation("Department");
                 });
 
+            modelBuilder.Entity("MLMS.Domain.Notifications.Notification", b =>
+                {
+                    b.HasOne("MLMS.Infrastructure.Identity.Models.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("MLMS.Infrastructure.Identity.Models.ApplicationUser", b =>
                 {
                     b.HasOne("MLMS.Domain.Departments.Department", "Department")
                         .WithMany()
                         .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("MLMS.Domain.Majors.Major", "Major")
                         .WithMany()
                         .HasForeignKey("MajorId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("MLMS.Domain.Files.File", "ProfilePicture")
                         .WithOne()

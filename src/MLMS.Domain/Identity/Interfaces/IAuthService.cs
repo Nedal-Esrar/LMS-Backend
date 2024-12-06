@@ -1,4 +1,3 @@
-using MLMS.Domain.Entities;
 using MLMS.Domain.Users;
 
 namespace MLMS.Domain.Identity.Interfaces;
@@ -14,4 +13,6 @@ public interface IAuthService
     Task<string> GenerateResetPasswordTokenAsync(int userId);
     
     Task<bool> ResetPasswordAsync(int userId, string token, string newPassword);
+
+    Task<bool> ValidateResetPasswordToken(int userId, string token);
 }
