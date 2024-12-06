@@ -11,6 +11,7 @@ using MLMS.Domain.Departments;
 using MLMS.Domain.Files;
 using MLMS.Domain.Identity.Interfaces;
 using MLMS.Domain.Majors;
+using MLMS.Domain.Notifications;
 using MLMS.Infrastructure.Common;
 using MLMS.Infrastructure.Departments;
 using MLMS.Infrastructure.Email;
@@ -18,6 +19,7 @@ using MLMS.Infrastructure.Files;
 using MLMS.Infrastructure.Identity;
 using MLMS.Infrastructure.Identity.Models;
 using MLMS.Infrastructure.Majors;
+using MLMS.Infrastructure.Notifications;
 using Sieve.Services;
 
 namespace MLMS.Infrastructure;
@@ -88,6 +90,7 @@ public static class InfrastructureConfiguration
         services.AddScoped<IDbTransactionProvider, DbTransactionProvider>();
         services.AddScoped<IFileRepository, FileRepository>();
         services.AddScoped<IFileHandler, FileHandler>();
+        services.AddScoped<INotificationRepository, NotificationRepository>();
         
         services.AddOptions<SieveSettings>()
             .BindConfiguration(nameof(SieveSettings));

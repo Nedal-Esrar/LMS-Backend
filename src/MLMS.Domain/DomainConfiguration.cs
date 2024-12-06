@@ -6,6 +6,7 @@ using MLMS.Domain.Files;
 using MLMS.Domain.Identity;
 using MLMS.Domain.Identity.Interfaces;
 using MLMS.Domain.Majors;
+using MLMS.Domain.Notifications;
 using MLMS.Domain.Users;
 
 namespace MLMS.Domain;
@@ -22,6 +23,7 @@ public static class DomainConfiguration
         services.AddScoped<IMajorService, MajorService>();
         services.AddScoped<IPasswordGenerationService, PasswordGenerationService>();
         services.AddScoped<IFileService, FileService>();
+        services.AddScoped<INotificationService, NotificationService>();
 
         services.AddOptions<ClientOptions>()
             .BindConfiguration(nameof(ClientOptions));

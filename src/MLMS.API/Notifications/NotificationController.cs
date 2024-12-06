@@ -8,7 +8,7 @@ using MLMS.Domain.Notifications;
 namespace MLMS.API.Notifications;
 
 [Authorize]
-[Route("api/v1/user/notifcations")]
+[Route("api/v1/user/notifications")]
 public class NotificationController(INotificationService notificationService) : ApiControllerBase
 {
     [HttpGet("unread/count")]
@@ -27,7 +27,7 @@ public class NotificationController(INotificationService notificationService) : 
         return result.Match(_ => NoContent(), Problem);
     }
 
-    [HttpGet]
+    [HttpPost]
     public async Task<IActionResult> Get(RetrievalRequest request)
     {
         var result = await notificationService.GetAsync(request.ToSieveModel());
