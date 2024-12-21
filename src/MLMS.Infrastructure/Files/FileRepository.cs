@@ -32,4 +32,9 @@ public class FileRepository(LmsDbContext context) : IFileRepository
 
         await context.SaveChangesAsync();
     }
+
+    public async Task<bool> ExistsAsync(Guid id)
+    {
+        return await context.Files.AnyAsync(f => f.Id == id);
+    }
 }

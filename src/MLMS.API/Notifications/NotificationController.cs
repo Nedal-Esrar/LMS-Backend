@@ -26,6 +26,14 @@ public class NotificationController(INotificationService notificationService) : 
 
         return result.Match(_ => NoContent(), Problem);
     }
+    
+    [HttpPatch("is-read")]
+    public async Task<IActionResult> MarkAllAsRead()
+    {
+        var result = await notificationService.MarkAllAsReadAsync();
+
+        return result.Match(_ => NoContent(), Problem);
+    }
 
     [HttpPost]
     public async Task<IActionResult> Get(RetrievalRequest request)

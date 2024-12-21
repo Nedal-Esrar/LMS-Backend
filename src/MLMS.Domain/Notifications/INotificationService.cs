@@ -9,6 +9,8 @@ public interface INotificationService
     Task<ErrorOr<int>> CountUnreadAsync();
     
     Task<ErrorOr<None>> MarkAsReadAsync(Guid id);
-    
+
     Task<ErrorOr<PaginatedList<Notification>>> GetAsync(SieveModel sieveModel);
+    
+    Task<ErrorOr<None>> MarkAllAsReadAsync();
 }

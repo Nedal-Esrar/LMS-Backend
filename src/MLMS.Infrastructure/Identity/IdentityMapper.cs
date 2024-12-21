@@ -26,12 +26,12 @@ public static partial class IdentityMapper
         userToUpdate.LastName = updatedUser.LastName;
         userToUpdate.Gender = updatedUser.Gender;
         userToUpdate.BirthDate = updatedUser.BirthDate;
-        userToUpdate.EducationalLevel = userToUpdate.EducationalLevel;
+        userToUpdate.EducationalLevel = updatedUser.EducationalLevel;
         userToUpdate.Email = updatedUser.Email;
         userToUpdate.PhoneNumber = updatedUser.PhoneNumber;
         userToUpdate.MajorId = updatedUser.MajorId;
         userToUpdate.DepartmentId = updatedUser.DepartmentId;
-        
+        userToUpdate.ProfilePictureId = updatedUser.ProfilePictureId;
     }
     
     [MapperIgnoreSource(nameof(userEntity.Role))]

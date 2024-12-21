@@ -30,4 +30,11 @@ public class NotificationService(
     {
         return await notificationRepository.GetForUserAsync(userContext.Id!.Value, sieveModel);
     }
+
+    public async Task<ErrorOr<None>> MarkAllAsReadAsync()
+    {
+        await notificationRepository.MarkAllAsReadAsync(userContext.Id!.Value);
+
+        return None.Value;
+    }
 }

@@ -1,9 +1,9 @@
 using ErrorOr;
 using MLMS.Domain.Common;
+using MLMS.Domain.Common.Interfaces;
 using MLMS.Domain.Common.Models;
 using MLMS.Domain.Departments;
 using MLMS.Domain.Files;
-using MLMS.Domain.Identity;
 using MLMS.Domain.Identity.Interfaces;
 using MLMS.Domain.Majors;
 using Sieve.Models;
@@ -15,7 +15,9 @@ public class UserService(
     IDepartmentRepository departmentRepository,
     IMajorRepository majorRepository,
     IFileRepository fileRepository,
-    IUserContext userContext) : IUserService
+    IUserContext userContext,
+    IDbTransactionProvider dbTransactionProvider,
+    IFileHandler fileHandler) : IUserService
 {
     private readonly UserValidator _userValidator = new();
     
@@ -99,8 +101,29 @@ public class UserService(
         {
             return FileErrors.NotImage;
         }
+        
+        var user = await userRepository.GetByIdAsync(userContext.Id!.Value);
+        
+        var oldImage = user.ProfilePictureId is not null ? 
+            await fileRepository.GetByIdAsync(user.ProfilePictureId!.Value)
+            : null;
 
-        await userRepository.UpdateProfilePictureAsync(userContext.Id!.Value, imageId);
+        await dbTransactionProvider.ExecuteInTransactionAsync(async () =>
+        {
+            if (user!.ProfilePictureId.HasValue)
+            {
+                await fileRepository.DeleteAsync(user.ProfilePictureId!.Value);
+            }
+
+            user.ProfilePictureId = imageId;
+
+            await userRepository.UpdateAsync(user);
+            
+            if (oldImage is not null)
+            {
+                await fileHandler.DeleteAsync(oldImage!.Path);
+            }
+        });
 
         return None.Value;
     }

@@ -7,4 +7,6 @@ public interface IFileRepository
     Task<File?> GetByIdAsync(Guid id);
     
     Task DeleteAsync(Guid id);
+    
+    Task<bool> ExistsAsync(Guid id);
 }

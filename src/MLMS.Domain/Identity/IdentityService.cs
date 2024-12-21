@@ -3,11 +3,13 @@ using Microsoft.Extensions.Options;
 using MLMS.Domain.Common;
 using MLMS.Domain.Common.Interfaces;
 using MLMS.Domain.Common.Models;
+using MLMS.Domain.CourseAssignments;
 using MLMS.Domain.Departments;
 using MLMS.Domain.Identity.Interfaces;
 using MLMS.Domain.Identity.Validators;
 using MLMS.Domain.Majors;
 using MLMS.Domain.Users;
+using MLMS.Domain.UsersCourses;
 
 namespace MLMS.Domain.Identity;
 
@@ -22,7 +24,9 @@ public class IdentityService(
     IEmailService emailService,
     IRefreshTokenRepository refreshTokenRepository,
     IUserContext userContext,
-    IOptions<ClientOptions> clientOptions) : IIdentityService
+    IOptions<ClientOptions> clientOptions,
+    IUserCourseRepository userCourseRepository,
+    ICourseAssignmentRepository courseAssignmentRepository) : IIdentityService
 {
     private readonly LoginValidator _loginValidator = new();
     private readonly RegisterValidator _registerValidator = new();
@@ -70,12 +74,12 @@ public class IdentityService(
             return UserErrors.WorkIdExists;
         }
 
-        if (!await departmentRepository.ExistsAsync(user.DepartmentId.Value))
+        if (!await departmentRepository.ExistsAsync(user.DepartmentId!.Value))
         {
             return DepartmentErrors.NotFound;
         }
         
-        if (!await majorRepository.ExistsAsync(user.DepartmentId.Value, user.MajorId.Value))
+        if (!await majorRepository.ExistsAsync(user.DepartmentId.Value, user.MajorId!.Value))
         {
             return MajorErrors.NotFound;
         }
@@ -89,7 +93,20 @@ public class IdentityService(
 
         await dbTransactionProvider.ExecuteInTransactionAsync(async () =>
         {
-            await userRepository.CreateAsync(user, passwordResult.Value);
+            var userId = await userRepository.CreateAsync(user, passwordResult.Value);
+
+            var courseAssignments =
+                await courseAssignmentRepository.GetByDepartmentAndMajorIdsAsync(user.DepartmentId.Value, user.MajorId.Value);
+
+            var userCourseEntities = courseAssignments.Select(courseAssignment => 
+                new UserCourse
+                {
+                    UserId = userId, 
+                    CourseId = courseAssignment.CourseId, 
+                    Status = UserCourseStatus.NotStarted
+                }).ToList();
+
+            await userCourseRepository.CreateAsync(userCourseEntities);
 
             await emailService.SendAsync(new EmailRequest
             {
@@ -171,7 +188,17 @@ public class IdentityService(
             return IdentityErrors.WeakPassword;
         }
         
-        await authService.ChangePasswordAsync(userContext.Id.Value, currentPassword, newPassword);
+        await dbTransactionProvider.ExecuteInTransactionAsync(async () =>
+        {
+            await authService.ChangePasswordAsync(userContext.Id.Value, currentPassword, newPassword);
+
+            await emailService.SendAsync(new EmailRequest
+            {
+                ToEmails = [userContext.Email],
+                Subject = "Your password has been changed",
+                Body = EmailUtils.GetPasswordChangedEmailBody($"{userContext.Name}")
+            });
+        });
 
         return None.Value;
     }
@@ -210,11 +237,23 @@ public class IdentityService(
         {
             return IdentityErrors.WeakPassword;
         }
-        
-        if (!await authService.ResetPasswordAsync(user.Id, token, newPassword))
+
+        if (!await authService.ValidateResetPasswordToken(user.Id, token))
         {
             return IdentityErrors.InvalidResetPasswordToken;
         }
+        
+        await dbTransactionProvider.ExecuteInTransactionAsync(async () =>
+        {
+            await authService.ResetPasswordAsync(user.Id, token, newPassword);
+
+            await emailService.SendAsync(new EmailRequest
+            {
+                ToEmails = [userContext.Email],
+                Subject = "Your password has been changed",
+                Body = EmailUtils.GetPasswordChangedEmailBody($"{userContext.Name}")
+            });
+        });
 
         return None.Value;
     }

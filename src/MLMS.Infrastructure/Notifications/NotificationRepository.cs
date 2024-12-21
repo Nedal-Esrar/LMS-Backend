@@ -13,7 +13,7 @@ public class NotificationRepository(
 {
     public async Task<int> CountUnreadForUserAsync(int userId)
     {
-        return await context.Notifications.CountAsync(n => n.UserId == userId);
+        return await context.Notifications.CountAsync(n => n.UserId == userId && !n.IsRead);
     }
 
     public async Task<bool> ExistsAsync(int userId, Guid id)
@@ -49,5 +49,18 @@ public class NotificationRepository(
                 TotalItems = totalItems
             }
         };
+    }
+
+    public async Task MarkAllAsReadAsync(int userId)
+    {
+        await context.Notifications.Where(n => n.UserId == userId && !n.IsRead)
+            .ExecuteUpdateAsync(spc => spc.SetProperty(n => n.IsRead, true));
+    }
+
+    public async Task CreateAsync(List<Notification> notifications)
+    {
+        context.Notifications.AddRange(notifications);
+
+        await context.SaveChangesAsync();
     }
 }

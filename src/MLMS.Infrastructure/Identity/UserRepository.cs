@@ -30,7 +30,7 @@ public class UserRepository(
         return user?.ToDomain();
     }
 
-    public async Task CreateAsync(User user, string password)
+    public async Task<int> CreateAsync(User user, string password)
     {
         var userToCreate = user.ToIdentityUser();
 
@@ -46,6 +46,8 @@ public class UserRepository(
         {
             throw new Exception(string.Join(",", creationResult.Errors.Select(e => e.Description)));
         }
+
+        return userToCreate.Id;
     }
 
     public async Task<bool> ExistsByWorkIdAsync(string workId)
@@ -119,6 +121,21 @@ public class UserRepository(
                 Page = sieveModel.Page!.Value
             }
         };
+    }
+
+    public async Task<List<User>> GetByDepartmentAndMajorAsync(List<(int DepartmentId, int MajorId)> departmentMajorCombinations)
+    {
+        var query = from u in context.Users
+            join dm in departmentMajorCombinations on new { u.DepartmentId, u.MajorId } equals new
+                {
+                    DepartmentId = (int?)dm.DepartmentId, MajorId = (int?)dm.MajorId 
+                }
+            select u;
+
+        return (await query.AsNoTracking()
+                .ToListAsync())
+            .Select(u => u.ToDomain())
+            .ToList();
     }
 
     public async Task UpdateProfilePictureAsync(int id, Guid imageId)

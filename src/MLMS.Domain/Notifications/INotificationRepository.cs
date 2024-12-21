@@ -13,4 +13,8 @@ public interface INotificationRepository
     Task MarkAsReadAsync(Guid id);
     
     Task<PaginatedList<Notification>> GetForUserAsync(int userId, SieveModel sieveModel);
+    
+    Task MarkAllAsReadAsync(int userId);
+    
+    Task CreateAsync(List<Notification> notifications);
 }

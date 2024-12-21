@@ -9,7 +9,7 @@ public interface IUserRepository
 {
     Task<User?> GetByIdAsync(int id);
     
-    Task CreateAsync(User user, string password);
+    Task<int> CreateAsync(User user, string password);
     
     Task<bool> ExistsByWorkIdAsync(string workId);
     
@@ -23,5 +23,5 @@ public interface IUserRepository
     
     Task<PaginatedList<User>> GetAsync(SieveModel sieveModel);
     
-    Task UpdateProfilePictureAsync(int id, Guid imageId);
+    Task<List<User>> GetByDepartmentAndMajorAsync(List<(int DepartmentId, int MajorId)> departmentMajorCombinations);
 }

@@ -7,12 +7,19 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using MLMS.Domain.Common.Interfaces;
+using MLMS.Domain.CourseAssignments;
+using MLMS.Domain.Courses;
 using MLMS.Domain.Departments;
 using MLMS.Domain.Files;
 using MLMS.Domain.Identity.Interfaces;
 using MLMS.Domain.Majors;
 using MLMS.Domain.Notifications;
+using MLMS.Domain.SectionParts;
+using MLMS.Domain.Sections;
+using MLMS.Domain.UsersCourses;
 using MLMS.Infrastructure.Common;
+using MLMS.Infrastructure.CourseAssignments;
+using MLMS.Infrastructure.Courses;
 using MLMS.Infrastructure.Departments;
 using MLMS.Infrastructure.Email;
 using MLMS.Infrastructure.Files;
@@ -20,6 +27,9 @@ using MLMS.Infrastructure.Identity;
 using MLMS.Infrastructure.Identity.Models;
 using MLMS.Infrastructure.Majors;
 using MLMS.Infrastructure.Notifications;
+using MLMS.Infrastructure.SectionParts;
+using MLMS.Infrastructure.Sections;
+using MLMS.Infrastructure.UserCourses;
 using Sieve.Services;
 
 namespace MLMS.Infrastructure;
@@ -91,6 +101,11 @@ public static class InfrastructureConfiguration
         services.AddScoped<IFileRepository, FileRepository>();
         services.AddScoped<IFileHandler, FileHandler>();
         services.AddScoped<INotificationRepository, NotificationRepository>();
+        services.AddScoped<ICourseAssignmentRepository, CourseAssignmentRepository>();
+        services.AddScoped<ICourseRepository, CourseRepository>();
+        services.AddScoped<ISectionPartRepository, SectionPartRepository>();
+        services.AddScoped<ISectionRepository, SectionRepository>();
+        services.AddScoped<IUserCourseRepository, UserCourseRepository>();
         
         services.AddOptions<SieveSettings>()
             .BindConfiguration(nameof(SieveSettings));
