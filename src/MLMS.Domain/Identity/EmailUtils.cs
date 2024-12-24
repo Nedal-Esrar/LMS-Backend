@@ -254,7 +254,7 @@ public static class EmailUtils
         """;
 
     public static string GetPasswordChangedEmailBody(string userName) =>
-        """
+        $"""
         <!DOCTYPE html>
         <html lang="en"><head>
             <meta charset="UTF-8">

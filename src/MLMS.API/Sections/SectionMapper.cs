@@ -1,4 +1,5 @@
 using MLMS.API.Sections.Requests;
+using MLMS.API.Sections.Responses;
 using MLMS.Domain.Sections;
 using Riok.Mapperly.Abstractions;
 
@@ -28,4 +29,6 @@ public static partial class SectionMapper
     }
     
     private static partial Section ToDomainInternal(this UpdateSectionRequest request);
+    
+    public static partial SectionResponse ToContract(this Section section);
 }

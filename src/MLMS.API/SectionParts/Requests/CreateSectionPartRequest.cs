@@ -14,5 +14,5 @@ public class CreateSectionPartRequest
     
     public string? Link { get; set; }
     
-    public List<QuestionRequestModel> Questions { get; set; } = [];
+    public List<QuestionContractModel> Questions { get; set; } = [];
 }

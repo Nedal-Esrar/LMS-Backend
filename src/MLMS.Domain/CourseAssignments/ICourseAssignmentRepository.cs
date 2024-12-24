@@ -2,7 +2,7 @@ namespace MLMS.Domain.CourseAssignments;
 
 public interface ICourseAssignmentRepository
 {
-    Task<List<CourseAssignment>> GetByCourseIdAsync(long courseId);
+    Task<List<CourseAssignment>> GetByCourseIdAsync(long courseId, bool includeMajor = false);
     
-    Task<List<CourseAssignment>> GetByDepartmentAndMajorIdsAsync(int departmentId, int majorId);
+    Task<List<CourseAssignment>> GetByMajorId(int majorId);
 }

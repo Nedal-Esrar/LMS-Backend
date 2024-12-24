@@ -35,7 +35,8 @@ public class SectionPartService(
         var materialValidationError = sectionPart.MaterialType switch
         {
             MaterialType.File => await ValidateForFileTypeAsync(sectionPart),
-            MaterialType.Exam => ValidateForExamTypeAsync(sectionPart)
+            MaterialType.Exam => ValidateForExamTypeAsync(sectionPart),
+            _ => null
         };
 
         if (materialValidationError is not null)
@@ -47,9 +48,28 @@ public class SectionPartService(
         
         sectionPart.Index = await sectionPartRepository.GetMaxIndexBySectionIdAsync(sectionPart.SectionId) + 1;
         
-        // If exam, create associations with users that the exam is not done yet.
+        var createdSectionPart = await sectionPartRepository.CreateAsync(sectionPart);
         
-        return await sectionPartRepository.CreateAsync(sectionPart);
+        var users = await sectionRepository.GetUsersBySectionIdAsync(sectionPart.SectionId);
+
+        await sectionPartRepository.CreateDoneStatesAsync(users.Select(u => new UserSectionPartDone
+        {
+            UserId = u.Id,
+            SectionPartId = sectionPart.Id,
+            IsDone = false
+        }).ToList());
+        
+        if (sectionPart.MaterialType == MaterialType.Exam)
+        {
+            await sectionPartRepository.CreateExamStatesAsync(users.Select(u => new UserSectionPartExamState
+            {
+                UserId = u.Id,
+                SectionPartId = sectionPart.Id,
+                Status = ExamStatus.NotTaken
+            }).ToList());
+        }
+
+        return createdSectionPart;
     }
 
     public async Task<ErrorOr<None>> DeleteAsync(long sectionId, long id)
@@ -88,7 +108,8 @@ public class SectionPartService(
         var materialValidationError = updatedSectionPart.MaterialType switch
         {
             MaterialType.File => await ValidateForFileTypeAsync(updatedSectionPart),
-            MaterialType.Exam => ValidateForExamTypeAsync(updatedSectionPart)
+            MaterialType.Exam => ValidateForExamTypeAsync(updatedSectionPart),
+            _ => null
         };
         
         if (materialValidationError is not null)
@@ -101,6 +122,24 @@ public class SectionPartService(
         existingSectionPart.MapForUpdate(updatedSectionPart);
         
         await sectionPartRepository.UpdateAsync(existingSectionPart);
+        
+        // if there were updates to or from Exam type, delete or create associations.
+        if (updatedSectionPart.MaterialType == MaterialType.Exam && 
+            existingSectionPart.MaterialType != MaterialType.Exam)
+        {
+            var users = await sectionRepository.GetUsersBySectionIdAsync(updatedSectionPart.SectionId);
+            
+            await sectionPartRepository.CreateExamStatesAsync(users.Select(u => new UserSectionPartExamState
+            {
+                UserId = u.Id,
+                SectionPartId = id,
+                Status = ExamStatus.NotTaken
+            }).ToList());
+        } else if (updatedSectionPart.MaterialType != MaterialType.Exam &&
+              existingSectionPart.MaterialType == MaterialType.Exam)
+        {
+            await sectionPartRepository.DeleteExamStatesByIdAsync(id);
+        }
 
         return None.Value;
     }
@@ -180,7 +219,7 @@ public class SectionPartService(
         }
         else
         {
-            sectionPart.UserExamStates.Add(new UserExamStateForSectionPart
+            sectionPart.UserExamStates.Add(new UserSectionPartExamState
             {
                 UserId = userContext.Id!.Value,
                 SectionPartId = sectionPart.Id,

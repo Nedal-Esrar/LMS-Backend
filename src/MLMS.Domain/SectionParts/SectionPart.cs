@@ -16,9 +16,9 @@ public class SectionPart : EntityBase<long>
     
     public Section Section { get; set; }
     
-    public List<UserDoneStateForSectionPart> UserSectionPartStatuses { get; set; } = [];
+    public List<UserSectionPartDone> UserSectionPartStatuses { get; set; } = [];
     
-    public List<UserExamStateForSectionPart> UserExamStates { get; set; } = [];
+    public List<UserSectionPartExamState> UserExamStates { get; set; } = [];
     
     public MaterialType MaterialType { get; set; }
     

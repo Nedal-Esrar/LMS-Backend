@@ -61,7 +61,7 @@ public class SectionService(
             return CourseErrors.NotFound;
         }
         
-        if (await sectionRepository.ExistsByTitleAsync(section.Title))
+        if (section.Title != existingSection.Title && await sectionRepository.ExistsByTitleAsync(section.Title))
         {
             return SectionErrors.NameAlreadyExists;
         }

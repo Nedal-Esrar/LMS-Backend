@@ -1,26 +1,41 @@
+using Microsoft.EntityFrameworkCore;
 using MLMS.Domain.UsersCourses;
+using MLMS.Infrastructure.Common;
 
 namespace MLMS.Infrastructure.UserCourses;
 
-public class UserCourseRepository : IUserCourseRepository
+public class UserCourseRepository(LmsDbContext context) : IUserCourseRepository
 {
-    public Task CreateAsync(List<UserCourse> userCourseEntities)
+    public async Task CreateAsync(List<UserCourse> userCourseEntities)
     {
-        throw new NotImplementedException();
+        context.UserCourses.AddRange(userCourseEntities);
+        
+        await context.SaveChangesAsync();
     }
 
-    public Task DeleteByCourseAndUserIdsAsync(long id, List<int> toList)
+    public async Task DeleteByCourseAndUserIdsAsync(long id, List<int> userIds)
     {
-        throw new NotImplementedException();
+        await context.UserCourses
+            .Where(uc => uc.CourseId == id && userIds.Contains(uc.UserId))
+            .ExecuteDeleteAsync();
     }
 
-    public Task<bool> ExistsByCourseAndUserIdsAsync(long id, int userId)
+    public async Task<bool> ExistsByCourseAndUserIdsAsync(long id, int userId)
     {
-        throw new NotImplementedException();
+        return await context.UserCourses.AnyAsync(uc => uc.CourseId == id && uc.UserId == userId);
     }
 
-    public Task<UserCourse> GetByUserAndCourseAsync(long id, int userId)
+    public async Task<UserCourse> GetByUserAndCourseAsync(long id, int userId)
     {
-        throw new NotImplementedException();
+        return await context.UserCourses
+            .Where(uc => uc.CourseId == id && uc.UserId == userId)
+            .FirstOrDefaultAsync()!;
+    }
+
+    public async Task UpdateAsync(UserCourse userCourse)
+    {
+        context.UserCourses.Update(userCourse);
+        
+        await context.SaveChangesAsync();
     }
 }

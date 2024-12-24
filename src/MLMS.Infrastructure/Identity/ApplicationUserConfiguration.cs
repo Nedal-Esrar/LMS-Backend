@@ -13,6 +13,8 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
 {
     public void Configure(EntityTypeBuilder<ApplicationUser> builder)
     {
+        builder.ToTable("User");
+        
         builder.HasOne<Major>(u => u.Major)
             .WithMany()
             .OnDelete(DeleteBehavior.SetNull);

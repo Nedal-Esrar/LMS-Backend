@@ -7,7 +7,7 @@ using MLMS.Domain.Sections;
 namespace MLMS.API.Sections;
 
 [Route("api/v1/courses/{courseId:long}/sections")]
-[Authorize(Policy = AuthorizationPolicies.SubAdmin)]
+[Authorize(Policy = AuthorizationPolicies.Admin)]
 public class SectionController(ISectionService sectionService) : ApiControllerBase
 {
     [HttpPost]
@@ -15,7 +15,7 @@ public class SectionController(ISectionService sectionService) : ApiControllerBa
     {
         var result = await sectionService.CreateAsync(request.ToDomain(courseId));
     
-        return result.Match(s => CreatedAtAction(nameof(GetById), new { courseId, id = s.Id }), Problem);
+        return result.Match(s => CreatedAtAction(nameof(GetById), new { courseId, id = s.Id }, s.ToContract()), Problem);
     }
     
     [HttpPut("{id:long}")]
@@ -27,13 +27,12 @@ public class SectionController(ISectionService sectionService) : ApiControllerBa
     }
     
     [HttpGet("{id:long}")]
+    [Authorize]
     public async Task<IActionResult> GetById(long courseId, long id)
     {
         var result = await sectionService.GetByIdAsync(courseId, id);
 
-        return Ok();
-
-        // return result.Match(s => Ok(s.ToContract()), Problem);
+        return result.Match(s => Ok(s.ToContract()), Problem);
     }
     
     [HttpDelete("{id:long}")]

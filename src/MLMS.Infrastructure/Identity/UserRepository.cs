@@ -123,13 +123,10 @@ public class UserRepository(
         };
     }
 
-    public async Task<List<User>> GetByDepartmentAndMajorAsync(List<(int DepartmentId, int MajorId)> departmentMajorCombinations)
+    public async Task<List<User>> GetByMajorsAsync(List<int> majors)
     {
         var query = from u in context.Users
-            join dm in departmentMajorCombinations on new { u.DepartmentId, u.MajorId } equals new
-                {
-                    DepartmentId = (int?)dm.DepartmentId, MajorId = (int?)dm.MajorId 
-                }
+            join m in majors on u.MajorId equals m
             select u;
 
         return (await query.AsNoTracking()

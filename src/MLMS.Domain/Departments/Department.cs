@@ -1,4 +1,6 @@
 using MLMS.Domain.Common.Models;
+using MLMS.Domain.CourseAssignments;
+using MLMS.Domain.Courses;
 
 namespace MLMS.Domain.Departments;
 

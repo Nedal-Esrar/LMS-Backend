@@ -12,6 +12,10 @@ public static partial class CourseErrors
 
     public static Error NotCreatedByUser =>
         Error.Unauthorized("Course is not accessible since it is not created by the current user.");
+    
+    public static Error NotInProgress => Error.Conflict("Course is not in progress.");
 
     public static Error StillInProgress => Error.Conflict("Course is still in progress.");
+    
+    public static Error AlreadyStarted => Error.Conflict("Course is already started.");
 }

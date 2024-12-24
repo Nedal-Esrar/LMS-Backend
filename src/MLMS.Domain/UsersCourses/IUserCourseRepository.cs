@@ -11,4 +11,6 @@ public interface IUserCourseRepository
     Task<bool> ExistsByCourseAndUserIdsAsync(long id, int userId);
     
     Task<UserCourse> GetByUserAndCourseAsync(long id, int userId);
+    
+    Task UpdateAsync(UserCourse userCourse);
 }

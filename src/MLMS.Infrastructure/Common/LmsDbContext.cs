@@ -55,9 +55,9 @@ public class LmsDbContext(DbContextOptions options)
     
     public DbSet<UserCourse> UserCourses { get; set; }
     
-    public DbSet<UserDoneStateForSectionPart> UserDoneStateForSectionParts { get; set; }
+    public DbSet<UserSectionPartDone> UserSectionPartDoneRelations { get; set; }
     
-    public DbSet<UserExamStateForSectionPart> UserExamStateForSectionParts { get; set; }
+    public DbSet<Domain.UserSectionParts.UserSectionPartExamState> UserSectionPartExamStateRelations { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -74,7 +74,7 @@ public class LmsDbContext(DbContextOptions options)
         builder.ApplyConfiguration(new SectionConfiguration());
         builder.ApplyConfiguration(new SectionPartConfiguration());
         builder.ApplyConfiguration(new UserCourseConfiguration());
-        builder.ApplyConfiguration(new UserDoneStateForSectionPartConfiguration());
-        builder.ApplyConfiguration(new UserExamStateForSectionPartConfiguration());
+        builder.ApplyConfiguration(new UserSectionPartDoneConfiguration());
+        builder.ApplyConfiguration(new UserSectionPartExamStateConfiguration());
     }
 }

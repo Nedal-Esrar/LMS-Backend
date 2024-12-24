@@ -9,6 +9,8 @@ public class CourseAssignmentConfiguration : IEntityTypeConfiguration<CourseAssi
 {
     public void Configure(EntityTypeBuilder<CourseAssignment> builder)
     {
-        builder.HasKey(ca => new { ca.CourseId, ca.DepartmentId, ca.MajorId });
+        builder.ToTable("CourseAssignment");
+        
+        builder.HasKey(ca => new { ca.CourseId, ca.MajorId });
     }
 }

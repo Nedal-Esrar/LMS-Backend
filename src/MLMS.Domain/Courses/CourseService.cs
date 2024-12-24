@@ -60,13 +60,13 @@ public class CourseService(
                 CourseErrors.NotAssigned,
             UserRole.SubAdmin when !await courseRepository.IsCreatedByUserAsync(id, userContext.Id!.Value) =>
                 CourseErrors.NotCreatedByUser,
-            _ => await courseRepository.GetByIdAsync(id)!
+            _ => await courseRepository.GetDetailedByIdAsync(id)!
         };
     }
 
-    public async Task<ErrorOr<None>> EditAssignmentsAsync(long id, List<(int DepartmentId, int MajorId)> newAssignments)
+    public async Task<ErrorOr<None>> EditAssignmentsAsync(long id, List<int> newAssignments)
     {
-        var course = await courseRepository.GetByIdAsync(id);
+        var course = await courseRepository.GetDetailedByIdAsync(id);
         
         if (course is null)
         {
@@ -76,7 +76,7 @@ public class CourseService(
         var newAssignmentsSet = newAssignments.ToHashSet();
 
         var oldAssignmentsSet = (await courseAssignmentRepository.GetByCourseIdAsync(id))
-            .Select(ca => (ca.DepartmentId, ca.MajorId))
+            .Select(ca => ca.MajorId)
             .ToHashSet();
 
         var newAssignmentsToAdd = newAssignmentsSet.Where(a => !oldAssignmentsSet.Contains(a))
@@ -85,8 +85,8 @@ public class CourseService(
         var oldAssignmentsToRemove = oldAssignmentsSet.Where(a => !newAssignmentsSet.Contains(a))
             .ToList();
 
-        var newUsersToAssign = await userRepository.GetByDepartmentAndMajorAsync(newAssignmentsToAdd);
-        var oldUsersToUnassign = await userRepository.GetByDepartmentAndMajorAsync(oldAssignmentsToRemove);
+        var newUsersToAssign = await userRepository.GetByMajorsAsync(newAssignmentsToAdd);
+        var oldUsersToUnassign = await userRepository.GetByMajorsAsync(oldAssignmentsToRemove);
         
         var newUserCourseRelationships = newUsersToAssign.Select(u => new UserCourse
         {
@@ -156,6 +156,13 @@ public class CourseService(
         
         var userId = userContext.Id!.Value;
         
+        var userCourse = await userCourseRepository.GetByUserAndCourseAsync(id, userId);
+
+        if (userCourse.Status != UserCourseStatus.InProgress)
+        {
+            return CourseErrors.NotInProgress;
+        }
+        
         var examStatuses = await sectionPartRepository.GetExamStatusesByCourseAndUserAsync(id, userId);
 
         if (examStatuses.Any(es => es.Status == ExamStatus.NotTaken))
@@ -167,9 +174,14 @@ public class CourseService(
             ? UserCourseStatus.Failed
             : UserCourseStatus.Finished;
         
-        var userCourse = await userCourseRepository.GetByUserAndCourseAsync(id, userId);
-        
         userCourse.Status = courseStatus;
+
+        if (courseStatus == UserCourseStatus.Finished)
+        {
+            userCourse.FinishedAtUtc = DateTime.UtcNow;
+        }
+
+        await userCourseRepository.UpdateAsync(userCourse);
         
         return courseStatus;
     }
@@ -179,5 +191,79 @@ public class CourseService(
         var userCourse = await userCourseRepository.GetByUserAndCourseAsync(id, userContext.Id!.Value);
 
         return userCourse.Status == UserCourseStatus.Finished;
+    }
+
+    public async Task<ErrorOr<None>> StartAsync(long id)
+    {
+        if (!await courseRepository.ExistsByIdAsync(id))
+        {
+            return CourseErrors.NotFound;
+        }
+        
+        var userId = userContext.Id!.Value;
+        
+        var userCourse = await userCourseRepository.GetByUserAndCourseAsync(id, userId);
+
+        if (userCourse.Status != UserCourseStatus.NotStarted)
+        {
+            return CourseErrors.AlreadyStarted;
+        }
+        
+        userCourse.Status = UserCourseStatus.InProgress;
+        // Add startedAtUtc?
+        
+        await userCourseRepository.UpdateAsync(userCourse);
+
+        return None.Value;
+    }
+
+    public async Task<ErrorOr<None>> UpdateAsync(long id, Course course)
+    {
+        var validationResult = await _courseValidator.ValidateAsync(course);
+        
+        if (!validationResult.IsValid)
+        {
+            return validationResult.ExtractErrors();
+        }
+        
+        var existingCourse = await courseRepository.GetByIdAsync(id);
+
+        if (existingCourse is null)
+        {
+            return CourseErrors.NotFound;
+        }
+        
+        if (existingCourse.Name != course.Name && await courseRepository.ExistsByNameAsync(course.Name))
+        {
+            return CourseErrors.NameAlreadyExists;
+        }
+        
+        existingCourse.MapForUpdate(course);
+        
+        await courseRepository.UpdateAsync(existingCourse);
+
+        return None.Value;
+    }
+
+    public async Task<ErrorOr<None>> DeleteAsync(long id)
+    {
+        if (!await courseRepository.ExistsByIdAsync(id))
+        {
+            return CourseErrors.NotFound;
+        }
+
+        await courseRepository.DeleteAsync(id);
+
+        return None.Value;
+    }
+
+    public async Task<ErrorOr<List<CourseAssignment>>> GetAssignmentsByIdAsync(long id)
+    {
+        if (!await courseRepository.ExistsByIdAsync(id))
+        {
+            return CourseErrors.NotFound;
+        }
+
+        return await courseAssignmentRepository.GetByCourseIdAsync(id, includeMajor: true);
     }
 }

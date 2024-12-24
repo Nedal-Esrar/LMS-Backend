@@ -55,6 +55,8 @@ public class UserService(
         userToUpdate.MapUpdatedUser(user);
 
         await userRepository.UpdateAsync(userToUpdate);
+        
+        // TODO: Handle course assignment for majors and department updates.
 
         return None.Value;
     }

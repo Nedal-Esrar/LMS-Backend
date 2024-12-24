@@ -8,6 +8,12 @@ public class SectionPartConfiguration : IEntityTypeConfiguration<SectionPart>
 {
     public void Configure(EntityTypeBuilder<SectionPart> builder)
     {
+        builder.ToTable("SectionPart");
         
+        builder.HasOne(x => x.File)
+            .WithMany()
+            .HasForeignKey(x => x.FileId)
+            .IsRequired(false)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

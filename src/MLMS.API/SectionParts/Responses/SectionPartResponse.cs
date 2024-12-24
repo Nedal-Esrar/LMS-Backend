@@ -7,6 +7,8 @@ namespace MLMS.API.SectionParts.Responses;
 
 public class SectionPartResponse
 {
+    public long Id { get; set; }
+    
     public string Title { get; set; }
     
     public int Index { get; set; }
@@ -21,5 +23,5 @@ public class SectionPartResponse
     
     public int? PassThresholdPoints { get; set; }
     
-    public List<QuestionRequestModel> Questions { get; set; } = [];
+    public List<QuestionContractModel> Questions { get; set; } = [];
 }

@@ -9,6 +9,6 @@ public class QuestionConfiguration : IEntityTypeConfiguration<Question>
 {
     public void Configure(EntityTypeBuilder<Question> builder)
     {
-        
+        builder.ToTable("Question");
     }
 }

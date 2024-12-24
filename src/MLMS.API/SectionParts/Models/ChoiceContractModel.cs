@@ -1,6 +1,6 @@
 namespace MLMS.API.SectionParts.Models;
 
-public class QuestionChoiceRequestModel
+public class ChoiceContractModel
 {
     public string Text { get; set; }
     

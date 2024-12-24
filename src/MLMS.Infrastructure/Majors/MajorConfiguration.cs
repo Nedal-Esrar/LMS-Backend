@@ -9,6 +9,8 @@ public class MajorConfiguration : IEntityTypeConfiguration<Major>
 {
     public void Configure(EntityTypeBuilder<Major> builder)
     {
+        builder.ToTable("Major");
+        
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Name)

@@ -96,7 +96,7 @@ public class IdentityService(
             var userId = await userRepository.CreateAsync(user, passwordResult.Value);
 
             var courseAssignments =
-                await courseAssignmentRepository.GetByDepartmentAndMajorIdsAsync(user.DepartmentId.Value, user.MajorId.Value);
+                await courseAssignmentRepository.GetByMajorId(user.MajorId.Value);
 
             var userCourseEntities = courseAssignments.Select(courseAssignment => 
                 new UserCourse
@@ -117,18 +117,6 @@ public class IdentityService(
         });
 
         return None.Value;
-    }
-
-    public async Task<ErrorOr<User>> GetUserAsync(int id)
-    {
-        var user = await userRepository.GetByIdAsync(id);
-
-        if (user is null)
-        {
-            return UserErrors.NotFound;
-        }
-
-        return user;
     }
 
     public async Task<ErrorOr<UserTokens>> RefreshTokenAsync(string refreshToken)
@@ -249,9 +237,9 @@ public class IdentityService(
 
             await emailService.SendAsync(new EmailRequest
             {
-                ToEmails = [userContext.Email],
+                ToEmails = [user.Email],
                 Subject = "Your password has been changed",
-                Body = EmailUtils.GetPasswordChangedEmailBody($"{userContext.Name}")
+                Body = EmailUtils.GetPasswordChangedEmailBody($"{user.FirstName} {user.MiddleName} {user.LastName}")
             });
         });
 

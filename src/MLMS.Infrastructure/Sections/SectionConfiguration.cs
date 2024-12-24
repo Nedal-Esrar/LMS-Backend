@@ -8,6 +8,6 @@ public class SectionConfiguration : IEntityTypeConfiguration<Section>
 {
     public void Configure(EntityTypeBuilder<Section> builder)
     {
-        
+        builder.ToTable("Section");
     }
 }

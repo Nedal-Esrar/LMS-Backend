@@ -1,47 +1,113 @@
+using Microsoft.EntityFrameworkCore;
+using MLMS.Domain.Identity.Interfaces;
 using MLMS.Domain.SectionParts;
 using MLMS.Domain.UserSectionParts;
+using MLMS.Infrastructure.Common;
 
 namespace MLMS.Infrastructure.SectionParts;
 
-public class SectionPartRepository : ISectionPartRepository
+public class SectionPartRepository(
+    LmsDbContext context,
+    IUserContext userContext) : ISectionPartRepository
 {
-    public Task<SectionPart> CreateAsync(SectionPart sectionPart)
+    public async Task<SectionPart> CreateAsync(SectionPart sectionPart)
     {
-        throw new NotImplementedException();
+        await context.SectionParts.AddAsync(sectionPart);
+        
+        await context.SaveChangesAsync();
+        
+        return sectionPart;
     }
 
-    public Task<int> GetMaxIndexBySectionIdAsync(long sectionId)
+    public async Task<int> GetMaxIndexBySectionIdAsync(long sectionId)
     {
-        throw new NotImplementedException();
+        return await context.SectionParts
+            .Where(x => x.SectionId == sectionId)
+            .Select(x => x.Index)
+            .DefaultIfEmpty()
+            .MaxAsync();
     }
 
-    public Task<bool> ExistsAsync(long sectionId, long id)
+    public async Task<bool> ExistsAsync(long sectionId, long id)
     {
-        throw new NotImplementedException();
+        return await context.SectionParts.AnyAsync(x => x.SectionId == sectionId && x.Id == id);
     }
 
-    public Task DeleteAsync(long id)
+    public async Task DeleteAsync(long id)
     {
-        throw new NotImplementedException();
+        var sectionPart = await context.SectionParts.FindAsync(id);
+
+        if (sectionPart is null)
+        {
+            return;
+        }
+        
+        context.SectionParts.Remove(sectionPart);
+        
+        await context.SaveChangesAsync();
     }
 
-    public Task<SectionPart?> GetByIdAsync(long id)
+    public async Task<SectionPart?> GetByIdAsync(long id)
     {
-        throw new NotImplementedException();
+        var userId = userContext.Id!.Value;
+
+        var query = context.SectionParts.Where(sp => sp.Id == id)
+            .Include(x => x.File)
+            .Include(x => x.Questions)
+                .ThenInclude(x => x.Choices)
+            .Include(x => x.UserExamStates.Where(ue => ue.UserId == id))
+            .Include(x => x.UserSectionPartStatuses.Where(usp => usp.UserId == userId))
+            .AsSplitQuery()
+            .AsNoTracking();
+
+        return await query.FirstOrDefaultAsync();
     }
 
-    public Task UpdateAsync(SectionPart sectionPart)
+    public async Task UpdateAsync(SectionPart sectionPart)
     {
-        throw new NotImplementedException();
+        context.SectionParts.Update(sectionPart);
+        
+        await context.SaveChangesAsync();
     }
 
-    public Task ToggleUserDoneStatusAsync(int userId, long id)
+    public async Task ToggleUserDoneStatusAsync(int userId, long id)
     {
-        throw new NotImplementedException();
+        await context.UserSectionPartDoneRelations
+            .Where(x => x.UserId == userId && x.SectionPartId == id)
+            .ExecuteUpdateAsync(u => u.SetProperty(x => x.IsDone, x => !x.IsDone));
     }
 
-    public Task<List<UserExamStateForSectionPart>> GetExamStatusesByCourseAndUserAsync(long id, int userId)
+    public async Task<List<UserSectionPartExamState>> GetExamStatusesByCourseAndUserAsync(long id, int userId)
     {
-        throw new NotImplementedException();
+        var query = from c in context.Courses
+            join s in context.Sections on c.Id equals s.CourseId
+            join sp in context.SectionParts on s.Id equals sp.SectionId
+            join usp in context.UserSectionPartExamStateRelations on sp.Id equals usp.SectionPartId
+            where c.Id == id && usp.UserId == userId
+            select usp;
+        
+        return await query.AsNoTracking()
+            .ToListAsync();
+    }
+
+    public async Task CreateDoneStatesAsync(List<UserSectionPartDone> doneStates)
+    {
+        context.UserSectionPartDoneRelations.AddRange(doneStates);
+        
+        await context.SaveChangesAsync();
+    }
+
+    public async Task CreateExamStatesAsync(List<UserSectionPartExamState> examStates)
+    {
+        context.UserSectionPartExamStateRelations.AddRange(examStates);
+        
+        await context.SaveChangesAsync();
+    }
+
+    public async Task DeleteExamStatesByIdAsync(long id)
+    {
+        await context.UserSectionPartExamStateRelations
+            .Where(use => use.SectionPartId == id)
+            .ExecuteDeleteAsync();
     }
 }

@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MLMS.API.Common;
 using MLMS.API.Courses.Requests;
+using MLMS.API.Courses.Responses;
+using MLMS.Domain.Common.Models;
 using MLMS.Domain.Courses;
 
 namespace MLMS.API.Courses;
@@ -11,19 +13,46 @@ namespace MLMS.API.Courses;
 public class CourseController(ICourseService courseService) : ApiControllerBase
 {
     [HttpPost]
-    [Authorize(Policy = AuthorizationPolicies.SubAdmin)]
+    [Authorize(Policy = AuthorizationPolicies.Admin)]
     public async Task<IActionResult> Initialize(InitializeCourseRequest request)
     {
         var result = await courseService.InitializeAsync(request.ToDomain());
     
-        return result.Match(c => CreatedAtAction(nameof(GetById), new { id = c.Id }), Problem);
+        return result.Match(c => CreatedAtAction(nameof(GetById), new { id = c.Id }, c.ToSimplifiedContract()), Problem);
+    }
+    
+    [HttpPut("{id:long}")]
+    [Authorize(Policy = AuthorizationPolicies.Admin)]
+    public async Task<IActionResult> Update(long id, UpdateCourseRequest request)
+    {
+        var result = await courseService.UpdateAsync(id, request.ToDomain());
+    
+        return result.Match(_ => NoContent(), Problem);
+    }
+
+    [HttpDelete("{id:long}")]
+    [Authorize(Policy = AuthorizationPolicies.Admin)]
+    public async Task<IActionResult> Delete(long id)
+    {
+        var result = await courseService.DeleteAsync(id);
+        
+        return result.Match(_ => NoContent(), Problem);
     }
 
     [HttpPut("{id:long}/assignments")]
-    [Authorize(Policy = AuthorizationPolicies.SubAdmin)]
+    [Authorize(Policy = AuthorizationPolicies.Admin)]
     public async Task<IActionResult> UpdateAssignments(long id, EditCourseAssignmentsRequest request)
     {
         var result = await courseService.EditAssignmentsAsync(id, request.Assignments);
+
+        return result.Match(_ => NoContent(), Problem);
+    }
+    
+    [HttpPost("{id:long}/start")]
+    [Authorize(Policy = AuthorizationPolicies.Staff)]
+    public async Task<IActionResult> Start(long id)
+    {
+        var result = await courseService.StartAsync(id);
 
         return result.Match(_ => NoContent(), Problem);
     }
@@ -52,9 +81,7 @@ public class CourseController(ICourseService courseService) : ApiControllerBase
     {
         var result = await courseService.GetByIdAsync(id);
 
-        return Ok();
-
-        // return result.Match(c => Ok(c.ToDetailedContracted()), Problem);
+        return result.Match(c => Ok(c.ToDetailedContract()), Problem);
     }
     
     [HttpPost("search")]
@@ -62,9 +89,20 @@ public class CourseController(ICourseService courseService) : ApiControllerBase
     public async Task<IActionResult> Get(RetrievalRequest request)
     {
         var result = await courseService.GetAsync(request.ToSieveModel());
+        
+        return result.Match(courses => Ok(new PaginatedList<CourseSimplifiedResponse>
+        {
+            Items = courses.Items.Select(d => d.ToSimplifiedContract()).ToList(),
+            Metadata = courses.Metadata
+        }), Problem);
+    }
+    
+    [HttpGet("{id:long}/assignments")]
+    [Authorize(Policy = AuthorizationPolicies.Admin)]
+    public async Task<IActionResult> GetAssignments(long id)
+    {
+        var result = await courseService.GetAssignmentsByIdAsync(id);
 
-        return Ok();
-
-        // return result.Match(courses => , Problem);
+        return result.Match(assignments => Ok(assignments.Select(a => a.ToContract()).ToList()), Problem);
     }
 }

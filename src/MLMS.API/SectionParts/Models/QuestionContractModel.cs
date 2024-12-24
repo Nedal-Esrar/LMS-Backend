@@ -1,10 +1,10 @@
 namespace MLMS.API.SectionParts.Models;
 
-public class QuestionRequestModel
+public class QuestionContractModel
 {
     public string Text { get; set; }
     
     public int Points { get; set; }
 
-    public List<QuestionChoiceRequestModel> Choices { get; set; } = [];
+    public List<ChoiceContractModel> Choices { get; set; } = [];
 }

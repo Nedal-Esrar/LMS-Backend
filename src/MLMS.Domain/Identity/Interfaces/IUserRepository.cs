@@ -23,5 +23,5 @@ public interface IUserRepository
     
     Task<PaginatedList<User>> GetAsync(SieveModel sieveModel);
     
-    Task<List<User>> GetByDepartmentAndMajorAsync(List<(int DepartmentId, int MajorId)> departmentMajorCombinations);
+    Task<List<User>> GetByMajorsAsync(List<int> majors);
 }
