@@ -59,15 +59,73 @@ public class SectionPartRepository(
             .Include(x => x.UserSectionPartStatuses.Where(usp => usp.UserId == userId))
             .AsSplitQuery()
             .AsNoTracking();
+        
+        
 
         return await query.FirstOrDefaultAsync();
     }
 
     public async Task UpdateAsync(SectionPart sectionPart)
     {
-        context.SectionParts.Update(sectionPart);
+        var existingSectionPart = await context.SectionParts.Where(sp => sp.Id == sectionPart.Id)
+            .Include(x => x.Questions)
+                .ThenInclude(x => x.Choices)
+            .AsSplitQuery()
+            .FirstOrDefaultAsync();
+
+        if (existingSectionPart is null)
+        {
+            return;
+        }
+        
+        // map basic values
+        existingSectionPart.Title = sectionPart.Title;
+        existingSectionPart.MaterialType = sectionPart.MaterialType;
+        existingSectionPart.Link = sectionPart.Link;
+        existingSectionPart.FileId = sectionPart.FileId;
+        existingSectionPart.PassThresholdPoints = sectionPart.PassThresholdPoints;
+        
+        // if the updated type is exam, map questions and choices.
+        if (sectionPart.MaterialType == MaterialType.Exam)
+        {
+            MapQuestions(existingSectionPart, sectionPart);
+        }
         
         await context.SaveChangesAsync();
+    }
+
+    private void MapQuestions(SectionPart existingSectionPart, SectionPart sectionPart)
+    {
+        var existingQuestions = existingSectionPart.Questions;
+        var newQuestions = sectionPart.Questions;
+
+        var existingQuestionsIds = existingSectionPart.Questions
+            .Select(q => q.Id)
+            .ToHashSet();
+
+        var newQuestionsIds = sectionPart.Questions
+            .Select(q => q.Id)
+            .ToHashSet();
+
+        // remove questions that are not in the new list
+        foreach (var existingQuestion in existingQuestions.Where(q => !newQuestionsIds.Contains(q.Id)))
+        {
+            context.Questions.Remove(existingQuestion);
+        }
+
+        // add new questions
+        foreach (var newQuestion in newQuestions)
+        {
+            if (existingQuestionsIds.Contains(newQuestion.Id)) // to update.
+            {
+                // question basic update
+                
+            }
+            else // to create.
+            {
+                context.Questions.Add(newQuestion);
+            }
+        }
     }
 
     public async Task ToggleUserDoneStatusAsync(int userId, long id)

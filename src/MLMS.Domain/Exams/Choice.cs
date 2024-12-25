@@ -1,6 +1,6 @@
 using MLMS.Domain.Common.Models;
 
-namespace MLMS.Domain.Questions;
+namespace MLMS.Domain.Exams;
 
 public class Choice : EntityBase<long>
 {

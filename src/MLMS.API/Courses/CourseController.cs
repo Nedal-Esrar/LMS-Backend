@@ -72,7 +72,7 @@ public class CourseController(ICourseService courseService) : ApiControllerBase
     {
         var result = await courseService.CheckIfFinishedAsync(id);
 
-        return result.Match(isFinished => Ok(new { isFinished }), Problem);
+        return result.Match(status => Ok(new { status.IsFinished, status.FinishedAtUtc }), Problem);
     }
 
     [HttpGet("{id:long}")]

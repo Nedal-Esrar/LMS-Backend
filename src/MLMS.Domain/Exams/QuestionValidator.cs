@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace MLMS.Domain.Questions;
+namespace MLMS.Domain.Exams;
 
 public class QuestionValidator : AbstractValidator<Question>
 {

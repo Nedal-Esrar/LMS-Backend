@@ -1,7 +1,7 @@
 using MLMS.Domain.Common.Models;
 using MLMS.Domain.SectionParts;
 
-namespace MLMS.Domain.Questions;
+namespace MLMS.Domain.Exams;
 
 public class Question : EntityBase<long>
 {

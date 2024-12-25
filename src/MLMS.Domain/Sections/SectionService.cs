@@ -25,7 +25,7 @@ public class SectionService(
             return CourseErrors.NotFound;
         }
         
-        if (await sectionRepository.ExistsByTitleAsync(section.Title))
+        if (await sectionRepository.ExistsByTitleAsync(section.CourseId, section.Title))
         {
             return SectionErrors.NameAlreadyExists;
         }
@@ -61,12 +61,12 @@ public class SectionService(
             return CourseErrors.NotFound;
         }
         
-        if (section.Title != existingSection.Title && await sectionRepository.ExistsByTitleAsync(section.Title))
+        if (section.Title != existingSection.Title && await sectionRepository.ExistsByTitleAsync(section.CourseId, section.Title))
         {
             return SectionErrors.NameAlreadyExists;
         }
-        
-        section.Index = await sectionRepository.GetMaxIndexByCourseIdAsync(section.CourseId) + 1;
+
+        existingSection.MapForUpdate(section);
         
         await sectionRepository.UpdateAsync(section);
 

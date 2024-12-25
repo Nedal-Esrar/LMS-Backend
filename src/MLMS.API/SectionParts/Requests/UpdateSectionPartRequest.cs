@@ -13,5 +13,7 @@ public class UpdateSectionPartRequest
     
     public string? Link { get; set; }
     
+    public int? PassThresholdPoints { get; set; }
+    
     public List<QuestionContractModel> Questions { get; set; } = [];
 }

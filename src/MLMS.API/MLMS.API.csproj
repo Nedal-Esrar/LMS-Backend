@@ -42,6 +42,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Exams\" />
       <Folder Include="wwwroot\" />
       <Folder Include="wwwroot\uploaded-files\" />
     </ItemGroup>

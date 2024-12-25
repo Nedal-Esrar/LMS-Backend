@@ -11,7 +11,7 @@ public interface ISectionRepository
     
     Task<Section> CreateAsync(Section section);
     
-    Task<bool> ExistsByTitleAsync(string title);
+    Task<bool> ExistsByTitleAsync(long courseId, string title);
     
     Task<int> GetMaxIndexByCourseIdAsync(long courseId);
     

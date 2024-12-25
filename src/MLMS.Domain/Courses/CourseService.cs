@@ -186,11 +186,11 @@ public class CourseService(
         return courseStatus;
     }
 
-    public async Task<ErrorOr<bool>> CheckIfFinishedAsync(long id)
+    public async Task<ErrorOr<(bool IsFinished, DateTime? FinishedAtUtc)>> CheckIfFinishedAsync(long id)
     {
         var userCourse = await userCourseRepository.GetByUserAndCourseAsync(id, userContext.Id!.Value);
 
-        return userCourse.Status == UserCourseStatus.Finished;
+        return (userCourse.Status == UserCourseStatus.Finished, userCourse.FinishedAtUtc);
     }
 
     public async Task<ErrorOr<None>> StartAsync(long id)
@@ -265,5 +265,19 @@ public class CourseService(
         }
 
         return await courseAssignmentRepository.GetByCourseIdAsync(id, includeMajor: true);
+    }
+
+    public async Task<ErrorOr<Dictionary<UserCourseStatus, int>>> GetCourseStatusForCurrentUserAsync()
+    {
+        var userId = userContext.Id!.Value;
+        
+        var userCourseStatuses = await userCourseRepository.GetByUserIdAsync(userId);
+
+        var statusCountMap = userCourseStatuses
+            .GroupBy(uc => uc.Status)
+            .ToDictionary(g => g.Key, g => g.Count());
+
+        return Enum.GetValues<UserCourseStatus>()
+            .ToDictionary(ev => ev, ev => statusCountMap.GetValueOrDefault(ev, 0));
     }
 }

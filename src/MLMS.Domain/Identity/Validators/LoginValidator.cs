@@ -10,8 +10,8 @@ public class LoginValidator : AbstractValidator<LoginCredentials>
         RuleFor(x => x.WorkId)
             .NotEmpty();
 
-        RuleFor(x => x.Password)
-            .NotEmpty()
-            .StrongPassword();
+        // RuleFor(x => x.Password)
+        //     .NotEmpty()
+        //     .StrongPassword();
     }
 }

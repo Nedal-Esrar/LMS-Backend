@@ -1,7 +1,7 @@
 using MLMS.API.SectionParts.Models;
 using MLMS.API.SectionParts.Requests;
 using MLMS.API.SectionParts.Responses;
-using MLMS.Domain.Questions;
+using MLMS.Domain.Exams;
 using MLMS.Domain.SectionParts;
 using Riok.Mapperly.Abstractions;
 

@@ -1,9 +1,9 @@
 using ErrorOr;
 using MLMS.Domain.Common;
 using MLMS.Domain.Common.Models;
+using MLMS.Domain.Exams;
 using MLMS.Domain.Files;
 using MLMS.Domain.Identity.Interfaces;
-using MLMS.Domain.Questions;
 using MLMS.Domain.Sections;
 using MLMS.Domain.UserSectionParts;
 using File = MLMS.Domain.Files.File;
@@ -119,10 +119,6 @@ public class SectionPartService(
 
         WipeAdditionalInfo(updatedSectionPart);
         
-        existingSectionPart.MapForUpdate(updatedSectionPart);
-        
-        await sectionPartRepository.UpdateAsync(existingSectionPart);
-        
         // if there were updates to or from Exam type, delete or create associations.
         if (updatedSectionPart.MaterialType == MaterialType.Exam && 
             existingSectionPart.MaterialType != MaterialType.Exam)
@@ -140,6 +136,10 @@ public class SectionPartService(
         {
             await sectionPartRepository.DeleteExamStatesByIdAsync(id);
         }
+        
+        existingSectionPart.MapForUpdate(updatedSectionPart);
+        
+        await sectionPartRepository.UpdateAsync(existingSectionPart);
 
         return None.Value;
     }

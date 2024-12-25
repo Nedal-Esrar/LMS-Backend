@@ -27,9 +27,9 @@ public class SectionRepository(LmsDbContext context) : ISectionRepository
         return section;
     }
 
-    public async Task<bool> ExistsByTitleAsync(string title)
+    public async Task<bool> ExistsByTitleAsync(long courseId, string title)
     {
-        return await context.Sections.AnyAsync(x => x.Title == title);
+        return await context.Sections.AnyAsync(x => x.CourseId == courseId && x.Title == title);
     }
 
     public async Task<int> GetMaxIndexByCourseIdAsync(long courseId)

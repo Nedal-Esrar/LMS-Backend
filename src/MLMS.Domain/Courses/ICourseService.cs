@@ -18,7 +18,7 @@ public interface ICourseService
     
     Task<ErrorOr<UserCourseStatus>> FinishAsync(long id);
     
-    Task<ErrorOr<bool>> CheckIfFinishedAsync(long id);
+    Task<ErrorOr<(bool IsFinished, DateTime? FinishedAtUtc)>> CheckIfFinishedAsync(long id);
     
     Task<ErrorOr<None>> StartAsync(long id);
     
@@ -27,4 +27,6 @@ public interface ICourseService
     Task<ErrorOr<None>> DeleteAsync(long id);
     
     Task<ErrorOr<List<CourseAssignment>>> GetAssignmentsByIdAsync(long id);
+    
+    Task<ErrorOr<Dictionary<UserCourseStatus, int>>> GetCourseStatusForCurrentUserAsync();
 }

@@ -13,4 +13,6 @@ public interface IUserCourseRepository
     Task<UserCourse> GetByUserAndCourseAsync(long id, int userId);
     
     Task UpdateAsync(UserCourse userCourse);
+    
+    Task<List<UserCourse>> GetByUserIdAsync(int userId);
 }

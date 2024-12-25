@@ -1,5 +1,5 @@
 using MLMS.Domain.Common.Models;
-using MLMS.Domain.Questions;
+using MLMS.Domain.Exams;
 using MLMS.Domain.Sections;
 using MLMS.Domain.UserSectionParts;
 using File = MLMS.Domain.Files.File;

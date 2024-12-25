@@ -38,4 +38,12 @@ public class UserCourseRepository(LmsDbContext context) : IUserCourseRepository
         
         await context.SaveChangesAsync();
     }
+
+    public async Task<List<UserCourse>> GetByUserIdAsync(int userId)
+    {
+        return await context.UserCourses
+            .Where(uc => uc.UserId == userId)
+            .AsNoTracking()
+            .ToListAsync();
+    }
 }

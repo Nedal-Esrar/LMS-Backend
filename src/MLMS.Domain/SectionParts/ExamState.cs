@@ -1,4 +1,4 @@
-using MLMS.Domain.Questions;
+using MLMS.Domain.Exams;
 
 namespace MLMS.Domain.SectionParts;
 
