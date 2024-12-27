@@ -1,15 +1,15 @@
+using MLMS.Domain.Exams;
 using MLMS.Domain.SectionParts;
-using MLMS.Domain.Users;
 
 namespace MLMS.Domain.UserSectionParts;
 
-public class UserSectionPartExamState
+public class UserExamState
 {
     public int UserId { get; set; }
     
-    public long SectionPartId { get; set; }
+    public long ExamId { get; set; }
     
-    public SectionPart SectionPart { get; set; }
+    public Exam Exam { get; set; }
     
     public ExamStatus Status { get; set; }
 }

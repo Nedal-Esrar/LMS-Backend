@@ -1,5 +1,6 @@
 using ErrorOr;
 using MLMS.Domain.Common;
+using MLMS.Domain.Common.Interfaces;
 using MLMS.Domain.Common.Models;
 using MLMS.Domain.Exams;
 using MLMS.Domain.Files;
@@ -14,7 +15,8 @@ public class SectionPartService(
     ISectionPartRepository sectionPartRepository,
     ISectionRepository sectionRepository,
     IFileRepository fileRepository,
-    IUserContext userContext) : ISectionPartService
+    IUserContext userContext,
+    IDbTransactionProvider dbTransactionProvider) : ISectionPartService
 {
     private readonly SectionPartValidator _sectionPartValidator = new();
     
@@ -35,7 +37,7 @@ public class SectionPartService(
         var materialValidationError = sectionPart.MaterialType switch
         {
             MaterialType.File => await ValidateForFileTypeAsync(sectionPart),
-            MaterialType.Exam => ValidateForExamTypeAsync(sectionPart),
+            MaterialType.Exam => await ValidateForExamTypeAsync(sectionPart.Exam!),
             _ => null
         };
 
@@ -47,27 +49,33 @@ public class SectionPartService(
         WipeAdditionalInfo(sectionPart);
         
         sectionPart.Index = await sectionPartRepository.GetMaxIndexBySectionIdAsync(sectionPart.SectionId) + 1;
+    
+        var createdSectionPart = new SectionPart();
         
-        var createdSectionPart = await sectionPartRepository.CreateAsync(sectionPart);
-        
-        var users = await sectionRepository.GetUsersBySectionIdAsync(sectionPart.SectionId);
-
-        await sectionPartRepository.CreateDoneStatesAsync(users.Select(u => new UserSectionPartDone
+        await dbTransactionProvider.ExecuteInTransactionAsync(async () =>
         {
-            UserId = u.Id,
-            SectionPartId = sectionPart.Id,
-            IsDone = false
-        }).ToList());
+            // TODO: separate repository for exams?
+            createdSectionPart = await sectionPartRepository.CreateAsync(sectionPart);
         
-        if (sectionPart.MaterialType == MaterialType.Exam)
-        {
-            await sectionPartRepository.CreateExamStatesAsync(users.Select(u => new UserSectionPartExamState
+            var users = await sectionRepository.GetUsersBySectionIdAsync(sectionPart.SectionId);
+            
+            await sectionPartRepository.CreateDoneStatesAsync(users.Select(u => new UserSectionPartDone
             {
                 UserId = u.Id,
                 SectionPartId = sectionPart.Id,
-                Status = ExamStatus.NotTaken
+                IsDone = false
             }).ToList());
-        }
+        
+            if (sectionPart.MaterialType == MaterialType.Exam)
+            {
+                await sectionPartRepository.CreateExamStatesAsync(users.Select(u => new UserExamState
+                {
+                    UserId = u.Id,
+                    ExamId = sectionPart.Exam!.Id,
+                    Status = ExamStatus.NotTaken
+                }).ToList());
+            }
+        });
 
         return createdSectionPart;
     }
@@ -108,7 +116,7 @@ public class SectionPartService(
         var materialValidationError = updatedSectionPart.MaterialType switch
         {
             MaterialType.File => await ValidateForFileTypeAsync(updatedSectionPart),
-            MaterialType.Exam => ValidateForExamTypeAsync(updatedSectionPart),
+            MaterialType.Exam => await ValidateForExamTypeAsync(updatedSectionPart.Exam!),
             _ => null
         };
         
@@ -118,28 +126,31 @@ public class SectionPartService(
         }
 
         WipeAdditionalInfo(updatedSectionPart);
-        
-        // if there were updates to or from Exam type, delete or create associations.
-        if (updatedSectionPart.MaterialType == MaterialType.Exam && 
-            existingSectionPart.MaterialType != MaterialType.Exam)
+
+        await dbTransactionProvider.ExecuteInTransactionAsync(async () =>
         {
-            var users = await sectionRepository.GetUsersBySectionIdAsync(updatedSectionPart.SectionId);
-            
-            await sectionPartRepository.CreateExamStatesAsync(users.Select(u => new UserSectionPartExamState
+            // if there were updates to or from Exam type, delete or create associations.
+            if (updatedSectionPart.MaterialType == MaterialType.Exam && 
+                existingSectionPart.MaterialType != MaterialType.Exam)
             {
-                UserId = u.Id,
-                SectionPartId = id,
-                Status = ExamStatus.NotTaken
-            }).ToList());
-        } else if (updatedSectionPart.MaterialType != MaterialType.Exam &&
-              existingSectionPart.MaterialType == MaterialType.Exam)
-        {
-            await sectionPartRepository.DeleteExamStatesByIdAsync(id);
-        }
+                var users = await sectionRepository.GetUsersBySectionIdAsync(updatedSectionPart.SectionId);
+            
+                await sectionPartRepository.CreateExamStatesAsync(users.Select(u => new UserExamState
+                {
+                    UserId = u.Id,
+                    ExamId = updatedSectionPart.Exam!.Id,
+                    Status = ExamStatus.NotTaken
+                }).ToList());
+            } else if (updatedSectionPart.MaterialType != MaterialType.Exam &&
+                       existingSectionPart.MaterialType == MaterialType.Exam)
+            {
+                await sectionPartRepository.DeleteExamStatesByIdAsync(id);
+            }
         
-        existingSectionPart.MapForUpdate(updatedSectionPart);
+            existingSectionPart.MapForUpdate(updatedSectionPart);
         
-        await sectionPartRepository.UpdateAsync(existingSectionPart);
+            await sectionPartRepository.UpdateAsync(existingSectionPart);
+        });
 
         return None.Value;
     }
@@ -154,6 +165,7 @@ public class SectionPartService(
         return await sectionPartRepository.GetByIdAsync(id)!;
     }
 
+    // This should be re-evaluated.
     public async Task<ErrorOr<ExamState>> UpdateUserExamStatusAsync(long sectionId, long id, List<(long QuestionId, long ChoiceId)> requestAnswers)
     {
         if (!await sectionPartRepository.ExistsAsync(sectionId, id))
@@ -181,7 +193,7 @@ public class SectionPartService(
         
         // At this stage, questions are guaranteed to be distinct and in the section part,
         // the staff should have answered all questions.
-        if (answeredQuestions != sectionPart.Questions.Count)
+        if (answeredQuestions != sectionPart.Exam!.Questions.Count)
         {
             return SectionPartErrors.NotAllQuestionsAnswered;
         }
@@ -193,7 +205,7 @@ public class SectionPartService(
         
         foreach (var (questionId, choiceId) in requestAnswers)
         {
-            var question = sectionPart.Questions.First(q => q.Id == questionId);
+            var question = new Question();
             var choice = question.Choices.First(c => c.Id == choiceId);
             
             var questionCorrectChoice = question.Choices.First(c => c.IsCorrect);
@@ -208,7 +220,7 @@ public class SectionPartService(
             }
         }
         
-        var examStatus = totalAnsweredPoints < sectionPart.PassThresholdPoints
+        var examStatus = totalAnsweredPoints < sectionPart.Exam.PassThresholdPoints
             ? ExamStatus.Failed
             : ExamStatus.Passed;
         
@@ -219,10 +231,10 @@ public class SectionPartService(
         }
         else
         {
-            sectionPart.UserExamStates.Add(new UserSectionPartExamState
+            sectionPart.UserExamStates.Add(new UserExamState
             {
                 UserId = userContext.Id!.Value,
-                SectionPartId = sectionPart.Id,
+                ExamId = sectionPart.ExamId!.Value,
                 Status = examStatus,
             });
         }
@@ -248,9 +260,10 @@ public class SectionPartService(
         return None.Value;
     }
 
+    // Also this.
     private bool CheckQuestionsChoicesAssociations(SectionPart sectionPart, List<(long QuestionId, long ChoiceId)> requestAnswers)
     {
-        var questionChoiceAssociations = sectionPart.Questions
+        var questionChoiceAssociations = sectionPart.Exam!.Questions
             .SelectMany(question => question.Choices.Select(choice => (question.Id, choice.Id)))
             .ToHashSet();
         
@@ -268,39 +281,58 @@ public class SectionPartService(
                 break;
             case MaterialType.File:
                 sectionPart.Link = null;
-                sectionPart.PassThresholdPoints = null;
-                sectionPart.Questions = [];
+                sectionPart.Exam = null;
                 break;
             case MaterialType.Link:
                 sectionPart.FileId = null;
                 sectionPart.File = null;
-                sectionPart.PassThresholdPoints = null;
-                sectionPart.Questions = [];
+                sectionPart.Exam = null;
                 break;
         }
     }
 
-    private Error? ValidateForExamTypeAsync(SectionPart sectionPart)
+    private async Task<Error?> ValidateForExamTypeAsync(Exam exam)
     {
-        if (sectionPart.Questions.Any(q => q.Choices.Count == 1))
+        if (exam.Questions.Any(q => q.Choices.Count == 1))
         {
             return SectionPartErrors.ChoicesCountNotEnough;
         }
         
-        var questionsPointsSum = sectionPart.Questions
+        var questionsPointsSum = exam.Questions
             .Sum(q => q.Points);
 
-        if (questionsPointsSum < sectionPart.PassThresholdPoints)
+        if (questionsPointsSum < exam.PassThresholdPoints)
         {
             return SectionPartErrors.InvalidThresholdPoints;
         }
         
-        var questionWithMultipleCorrectChoices = sectionPart.Questions
+        var questionWithMultipleCorrectChoices = exam.Questions
             .Any(q => q.Choices.Count(c => c.IsCorrect) > 1);
 
         if (questionWithMultipleCorrectChoices)
         {
             return SectionPartErrors.QuestionWithMultipleCorrectChoices;
+        }
+        
+        // validate images attached to files.
+        foreach (var question in exam.Questions)
+        {
+            if (!question.ImageId.HasValue)
+            {
+                continue;
+            }
+            
+            var imageFile = await fileRepository.GetByIdAsync(question.ImageId.Value);
+
+            if (imageFile is null)
+            {
+                return FileErrors.NotFound;
+            }
+
+            if (!imageFile.IsImage())
+            {
+                return FileErrors.NotImage;
+            }
         }
         
         return null;

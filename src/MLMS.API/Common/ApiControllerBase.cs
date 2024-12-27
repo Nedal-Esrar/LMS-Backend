@@ -14,12 +14,9 @@ public abstract class ApiControllerBase : ControllerBase
             return Problem();
         }
 
-        if (errors.Any(e => e.Type != ErrorType.Validation))
-        {
-            return ConstructProblem(errors);
-        }
-
-        return ConstructValidationProblem(errors);
+        return errors.Any(e => e.Type != ErrorType.Validation) 
+            ? ConstructProblem(errors) 
+            : ConstructValidationProblem(errors);
     }
     
     private IActionResult ConstructValidationProblem(List<Error> errors)

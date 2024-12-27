@@ -18,7 +18,7 @@ public class SectionPart : EntityBase<long>
     
     public List<UserSectionPartDone> UserSectionPartStatuses { get; set; } = [];
     
-    public List<UserSectionPartExamState> UserExamStates { get; set; } = [];
+    public List<UserExamState> UserExamStates { get; set; } = [];
     
     public MaterialType MaterialType { get; set; }
     
@@ -28,7 +28,7 @@ public class SectionPart : EntityBase<long>
     
     public string? Link { get; set; }
     
-    public int? PassThresholdPoints { get; set; }
+    public long? ExamId { get; set; }
     
-    public List<Question> Questions { get; set; } = [];
+    public Exam? Exam { get; set; }
 }

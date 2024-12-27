@@ -1,5 +1,6 @@
+using MLMS.API.Exams.Requests;
+using MLMS.API.Exams.Responses;
 using MLMS.API.Files.Responses;
-using MLMS.API.SectionParts.Models;
 using MLMS.Domain.SectionParts;
 
 namespace MLMS.API.SectionParts.Responses;
@@ -20,7 +21,5 @@ public class SectionPartResponse
     
     public string? Link { get; set; }
     
-    public int? PassThresholdPoints { get; set; }
-    
-    public List<QuestionContractModel> Questions { get; set; } = [];
+    public ExamResponse? Exam { get; set; }
 }

@@ -12,5 +12,8 @@ public class NotificationSieveConfiguration : ISieveConfiguration
 
         mapper.Property<Notification>(n => n.CreatedAtUtc)
             .CanSort();
+
+        mapper.Property<Notification>(n => n.Id)
+            .CanFilter();
     }
 }

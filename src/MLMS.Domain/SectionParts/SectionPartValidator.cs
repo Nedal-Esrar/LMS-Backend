@@ -10,20 +10,9 @@ public class SectionPartValidator : AbstractValidator<SectionPart>
         RuleFor(x => x.Title).NotEmpty().MaximumLength(150);
         
         RuleFor(x => x.MaterialType).IsInEnum();
-
-        RuleFor(x => x.Questions)
-            .NotNull()
-            .NotEmpty()
-            .When(x => x.MaterialType == MaterialType.Exam);
-
-        RuleFor(x => x.PassThresholdPoints)
-            .NotNull()
-            .GreaterThan(0)
-            .When(x => x.MaterialType == MaterialType.Exam);
-
-        RuleForEach(x => x.Questions)
-            .NotNull()
-            .SetValidator(new QuestionValidator())
+        
+        RuleFor(x => x.Exam)
+            .SetValidator(new ExamValidator())
             .When(x => x.MaterialType == MaterialType.Exam);
         
         RuleFor(x => x.FileId)

@@ -15,5 +15,10 @@ public class SectionPartConfiguration : IEntityTypeConfiguration<SectionPart>
             .HasForeignKey(x => x.FileId)
             .IsRequired(false)
             .OnDelete(DeleteBehavior.SetNull);
+
+        builder.HasOne(x => x.Exam)
+            .WithOne(x => x.SectionPart)
+            .HasForeignKey<SectionPart>(x => x.ExamId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

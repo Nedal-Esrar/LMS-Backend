@@ -28,18 +28,24 @@ public class CourseRepository(
         return await context.Courses.AnyAsync(c => c.Name == courseName);
     }
 
-    public Task<Course?> GetDetailedByIdAsync(long id)
+    public async Task<Course?> GetDetailedByIdAsync(long id)
     {
         var userId = userContext.Id!.Value;
-
+        
         var query = context.Courses.Where(c => c.Id == id)
             .Include(x => x.UsersCourses.Where(uc => uc.UserId == userId))
             .Include(x => x.Assignments)
                 .ThenInclude(x => x.Major)
             .Include(x => x.Sections)
                 .ThenInclude(x => x.SectionParts)
-                    .ThenInclude(x => x.Questions)
-                        .ThenInclude(x => x.Choices)
+                    .ThenInclude(x => x.Exam)
+                        .ThenInclude(x => x.Questions)
+                            .ThenInclude(x => x.Choices)
+            .Include(x => x.Sections)
+                .ThenInclude(x => x.SectionParts)
+                    .ThenInclude(x => x.Exam)
+                        .ThenInclude(x => x.Questions)
+                            .ThenInclude(x => x.Image)
             .Include(x => x.Sections)
                 .ThenInclude(x => x.SectionParts)
                     .ThenInclude(x => x.File)
@@ -72,8 +78,8 @@ public class CourseRepository(
                 UsersCourses = c.UsersCourses,
                 Assignments = c.Assignments
             };
-
-        return courseWithCreatedByUserQuery.AsSplitQuery()
+        
+        return await courseWithCreatedByUserQuery.AsSplitQuery()
             .AsNoTracking()
             .FirstOrDefaultAsync();
     }

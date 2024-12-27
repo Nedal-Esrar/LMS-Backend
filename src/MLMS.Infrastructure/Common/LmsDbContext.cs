@@ -15,11 +15,11 @@ using MLMS.Domain.UserSectionParts;
 using MLMS.Infrastructure.CourseAssignments;
 using MLMS.Infrastructure.Courses;
 using MLMS.Infrastructure.Departments;
+using MLMS.Infrastructure.Exams;
 using MLMS.Infrastructure.Files;
 using MLMS.Infrastructure.Identity;
 using MLMS.Infrastructure.Identity.Models;
 using MLMS.Infrastructure.Majors;
-using MLMS.Infrastructure.Questions;
 using MLMS.Infrastructure.SectionParts;
 using MLMS.Infrastructure.Sections;
 using MLMS.Infrastructure.UserCourses;
@@ -57,7 +57,9 @@ public class LmsDbContext(DbContextOptions options)
     
     public DbSet<UserSectionPartDone> UserSectionPartDoneRelations { get; set; }
     
-    public DbSet<Domain.UserSectionParts.UserSectionPartExamState> UserSectionPartExamStateRelations { get; set; }
+    public DbSet<Exam> Exams { get; set; }
+    
+    public DbSet<UserExamState> UserExamStateRelations { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -75,6 +77,7 @@ public class LmsDbContext(DbContextOptions options)
         builder.ApplyConfiguration(new SectionPartConfiguration());
         builder.ApplyConfiguration(new UserCourseConfiguration());
         builder.ApplyConfiguration(new UserSectionPartDoneConfiguration());
-        builder.ApplyConfiguration(new UserSectionPartExamStateConfiguration());
+        builder.ApplyConfiguration(new UserExamStateConfiguration());
+        builder.ApplyConfiguration(new ExamConfiguration());
     }
 }

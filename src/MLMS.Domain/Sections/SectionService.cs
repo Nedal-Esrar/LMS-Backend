@@ -68,7 +68,7 @@ public class SectionService(
 
         existingSection.MapForUpdate(section);
         
-        await sectionRepository.UpdateAsync(section);
+        await sectionRepository.UpdateAsync(existingSection);
 
         return None.Value;
     }

@@ -5,13 +5,13 @@ using MLMS.Infrastructure.Identity.Models;
 
 namespace MLMS.Infrastructure.UserSectionParts;
 
-public class UserSectionPartExamStateConfiguration : IEntityTypeConfiguration<UserSectionPartExamState>
+public class UserExamStateConfiguration : IEntityTypeConfiguration<UserExamState>
 {
-    public void Configure(EntityTypeBuilder<UserSectionPartExamState> builder)
+    public void Configure(EntityTypeBuilder<UserExamState> builder)
     {
-        builder.ToTable("UserSectionPartExamState");
+        builder.ToTable("UserExamState");
         
-        builder.HasKey(ue => new { ue.UserId, ue.SectionPartId });
+        builder.HasKey(ue => new { ue.UserId, ue.ExamId });
 
         builder.HasOne<ApplicationUser>()
             .WithMany()

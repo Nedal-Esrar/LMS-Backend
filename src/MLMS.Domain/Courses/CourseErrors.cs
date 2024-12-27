@@ -8,10 +8,10 @@ public static partial class CourseErrors
     public static Error NameAlreadyExists => Error.Conflict("Course name already exists.");
     public static Error NotFound => Error.NotFound("Course not found.");
 
-    public static Error NotAssigned => Error.Unauthorized("Course is not assigned for user.");
+    public static Error NotAssigned => Error.Forbidden("Course is not assigned for user.");
 
     public static Error NotCreatedByUser =>
-        Error.Unauthorized("Course is not accessible since it is not created by the current user.");
+        Error.Forbidden("Course is not accessible since it is not created by the current user.");
     
     public static Error NotInProgress => Error.Conflict("Course is not in progress.");
 

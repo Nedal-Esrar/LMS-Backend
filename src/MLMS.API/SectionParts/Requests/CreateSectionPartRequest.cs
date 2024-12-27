@@ -1,4 +1,4 @@
-using MLMS.API.SectionParts.Models;
+using MLMS.API.Exams.Requests;
 using MLMS.Domain.SectionParts;
 
 namespace MLMS.API.SectionParts.Requests;
@@ -13,7 +13,5 @@ public class CreateSectionPartRequest
     
     public string? Link { get; set; }
     
-    public int? PassThresholdPoints { get; set; }
-    
-    public List<QuestionContractModel> Questions { get; set; } = [];
+    public ExamCreateRequest? Exam { get; set; }
 }

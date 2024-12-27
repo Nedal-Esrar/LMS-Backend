@@ -66,7 +66,7 @@ public static class WebConfiguration
 
         services.AddAuthorizationBuilder()
             .AddPolicy(AuthorizationPolicies.SuperAdmin, policy => policy.RequireRole(UserRole.Admin.ToString()))
-            .AddPolicy(AuthorizationPolicies.Staff, policy => policy.RequireRole(UserRole.Admin.ToString()))
+            .AddPolicy(AuthorizationPolicies.Staff, policy => policy.RequireRole(UserRole.Staff.ToString()))
             .AddPolicy(AuthorizationPolicies.Admin, policy => policy.RequireRole(UserRole.Admin.ToString(), UserRole.SubAdmin.ToString()));
         
         services.AddDateOnlyTimeOnlyStringConverters();
