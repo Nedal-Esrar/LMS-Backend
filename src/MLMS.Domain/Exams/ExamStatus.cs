@@ -1,4 +1,4 @@
-namespace MLMS.Domain.SectionParts;
+namespace MLMS.Domain.Exams;
 
 public enum ExamStatus
 {

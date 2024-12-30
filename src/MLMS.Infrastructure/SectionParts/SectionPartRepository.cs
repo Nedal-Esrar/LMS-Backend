@@ -60,7 +60,8 @@ public class SectionPartRepository(
             .Include(x => x.Exam)
                 .ThenInclude(x => x.Questions)
                     .ThenInclude(x => x.Choices)
-            .Include(x => x.UserExamStates.Where(ue => ue.UserId == id))
+            .Include(x => x.Exam)
+                .ThenInclude(x => x.UserExamStates.Where(ue => ue.UserId == id))
             .Include(x => x.UserSectionPartStatuses.Where(usp => usp.UserId == userId))
             .AsSplitQuery()
             .AsNoTracking();

@@ -49,8 +49,13 @@ public class SectionPartService(
         WipeAdditionalInfo(sectionPart);
         
         sectionPart.Index = await sectionPartRepository.GetMaxIndexBySectionIdAsync(sectionPart.SectionId) + 1;
+
+        if (sectionPart.MaterialType == MaterialType.Exam)
+        {
+            AssignQuestionAndChoicesIndexes(sectionPart.Exam!);
+        }
     
-        var createdSectionPart = new SectionPart();
+        var createdSectionPart = default(SectionPart);
         
         await dbTransactionProvider.ExecuteInTransactionAsync(async () =>
         {
@@ -77,7 +82,24 @@ public class SectionPartService(
             }
         });
 
-        return createdSectionPart;
+        return createdSectionPart!;
+    }
+
+    private void AssignQuestionAndChoicesIndexes(Exam exam)
+    {
+        var questionIndex = 0;
+
+        foreach (var question in exam.Questions)
+        {
+            question.Index = ++questionIndex;
+
+            var choiceIndex = 0;
+
+            foreach (var choice in question.Choices)
+            {
+                choice.Index = ++choiceIndex;
+            }
+        }
     }
 
     public async Task<ErrorOr<None>> DeleteAsync(long sectionId, long id)
@@ -127,6 +149,18 @@ public class SectionPartService(
 
         WipeAdditionalInfo(updatedSectionPart);
 
+        if (updatedSectionPart.MaterialType == MaterialType.Exam)
+        {
+            if (existingSectionPart.MaterialType != MaterialType.Exam)
+            {
+                AssignQuestionAndChoicesIndexes(updatedSectionPart.Exam!);
+            }
+            else
+            {
+                AssignQuestionAndChoicesIndexesForUpdate(existingSectionPart.Exam, updatedSectionPart.Exam);
+            }
+        }
+
         await dbTransactionProvider.ExecuteInTransactionAsync(async () =>
         {
             // if there were updates to or from Exam type, delete or create associations.
@@ -155,6 +189,48 @@ public class SectionPartService(
         return None.Value;
     }
 
+    private void AssignQuestionAndChoicesIndexesForUpdate(Exam existingExam, Exam updatedExam)
+    {
+        var questionIndex = existingExam.Questions
+            .Select(q => q.Index)
+            .DefaultIfEmpty()
+            .Max();
+
+        var oldQuestions = existingExam.Questions
+            .ToDictionary(q => q.Id, q => q);
+
+        foreach (var updatedQuestion in updatedExam.Questions)
+        {
+            if (oldQuestions.TryGetValue(updatedQuestion.Id, out var question))
+            {
+                var choiceIndex = question.Choices
+                    .Select(c => c.Index)
+                    .DefaultIfEmpty()
+                    .Max();
+
+                var choices = question.Choices
+                    .Select(c => c.Id)
+                    .ToHashSet();
+
+                foreach (var updatedChoice in updatedQuestion.Choices.Where(updatedChoice => !choices.Contains(updatedChoice.Id)))
+                {
+                    updatedChoice.Index = ++choiceIndex;
+                }
+            }
+            else
+            {
+                updatedQuestion.Index = ++questionIndex;
+
+                var choiceIndex = 0;
+
+                foreach (var choice in updatedQuestion.Choices)
+                {
+                    choice.Index = ++choiceIndex;
+                }
+            }
+        }
+    }
+
     public async Task<ErrorOr<SectionPart>> GetByIdAsync(long sectionId, long id)
     {
         if (!await sectionPartRepository.ExistsAsync(sectionId, id))
@@ -163,89 +239,6 @@ public class SectionPartService(
         }
 
         return await sectionPartRepository.GetByIdAsync(id)!;
-    }
-
-    // This should be re-evaluated.
-    public async Task<ErrorOr<ExamState>> UpdateUserExamStatusAsync(long sectionId, long id, List<(long QuestionId, long ChoiceId)> requestAnswers)
-    {
-        if (!await sectionPartRepository.ExistsAsync(sectionId, id))
-        {
-            return SectionPartErrors.NotFound;
-        }
-        
-        var sectionPart = await sectionPartRepository.GetByIdAsync(id)!;
-        
-        if (sectionPart!.MaterialType != MaterialType.Exam)
-        {
-            return SectionPartErrors.NotExam;
-        }
-
-        requestAnswers = requestAnswers.Distinct().ToList();
-        
-        if (!CheckQuestionsChoicesAssociations(sectionPart, requestAnswers))
-        {
-            return SectionPartErrors.QuestionsChoicesAssociationError;
-        }
-
-        var answeredQuestions = requestAnswers.Select(x => x.QuestionId)
-            .Distinct()
-            .Count();
-        
-        // At this stage, questions are guaranteed to be distinct and in the section part,
-        // the staff should have answered all questions.
-        if (answeredQuestions != sectionPart.Exam!.Questions.Count)
-        {
-            return SectionPartErrors.NotAllQuestionsAnswered;
-        }
-        
-        // Check the number of correctly answered questions and calculate the total points.
-        var correctQuestionsAnswers = new List<(Question, Choice)>(); // the question with its correct choice association.
-
-        var totalAnsweredPoints = 0;
-        
-        foreach (var (questionId, choiceId) in requestAnswers)
-        {
-            var question = new Question();
-            var choice = question.Choices.First(c => c.Id == choiceId);
-            
-            var questionCorrectChoice = question.Choices.First(c => c.IsCorrect);
-
-            if (!choice.IsCorrect) // add the question to the correct answers list along with its correct answer.
-            {
-                correctQuestionsAnswers.Add((question, questionCorrectChoice));
-            }
-            else // add to the total points to obtain the state.
-            {
-                totalAnsweredPoints += question.Points;
-            }
-        }
-        
-        var examStatus = totalAnsweredPoints < sectionPart.Exam.PassThresholdPoints
-            ? ExamStatus.Failed
-            : ExamStatus.Passed;
-        
-        // UserExamStates is retrieved for the current user only, so it should be max 1.
-        if (sectionPart.UserExamStates.Any())
-        {
-            sectionPart.UserExamStates.First().Status = examStatus;
-        }
-        else
-        {
-            sectionPart.UserExamStates.Add(new UserExamState
-            {
-                UserId = userContext.Id!.Value,
-                ExamId = sectionPart.ExamId!.Value,
-                Status = examStatus,
-            });
-        }
-
-        await sectionPartRepository.UpdateAsync(sectionPart);
-
-        return new ExamState
-        {
-            CorrectAnswers = correctQuestionsAnswers,
-            Status = examStatus
-        };
     }
 
     public async Task<ErrorOr<None>> ToggleUserDoneStatusAsync(long sectionId, long id)
@@ -258,16 +251,6 @@ public class SectionPartService(
         await sectionPartRepository.ToggleUserDoneStatusAsync(userContext.Id!.Value, id);
 
         return None.Value;
-    }
-
-    // Also this.
-    private bool CheckQuestionsChoicesAssociations(SectionPart sectionPart, List<(long QuestionId, long ChoiceId)> requestAnswers)
-    {
-        var questionChoiceAssociations = sectionPart.Exam!.Questions
-            .SelectMany(question => question.Choices.Select(choice => (question.Id, choice.Id)))
-            .ToHashSet();
-        
-        return requestAnswers.All(a => questionChoiceAssociations.Contains(a));
     }
 
     private void WipeAdditionalInfo(SectionPart sectionPart)

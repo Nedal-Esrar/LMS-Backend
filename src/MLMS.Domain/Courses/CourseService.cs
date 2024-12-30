@@ -3,6 +3,7 @@ using MLMS.Domain.Common;
 using MLMS.Domain.Common.Interfaces;
 using MLMS.Domain.Common.Models;
 using MLMS.Domain.CourseAssignments;
+using MLMS.Domain.Exams;
 using MLMS.Domain.Identity;
 using MLMS.Domain.Identity.Interfaces;
 using MLMS.Domain.Notifications;
@@ -264,7 +265,7 @@ public class CourseService(
             return CourseErrors.NotFound;
         }
 
-        return await courseAssignmentRepository.GetByCourseIdAsync(id, includeMajor: true);
+        return await courseAssignmentRepository.GetByCourseIdAsync(id, includeMajorAssignments: true);
     }
 
     public async Task<ErrorOr<Dictionary<UserCourseStatus, int>>> GetCourseStatusForCurrentUserAsync()

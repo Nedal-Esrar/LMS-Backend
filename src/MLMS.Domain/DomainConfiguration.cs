@@ -3,6 +3,7 @@ using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using MLMS.Domain.Courses;
 using MLMS.Domain.Departments;
+using MLMS.Domain.Exams;
 using MLMS.Domain.Files;
 using MLMS.Domain.Identity;
 using MLMS.Domain.Identity.Interfaces;
@@ -30,6 +31,7 @@ public static class DomainConfiguration
         services.AddScoped<ICourseService, CourseService>();
         services.AddScoped<ISectionPartService, SectionPartService>();
         services.AddScoped<ISectionService, SectionService>();
+        services.AddScoped<IExamService, ExamService>();
 
         services.AddOptions<ClientOptions>()
             .BindConfiguration(nameof(ClientOptions));

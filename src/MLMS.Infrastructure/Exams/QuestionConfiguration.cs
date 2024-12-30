@@ -15,5 +15,10 @@ public class QuestionConfiguration : IEntityTypeConfiguration<Question>
             .HasForeignKey(x => x.ImageId)
             .IsRequired(false)
             .OnDelete(DeleteBehavior.SetNull);
+
+        builder.HasOne<Exam>(q => q.Exam)
+            .WithMany(e => e.Questions)
+            .HasForeignKey(q => q.ExamId)
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

@@ -8,7 +8,7 @@ public class QuestionUpdateRequest
     
     public int Points { get; set; }
     
-    public Guid? FileId { get; set; }
+    public Guid? ImageId { get; set; }
 
     public List<ChoiceUpdateRequest> Choices { get; set; } = [];
 }

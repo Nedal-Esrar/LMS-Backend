@@ -96,7 +96,7 @@ public class IdentityService(
             var userId = await userRepository.CreateAsync(user, passwordResult.Value);
 
             var courseAssignments =
-                await courseAssignmentRepository.GetByMajorId(user.MajorId.Value);
+                await courseAssignmentRepository.GetByMajorIdAsync(user.MajorId.Value);
 
             var userCourseEntities = courseAssignments.Select(courseAssignment => 
                 new UserCourse

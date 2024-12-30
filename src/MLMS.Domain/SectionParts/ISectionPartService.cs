@@ -13,7 +13,5 @@ public interface ISectionPartService
     
     Task<ErrorOr<SectionPart>> GetByIdAsync(long sectionId, long id);
     
-    Task<ErrorOr<ExamState>> UpdateUserExamStatusAsync(long sectionId, long id, List<(long QuestionId, long ChoiceId)> requestAnswers);
-    
     Task<ErrorOr<None>> ToggleUserDoneStatusAsync(long sectionId, long id);
 }

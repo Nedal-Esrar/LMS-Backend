@@ -9,7 +9,7 @@ using MLMS.Infrastructure.Identity.Models;
 
 namespace MLMS.Infrastructure.Identity;
 
-public class ApplicationUserConfiguration : IEntityTypeConfiguration<ApplicationUser>
+public class UserConfiguration : IEntityTypeConfiguration<ApplicationUser>
 {
     public void Configure(EntityTypeBuilder<ApplicationUser> builder)
     {

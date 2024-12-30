@@ -6,6 +6,7 @@ using MLMS.Domain.CourseAssignments;
 using MLMS.Domain.Courses;
 using MLMS.Domain.Departments;
 using MLMS.Domain.Exams;
+using MLMS.Domain.ExamSessions;
 using MLMS.Domain.Majors;
 using MLMS.Domain.Notifications;
 using MLMS.Domain.SectionParts;
@@ -60,6 +61,10 @@ public class LmsDbContext(DbContextOptions options)
     public DbSet<Exam> Exams { get; set; }
     
     public DbSet<UserExamState> UserExamStateRelations { get; set; }
+    
+    public DbSet<ExamSession> ExamSessions { get; set; }
+    
+    public DbSet<ExamSessionQuestionChoice> ExamSessionQuestionChoices { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -67,7 +72,7 @@ public class LmsDbContext(DbContextOptions options)
 
         builder.ApplyConfiguration(new DepartmentConfiguration());
         builder.ApplyConfiguration(new MajorConfiguration());
-        builder.ApplyConfiguration(new ApplicationUserConfiguration());
+        builder.ApplyConfiguration(new UserConfiguration());
         builder.ApplyConfiguration(new FileConfiguration());
         builder.ApplyConfiguration(new CourseAssignmentConfiguration());
         builder.ApplyConfiguration(new CourseConfiguration());
@@ -79,5 +84,8 @@ public class LmsDbContext(DbContextOptions options)
         builder.ApplyConfiguration(new UserSectionPartDoneConfiguration());
         builder.ApplyConfiguration(new UserExamStateConfiguration());
         builder.ApplyConfiguration(new ExamConfiguration());
+        builder.ApplyConfiguration(new ExamSessionConfiguration());
+        builder.ApplyConfiguration(new ExamSessionQuestionChoiceConfiguration());
+        builder.ApplyConfiguration(new RefreshTokenConfiguration());
     }
 }

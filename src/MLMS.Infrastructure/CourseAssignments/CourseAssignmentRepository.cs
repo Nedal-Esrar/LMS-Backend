@@ -6,12 +6,12 @@ namespace MLMS.Infrastructure.CourseAssignments;
 
 public class CourseAssignmentRepository(LmsDbContext context) : ICourseAssignmentRepository
 {
-    public async Task<List<CourseAssignment>> GetByCourseIdAsync(long courseId, bool includeMajor)
+    public async Task<List<CourseAssignment>> GetByCourseIdAsync(long courseId, bool includeMajorAssignments)
     {
         var query = context.CourseAssignments
             .Where(x => x.CourseId == courseId);
         
-        if (includeMajor)
+        if (includeMajorAssignments)
         {
             query = query.Include(x => x.Major)
                 .ThenInclude(x => x.Department);
@@ -21,7 +21,7 @@ public class CourseAssignmentRepository(LmsDbContext context) : ICourseAssignmen
             .ToListAsync();
     }
 
-    public Task<List<CourseAssignment>> GetByMajorId(int majorId)
+    public Task<List<CourseAssignment>> GetByMajorIdAsync(int majorId)
     {
         return context.CourseAssignments
             .Where(x => x.MajorId == majorId)

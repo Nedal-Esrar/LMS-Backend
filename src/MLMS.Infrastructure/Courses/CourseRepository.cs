@@ -51,7 +51,8 @@ public class CourseRepository(
                     .ThenInclude(x => x.File)
             .Include(x => x.Sections)
                 .ThenInclude(x => x.SectionParts)
-                    .ThenInclude(x => x.UserExamStates.Where(ue => ue.UserId == userId))
+                    .ThenInclude(x => x.Exam)
+                        .ThenInclude(x => x.UserExamStates.Where(ue => ue.UserId == userId))
             .Include(x => x.Sections)
                 .ThenInclude(x => x.SectionParts)
                     .ThenInclude(x => x.UserSectionPartStatuses.Where(usp => usp.UserId == userId));

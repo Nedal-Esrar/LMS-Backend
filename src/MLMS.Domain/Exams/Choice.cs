@@ -11,4 +11,6 @@ public class Choice : EntityBase<long>
     public Question Question { get; set; }
     
     public long QuestionId { get; set; }
+    
+    public int Index { get; set; }
 }

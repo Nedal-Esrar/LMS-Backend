@@ -46,15 +46,6 @@ public class SectionPartController(ISectionPartService sectionPartService) : Api
         return result.Match(_ => NoContent(), Problem);
     }
     
-    // [HttpPut("{id:long}/exam/current-user/status")]
-    // [Authorize(Policy = AuthorizationPolicies.Staff)]
-    // public async Task<IActionResult> UpdateUserExamStatus(long sectionId, long id, UpdateStaffExamStatusRequest request)
-    // {
-    //     var result = await sectionPartService.UpdateUserExamStatusAsync(sectionId, id, request.Answers);
-    //
-    //     return result.Match(Ok, Problem);
-    // }
-    
     [HttpPatch("{id:long}/current-user/done")]
     [Authorize(Policy = AuthorizationPolicies.Staff)]
     public async Task<IActionResult> ToggleUserDoneStatus(long sectionId, long id)

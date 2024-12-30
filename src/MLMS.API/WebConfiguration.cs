@@ -25,7 +25,7 @@ public static class WebConfiguration
         
         services.AddSwaggerGen(setup =>
         {
-            setup.SwaggerDoc("v1", new OpenApiInfo { Title = "Makassed LMS API", Version = "v1" });
+            setup.SwaggerDoc("v1", new OpenApiInfo { Title = "LMS API", Version = "v1" });
 
             var xmlCommentsFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
 

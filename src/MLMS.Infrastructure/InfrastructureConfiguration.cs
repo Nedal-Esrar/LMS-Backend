@@ -10,6 +10,7 @@ using MLMS.Domain.Common.Interfaces;
 using MLMS.Domain.CourseAssignments;
 using MLMS.Domain.Courses;
 using MLMS.Domain.Departments;
+using MLMS.Domain.Exams;
 using MLMS.Domain.Files;
 using MLMS.Domain.Identity.Interfaces;
 using MLMS.Domain.Majors;
@@ -22,6 +23,7 @@ using MLMS.Infrastructure.CourseAssignments;
 using MLMS.Infrastructure.Courses;
 using MLMS.Infrastructure.Departments;
 using MLMS.Infrastructure.Email;
+using MLMS.Infrastructure.Exams;
 using MLMS.Infrastructure.Files;
 using MLMS.Infrastructure.Identity;
 using MLMS.Infrastructure.Identity.Models;
@@ -106,6 +108,7 @@ public static class InfrastructureConfiguration
         services.AddScoped<ISectionPartRepository, SectionPartRepository>();
         services.AddScoped<ISectionRepository, SectionRepository>();
         services.AddScoped<IUserCourseRepository, UserCourseRepository>();
+        services.AddScoped<IExamRepository, ExamRepository>();
         
         services.AddOptions<SieveSettings>()
             .BindConfiguration(nameof(SieveSettings));

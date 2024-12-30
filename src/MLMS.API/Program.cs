@@ -5,9 +5,10 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDomain();
-builder.Services.AddInfrastructure(builder.Configuration);
-builder.Services.AddWeb();
+builder.Services
+    .AddDomain()
+    .AddInfrastructure(builder.Configuration)
+    .AddWeb();
 
 builder.Host.UseSerilog((context, configuration) => configuration.ReadFrom.Configuration(context.Configuration));
 

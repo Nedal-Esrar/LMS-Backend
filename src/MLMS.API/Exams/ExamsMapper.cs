@@ -1,5 +1,6 @@
 using MLMS.API.Exams.Requests;
 using MLMS.API.Exams.Responses;
+using MLMS.API.Files;
 using MLMS.Domain.Exams;
 using Riok.Mapperly.Abstractions;
 
@@ -25,4 +26,21 @@ public static partial class ExamsMapper
     public static partial Exam ToDomain(this ExamUpdateRequest request);
     
     public static partial ExamResponse ToContract(this Exam exam);
+    
+    public static partial ExamSessionStateResponse ToContract(this ExamSessionState state);
+
+    public static ExamSessionQuestionChoiceResponse ToContract(this ExamSessionQuestionChoice model)
+    {
+        return new ExamSessionQuestionChoiceResponse
+        {
+            Id = model.QuestionId,
+            Text = model.Question.Text,
+            Points = model.Question.Points,
+            Image = model.Question.Image?.ToContract(),
+            ChosenAnswer = model.ChoiceId,
+            Choices = model.Question.Choices.Select(c => c.ToSessionContract()).ToList()
+        };
+    }
+    
+    private static partial SessionChoiceResponse ToSessionContract(this Choice choice);
 }

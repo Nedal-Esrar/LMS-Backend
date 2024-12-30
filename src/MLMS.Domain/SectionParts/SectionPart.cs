@@ -18,8 +18,6 @@ public class SectionPart : EntityBase<long>
     
     public List<UserSectionPartDone> UserSectionPartStatuses { get; set; } = [];
     
-    public List<UserExamState> UserExamStates { get; set; } = [];
-    
     public MaterialType MaterialType { get; set; }
     
     public Guid? FileId { get; set; }

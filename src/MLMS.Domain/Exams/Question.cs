@@ -14,9 +14,11 @@ public class Question : EntityBase<long>
     
     public int Points { get; set; }
     
-    public SectionPart SectionPart { get; set; }
+    public Exam Exam { get; set; }
     
-    public long SectionPartId { get; set; }
+    public long ExamId { get; set; }
 
     public List<Choice> Choices { get; set; } = [];
+    
+    public int Index { get; set; }
 }

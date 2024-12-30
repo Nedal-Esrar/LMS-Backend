@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Options;
 using MLMS.Domain.Majors;
+using MLMS.Infrastructure.Courses;
 using MLMS.Infrastructure.Departments;
 using MLMS.Infrastructure.Identity;
 using MLMS.Infrastructure.Majors;
@@ -16,6 +17,7 @@ public class LmsSieveProcessor(IOptions<SieveOptions> options) : SieveProcessor(
         return mapper.ApplyConfiguration<UserSieveConfiguration>()
             .ApplyConfiguration<MajorSieveConfiguration>()
             .ApplyConfiguration<DepartmentSieveConfiguration>()
-            .ApplyConfiguration<NotificationSieveConfiguration>();
+            .ApplyConfiguration<NotificationSieveConfiguration>()
+            .ApplyConfiguration<CourseSieveConfiguration>();
     }
 }
