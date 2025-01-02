@@ -1,8 +1,10 @@
 using MLMS.API.Courses.Requests;
 using MLMS.API.Courses.Responses;
 using MLMS.API.Departments;
+using MLMS.API.SectionParts;
 using MLMS.Domain.CourseAssignments;
 using MLMS.Domain.Courses;
+using MLMS.Domain.Sections;
 using MLMS.Domain.UsersCourses;
 using Riok.Mapperly.Abstractions;
 
@@ -19,7 +21,7 @@ public static partial class CourseMapper
     {
         var response = course.ToSimplifiedContractInternal();
         
-        response.Status = GetStatus(course.UsersCourses);
+        response.Status = course.UsersCourses.FirstOrDefault()?.Status;
         response.CreatedByName = course.CreatedBy is null
             ? string.Empty
             : $"{course.CreatedBy.FirstName} {course.CreatedBy.MiddleName} {course.CreatedBy.LastName}";
@@ -33,13 +35,25 @@ public static partial class CourseMapper
     {
         var response = course.ToDetailedContractInternal();
         
-        response.Status = GetStatus(course.UsersCourses);
+        response.Status = course.UsersCourses.FirstOrDefault()?.Status;
+        response.FinishedAtUtc = course.UsersCourses.FirstOrDefault()?.FinishedAtUtc;
         response.CreatedByName = course.CreatedBy is null
             ? string.Empty
             : $"{course.CreatedBy.FirstName} {course.CreatedBy.MiddleName} {course.CreatedBy.LastName}";
 
         return response;
     }
+    
+    private static SectionDetailedResponse ToContract(this Section section)
+    {
+        var response = section.ToContractInternal();
+        
+        response.SectionParts = section.SectionParts.Select(p => p.ToContract()).ToList();
+        
+        return response;
+    }
+    
+    private static partial SectionDetailedResponse ToContractInternal(this Section section);
     
     private static partial CourseDetailedResponse ToDetailedContractInternal(this Course course);
 
@@ -53,5 +67,15 @@ public static partial class CourseMapper
         };
     }
     
-    private static UserCourseStatus? GetStatus(List<UserCourse> userCourse) => userCourse.FirstOrDefault()?.Status;
+    public static CourseParticipantResponse ToParticipantContract(this UserCourse userCourse)
+    {
+        return new CourseParticipantResponse
+        {
+            UserId = userCourse.UserId,
+            UserName = $"{userCourse.User.FirstName} {userCourse.User.MiddleName} {userCourse.User.LastName}",
+            Status = userCourse.Status,
+            FinishedAtUtc = userCourse.FinishedAtUtc,
+            StartedAtUtc = userCourse.StartedAtUtc
+        };
+    }
 }

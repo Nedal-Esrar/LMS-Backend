@@ -42,12 +42,12 @@ public class UserService(
             return UserErrors.WorkIdExists;
         }
         
-        if (!await departmentRepository.ExistsAsync(user.DepartmentId.Value))
+        if (!await departmentRepository.ExistsAsync(user.DepartmentId!.Value))
         {
             return DepartmentErrors.NotFound;
         }
         
-        if (!await majorRepository.ExistsAsync(user.DepartmentId.Value, user.MajorId.Value))
+        if (!await majorRepository.ExistsAsync(user.DepartmentId.Value, user.MajorId!.Value))
         {
             return MajorErrors.NotFound;
         }

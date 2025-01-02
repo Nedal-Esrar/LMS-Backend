@@ -22,4 +22,6 @@ public class SectionPartResponse
     public string? Link { get; set; }
     
     public ExamResponse? Exam { get; set; }
+    
+    public bool IsDone { get; set; }
 }

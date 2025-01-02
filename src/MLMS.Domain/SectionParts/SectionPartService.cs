@@ -157,7 +157,7 @@ public class SectionPartService(
             }
             else
             {
-                AssignQuestionAndChoicesIndexesForUpdate(existingSectionPart.Exam, updatedSectionPart.Exam);
+                AssignQuestionAndChoicesIndexesForUpdate(existingSectionPart.Exam!, updatedSectionPart.Exam!);
             }
         }
 

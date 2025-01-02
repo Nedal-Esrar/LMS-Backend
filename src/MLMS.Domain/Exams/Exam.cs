@@ -1,4 +1,5 @@
 using MLMS.Domain.Common.Models;
+using MLMS.Domain.ExamSessions;
 using MLMS.Domain.SectionParts;
 using MLMS.Domain.UserSectionParts;
 
@@ -17,4 +18,6 @@ public class Exam : EntityBase<long>
     public List<Question> Questions { get; set; } = [];
     
     public List<UserExamState> UserExamStates { get; set; } = [];
+    
+    public List<ExamSession> ExamSessions { get; set; } = [];
 }

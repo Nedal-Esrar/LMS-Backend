@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MLMS.Domain.Exams;
 using MLMS.Domain.ExamSessions;
+using MLMS.Domain.UsersCourses;
 using MLMS.Domain.UserSectionParts;
 using MLMS.Infrastructure.Common;
 
@@ -23,6 +24,23 @@ public class ExamRepository(LmsDbContext context) : IExamRepository
 
         return !session.IsDone && 
                (DateTime.UtcNow - session.StartDateUtc).Minutes < session.Exam.DurationMinutes;
+    }
+
+    public async Task<bool> IsSessionDueAsync(int userId, long examId)
+    {
+        var session = await context.ExamSessions
+            .Include(x => x.Exam)
+            .Where(es => es.UserId == userId && es.ExamId == examId)
+            .OrderByDescending(es => es.StartDateUtc)
+            .FirstOrDefaultAsync();
+
+        if (session is null)
+        {
+            return false;
+        }
+
+        return !session.IsDone && 
+               (DateTime.UtcNow - session.StartDateUtc).Minutes >= session.Exam.DurationMinutes;
     }
 
     public async Task<bool> ExistsAsync(long examId)
@@ -121,5 +139,18 @@ public class ExamRepository(LmsDbContext context) : IExamRepository
         context.ExamSessions.Update(examSession);
         
         await context.SaveChangesAsync();
+    }
+
+    public async Task ResetExamStatesByUserCoursesAsync(List<UserCourse> expiredUserCourses)
+    {
+        var query = from uc in expiredUserCourses.AsQueryable()
+            join s in context.Sections on uc.CourseId equals s.CourseId
+            join sp in context.SectionParts on s.Id equals sp.SectionId
+            join e in context.Exams on sp.ExamId equals e.Id
+            join ues in context.UserExamStateRelations on e.Id equals ues.ExamId
+            where ues.UserId == uc.UserId
+            select ues;
+
+        await query.ExecuteUpdateAsync(u => u.SetProperty(x => x.Status, ExamStatus.NotTaken));
     }
 }

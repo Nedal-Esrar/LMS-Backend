@@ -1,3 +1,4 @@
+using MLMS.Domain.UsersCourses;
 using MLMS.Domain.UserSectionParts;
 
 namespace MLMS.Domain.SectionParts;
@@ -25,4 +26,6 @@ public interface ISectionPartRepository
     Task CreateExamStatesAsync(List<UserExamState> examStates);
     
     Task DeleteExamStatesByIdAsync(long id);
+    
+    Task ResetDoneStatesByUserCoursesAsync(List<UserCourse> expiredUserCourses);
 }

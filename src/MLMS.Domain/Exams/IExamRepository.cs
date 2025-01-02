@@ -1,5 +1,6 @@
 using ErrorOr;
 using MLMS.Domain.ExamSessions;
+using MLMS.Domain.UsersCourses;
 using MLMS.Domain.UserSectionParts;
 
 namespace MLMS.Domain.Exams;
@@ -7,6 +8,8 @@ namespace MLMS.Domain.Exams;
 public interface IExamRepository
 {
     Task<bool> IsSessionStartedAsync(int userId, long examId);
+    
+    Task<bool> IsSessionDueAsync(int userId, long examId);
     
     Task<bool> ExistsAsync(long examId);
     
@@ -35,4 +38,6 @@ public interface IExamRepository
     Task UpdateExamStateAsync(UserExamState userExamState);
     
     Task UpdateSessionAsync(ExamSession examSession);
+    
+    Task ResetExamStatesByUserCoursesAsync(List<UserCourse> expiredUserCourses);
 }

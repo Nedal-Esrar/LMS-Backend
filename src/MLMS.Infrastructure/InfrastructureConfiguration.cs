@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using MLMS.Domain.Common.Interfaces;
@@ -55,7 +56,8 @@ public static class InfrastructureConfiguration
         
         services.AddDbContext<LmsDbContext>(options =>
         {
-            options.UseSqlServer(configuration.GetConnectionString("LmsDb"));
+            options.UseSqlServer(configuration.GetConnectionString("LmsDb"))
+                .LogTo(Console.WriteLine, LogLevel.Information);
         });
 
         services.AddOptions<AuthSettings>()
@@ -114,6 +116,8 @@ public static class InfrastructureConfiguration
             .BindConfiguration(nameof(SieveSettings));
         
         services.AddScoped<ISieveProcessor, LmsSieveProcessor>();
+
+        services.ConfigureCoursesExpiryJob();
         
         return services;
     }

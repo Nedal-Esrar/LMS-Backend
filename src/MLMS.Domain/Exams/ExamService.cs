@@ -49,6 +49,11 @@ public class ExamService(
         }
         
         var userId = userContext.Id!.Value;
+        
+        if (await examRepository.IsSessionDueAsync(userId, examId))
+        {
+            await FinishCurrentSessionAsync(examId);
+        }
 
         return await examRepository.IsSessionStartedAsync(userId, examId);
     }
@@ -61,11 +66,6 @@ public class ExamService(
         }
         
         var userId = userContext.Id!.Value;
-
-        if (await examRepository.IsSessionStartedAsync(userId, examId))
-        {
-            return ExamErrors.SessionAlreadyStarted;
-        }
         
         var examSession = await examRepository.GetCurrentSessionAsync(userId, examId);
         
@@ -89,11 +89,6 @@ public class ExamService(
         }
         
         var userId = userContext.Id!.Value;
-
-        if (await examRepository.IsSessionStartedAsync(userId, examId))
-        {
-            return ExamErrors.SessionAlreadyStarted;
-        }
         
         if (!await examRepository.HasQuestionAsync(examId, questionId))
         {
@@ -112,7 +107,7 @@ public class ExamService(
             });
         }
         
-        return await examRepository.GetSessionQuestionChoiceAsync(examSession.Id, questionId);
+        return await examRepository.GetSessionQuestionChoiceAsync(examSession.Id, questionId)!;
     }
 
     public async Task<ErrorOr<None>> AnswerQuestionAsync(long examId, long questionId, long choiceId)
@@ -123,11 +118,6 @@ public class ExamService(
         }
         
         var userId = userContext.Id!.Value;
-
-        if (await examRepository.IsSessionStartedAsync(userId, examId))
-        {
-            return ExamErrors.SessionAlreadyStarted;
-        }
         
         if (!await examRepository.HasQuestionAsync(examId, questionId))
         {
@@ -159,11 +149,6 @@ public class ExamService(
         }
         
         var userId = userContext.Id!.Value;
-
-        if (await examRepository.IsSessionStartedAsync(userId, examId))
-        {
-            return ExamErrors.SessionAlreadyStarted;
-        }
         
         var examSession = await examRepository.GetCurrentSessionAsync(userId, examId);
         
@@ -174,16 +159,14 @@ public class ExamService(
         
         var totalAnsweredPoints = 0;
 
-        foreach (var question in exam.Questions)
+        foreach (var question in exam!.Questions)
         {
             if (!examSessionQuestionChoices.TryGetValue(question.Id, out var choiceId) || choiceId is null)
             {
                 continue;
             }
             
-            var choice = question.Choices.First(c => c.Id == choiceId);
-
-            if (choice.IsCorrect)
+            if (question.Choices.First(c => c.Id == choiceId).IsCorrect)
             {
                 totalAnsweredPoints += question.Points;
             }
@@ -200,6 +183,7 @@ public class ExamService(
             userExamState!.Status = examStatus;
 
             examSession.IsDone = true;
+            examSession.Grade = totalAnsweredPoints;
 
             await examRepository.UpdateExamStateAsync(userExamState);
             

@@ -28,4 +28,18 @@ public class CourseAssignmentRepository(LmsDbContext context) : ICourseAssignmen
             .AsNoTracking()
             .ToListAsync();
     }
+
+    public async Task CreateAsync(List<CourseAssignment> assignments)
+    {
+        context.CourseAssignments.AddRange(assignments);
+
+        await context.SaveChangesAsync();
+    }
+
+    public async Task DeleteAsync(List<CourseAssignment> assignments)
+    {
+        context.CourseAssignments.RemoveRange(assignments);
+
+        await context.SaveChangesAsync();
+    }
 }

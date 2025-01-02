@@ -166,7 +166,7 @@ public class IdentityService(
 
     public async Task<ErrorOr<None>> ChangePasswordAsync(string currentPassword, string newPassword)
     {
-        if (!await authService.IsOwnPasswordAsync(userContext.Id.Value, currentPassword))
+        if (!await authService.IsOwnPasswordAsync(userContext.Id!.Value, currentPassword))
         {
             return IdentityErrors.WrongCurrentPassword;
         }

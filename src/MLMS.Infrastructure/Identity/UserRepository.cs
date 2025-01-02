@@ -125,7 +125,7 @@ public class UserRepository(
 
     public async Task<List<User>> GetByMajorsAsync(List<int> majors)
     {
-        var query = from u in context.Users
+        var query = from u in context.Users.Include(u => u.Role)
             join m in majors on u.MajorId equals m
             select u;
 

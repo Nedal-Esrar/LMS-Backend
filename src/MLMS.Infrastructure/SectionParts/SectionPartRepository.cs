@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using MLMS.Domain.Exams;
 using MLMS.Domain.Identity.Interfaces;
 using MLMS.Domain.SectionParts;
+using MLMS.Domain.UsersCourses;
 using MLMS.Domain.UserSectionParts;
 using MLMS.Infrastructure.Common;
 
@@ -181,6 +182,20 @@ public class SectionPartRepository(
 
     public async Task ToggleUserDoneStatusAsync(int userId, long id)
     {
+        if (!await context.UserSectionPartDoneRelations.AnyAsync(d => d.SectionPartId == id && d.UserId == userId))
+        {
+            context.UserSectionPartDoneRelations.Add(new UserSectionPartDone
+            {
+                SectionPartId = id,
+                UserId = userId,
+                IsDone = true
+            });
+
+            await context.SaveChangesAsync();
+
+            return;
+        }
+        
         await context.UserSectionPartDoneRelations
             .Where(x => x.UserId == userId && x.SectionPartId == id)
             .ExecuteUpdateAsync(u => u.SetProperty(x => x.IsDone, x => !x.IsDone));
@@ -223,5 +238,17 @@ public class SectionPartRepository(
             select ue;
 
         await query.ExecuteDeleteAsync();
+    }
+
+    public async Task ResetDoneStatesByUserCoursesAsync(List<UserCourse> expiredUserCourses)
+    {
+        var query = from uc in expiredUserCourses.AsQueryable()
+            join s in context.Sections on uc.CourseId equals s.CourseId
+            join sp in context.SectionParts on s.Id equals sp.SectionId
+            join usp in context.UserSectionPartDoneRelations on sp.Id equals usp.SectionPartId
+            where usp.UserId == uc.UserId
+            select usp;
+
+        await query.ExecuteUpdateAsync(u => u.SetProperty(x => x.IsDone, false));
     }
 }

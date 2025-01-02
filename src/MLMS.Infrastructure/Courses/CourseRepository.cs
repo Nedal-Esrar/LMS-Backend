@@ -31,58 +31,59 @@ public class CourseRepository(
     public async Task<Course?> GetDetailedByIdAsync(long id)
     {
         var userId = userContext.Id!.Value;
-        
+
         var query = context.Courses.Where(c => c.Id == id)
             .Include(x => x.UsersCourses.Where(uc => uc.UserId == userId))
             .Include(x => x.Assignments)
                 .ThenInclude(x => x.Major)
             .Include(x => x.Sections)
                 .ThenInclude(x => x.SectionParts)
-                    .ThenInclude(x => x.Exam)
-                        .ThenInclude(x => x.Questions)
-                            .ThenInclude(x => x.Choices)
+                .ThenInclude(x => x.Exam)
+                .ThenInclude(x => x.Questions)
+                .ThenInclude(x => x.Choices)
             .Include(x => x.Sections)
                 .ThenInclude(x => x.SectionParts)
-                    .ThenInclude(x => x.Exam)
-                        .ThenInclude(x => x.Questions)
-                            .ThenInclude(x => x.Image)
+                .ThenInclude(x => x.Exam)
+                .ThenInclude(x => x.Questions)
+                .ThenInclude(x => x.Image)
             .Include(x => x.Sections)
                 .ThenInclude(x => x.SectionParts)
-                    .ThenInclude(x => x.File)
+                .ThenInclude(x => x.File)
             .Include(x => x.Sections)
                 .ThenInclude(x => x.SectionParts)
-                    .ThenInclude(x => x.Exam)
-                        .ThenInclude(x => x.UserExamStates.Where(ue => ue.UserId == userId))
+                .ThenInclude(x => x.Exam)
+                .ThenInclude(x => x.UserExamStates.Where(ue => ue.UserId == userId))
             .Include(x => x.Sections)
                 .ThenInclude(x => x.SectionParts)
-                    .ThenInclude(x => x.UserSectionPartStatuses.Where(usp => usp.UserId == userId));
-        
-        var courseWithCreatedByUserQuery = from c in query
-            join u in context.Users on c.CreatedById equals u.Id
-            select new Course
-            {
-                Id = c.Id,
-                Name = c.Name,
-                ExpectedTimeToFinishHours = c.ExpectedTimeToFinishHours,
-                ExpirationMonths = c.ExpirationMonths,
-                CreatedAtUtc = c.CreatedAtUtc,
-                UpdatedAtUtc = c.UpdatedAtUtc,
-                CreatedById = c.CreatedById,
-                CreatedBy = new User
-                {
-                    Id = u.Id, 
-                    FirstName = u.FirstName,
-                    MiddleName = u.MiddleName,
-                    LastName = u.LastName
-                },
-                Sections = c.Sections,
-                UsersCourses = c.UsersCourses,
-                Assignments = c.Assignments
-            };
-        
-        return await courseWithCreatedByUserQuery.AsSplitQuery()
+                .ThenInclude(x => x.UserSectionPartStatuses.Where(usp => usp.UserId == userId))
+            .Include(x => x.Sections)
+                .ThenInclude(x => x.SectionParts)
+                .ThenInclude(x => x.Exam)
+                .ThenInclude(x => x.ExamSessions.Where(ue => ue.UserId == userId)
+                    .OrderByDescending(es => es.StartDateUtc)
+                    .Take(1));
+
+        var course = await query.AsSplitQuery()
             .AsNoTracking()
             .FirstOrDefaultAsync();
+
+        if (course is null)
+        {
+            return null;
+        }
+
+        course.CreatedBy = await context.Users
+            .Where(u => u.Id == course.CreatedById)
+            .Select(u => new User
+            {
+                Id = u.Id,
+                FirstName = u.FirstName,
+                MiddleName = u.MiddleName,
+                LastName = u.LastName
+            })
+            .FirstAsync();
+
+        return course;
     }
 
     public async Task<bool> ExistsByIdAsync(long id)

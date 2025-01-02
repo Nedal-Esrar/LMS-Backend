@@ -24,8 +24,19 @@ public static partial class ExamsMapper
     public static partial Exam ToDomain(this ExamCreateRequest request);
     
     public static partial Exam ToDomain(this ExamUpdateRequest request);
+
+    public static ExamResponse ToContract(this Exam exam)
+    {
+        var response = exam.ToContractInternal();
+
+        response.MaxGradePoints = exam.Questions.Select(q => q.Points).Sum();
+        response.LastGottenGradePoints = exam.ExamSessions.FirstOrDefault()?.Grade ?? 0;
+        response.Status = exam.UserExamStates.First().Status;
+        
+        return response;
+    }
     
-    public static partial ExamResponse ToContract(this Exam exam);
+    private static partial ExamResponse ToContractInternal(this Exam exam);
     
     public static partial ExamSessionStateResponse ToContract(this ExamSessionState state);
 

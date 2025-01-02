@@ -105,4 +105,26 @@ public class CourseController(ICourseService courseService) : ApiControllerBase
 
         return result.Match(assignments => Ok(assignments.Select(a => a.ToContract()).ToList()), Problem);
     }
+
+    [HttpPost("{id:long}/participants")]
+    [Authorize(Policy = AuthorizationPolicies.Admin)]
+    public async Task<IActionResult> GetParticipants(long id, RetrievalRequest request)
+    {
+        var result = await courseService.GetParticipantsByIdAsync(id, request.ToSieveModel());
+        
+        return result.Match(participants => Ok(new PaginatedList<CourseParticipantResponse>
+        {
+            Items = participants.Items.Select(uc => uc.ToParticipantContract()).ToList(),
+            Metadata = participants.Metadata
+        }), Problem);
+    }
+    
+    [HttpPost("{id:long}/participants/{userId:int}/late-notifications")]
+    [Authorize(Policy = AuthorizationPolicies.Admin)]
+    public async Task<IActionResult> NotifyParticipant(long id, int userId)
+    {
+        var result = await courseService.NotifyParticipantAsync(id, userId);
+
+        return result.Match(_ => NoContent(), Problem);
+    }
 }

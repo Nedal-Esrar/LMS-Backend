@@ -16,4 +16,6 @@ public class ExamSession : EntityBase<Guid>
     public long CheckpointQuestionId { get; set; }
     
     public bool IsDone { get; set; }
+    
+    public int? Grade { get; set; }
 }

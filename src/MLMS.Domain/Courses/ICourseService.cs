@@ -29,4 +29,10 @@ public interface ICourseService
     Task<ErrorOr<List<CourseAssignment>>> GetAssignmentsByIdAsync(long id);
     
     Task<ErrorOr<Dictionary<UserCourseStatus, int>>> GetCourseStatusForCurrentUserAsync();
+    
+    Task<ErrorOr<None>> CheckCoursesExpiryAsync();
+    
+    Task<ErrorOr<PaginatedList<UserCourse>>> GetParticipantsByIdAsync(long id, SieveModel sieveModel);
+    
+    Task<ErrorOr<None>> NotifyParticipantAsync(long id, int userId);
 }

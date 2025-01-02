@@ -1,4 +1,5 @@
-using ErrorOr;
+using MLMS.Domain.Common.Models;
+using Sieve.Models;
 
 namespace MLMS.Domain.UsersCourses;
 
@@ -15,4 +16,10 @@ public interface IUserCourseRepository
     Task UpdateAsync(UserCourse userCourse);
     
     Task<List<UserCourse>> GetByUserIdAsync(int userId);
+    
+    Task<List<UserCourse>> GetStatesForFinishedCoursesWithExpirationAsync();
+    
+    Task UpdateAsync(List<UserCourse> userCourses);
+    
+    Task<PaginatedList<UserCourse>> GetByCourseIdAsync(long courseId, bool getOnlyCreatedByCurrentUser, SieveModel sieveModel);
 }

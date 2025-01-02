@@ -18,5 +18,7 @@ public class UserCourseConfiguration : IEntityTypeConfiguration<UserCourse>
             .WithMany()
             .HasForeignKey(x => x.UserId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Ignore(uc => uc.User);
     }
 }

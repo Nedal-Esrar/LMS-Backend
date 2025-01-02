@@ -25,4 +25,6 @@ public class CourseDetailedResponse
     public string? CreatedByName { get; set; }
     
     public double Progress { get; set; }
+    
+    public DateTime? FinishedAtUtc { get; set; }
 }
