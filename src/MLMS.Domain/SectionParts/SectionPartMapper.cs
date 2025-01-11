@@ -11,6 +11,7 @@ public static partial class SectionPartMapper
         existingSectionPart.MaterialType = updatedSectionPart.MaterialType;
         existingSectionPart.FileId = updatedSectionPart.FileId;
         existingSectionPart.Link = updatedSectionPart.Link;
-        existingSectionPart.Exam = existingSectionPart.Exam;
+        existingSectionPart.Exam = updatedSectionPart.Exam;
+        existingSectionPart.ExamId = updatedSectionPart.ExamId;
     }
 }

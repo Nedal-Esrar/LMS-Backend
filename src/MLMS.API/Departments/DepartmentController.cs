@@ -5,6 +5,8 @@ using MLMS.API.Departments.Requests;
 using MLMS.Domain.Common.Models;
 using MLMS.Domain.Departments;
 
+using static MLMS.API.Common.AuthorizationPolicies;
+
 namespace MLMS.API.Departments;
 
 [Authorize]
@@ -13,7 +15,7 @@ namespace MLMS.API.Departments;
 public class DepartmentController(IDepartmentService departmentService) : ApiControllerBase
 {
     [HttpPost]
-    [Authorize(Policy = AuthorizationPolicies.SuperAdmin)]
+    [Authorize(Policy = SuperAdmin)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Create(CreateDepartmentRequest request)
     {
@@ -23,7 +25,7 @@ public class DepartmentController(IDepartmentService departmentService) : ApiCon
     }
 
     [HttpDelete("{id:int}")]
-    [Authorize(Policy = AuthorizationPolicies.SuperAdmin)]
+    [Authorize(Policy = SuperAdmin)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Delete(int id)
     {
@@ -33,7 +35,7 @@ public class DepartmentController(IDepartmentService departmentService) : ApiCon
     }
     
     [HttpPut("{id:int}")]
-    [Authorize(Policy = AuthorizationPolicies.SuperAdmin)]
+    [Authorize(Policy = SuperAdmin)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Update(int id, UpdateDepartmentRequest request)
     {

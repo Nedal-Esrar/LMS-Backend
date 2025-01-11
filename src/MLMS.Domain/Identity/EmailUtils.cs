@@ -83,9 +83,9 @@ public static class EmailUtils
                                                                 cellpadding="0" cellspacing="0" border="0">
                                                                 <tbody>
                                                                     <tr>
-                                                                        <td style="border-collapse:collapse;font-family:StudioFeixenSans,'StudioFeixenSans',Arial,sans-serif;font-size:16px;font-weight:bold;padding:0;border:0;text-align:center;border-radius:4px;color:#05192d;background-color:#027e7b;background-image:linear-gradient(#027e7b,#027e7b)"
+                                                                        <td style="border-collapse:collapse;font-size:16px;font-weight:bold;padding:0;border:0;text-align:center;border-radius:4px;color:#05192d;background-color:#027e7b;background-image:linear-gradient(#027e7b,#027e7b)"
                                                                             align="center"><a
-                                                                                style="text-decoration:none;color:#ffffff;font-family:StudioFeixenSans,'StudioFeixenSans',Arial,sans-serif;font-size:16px;font-weight:bold;text-align:center;border-radius:4px;font-size:16px;line-height:30px"
+                                                                                style="text-decoration:none;color:#ffffff;font-size:16px;font-weight:bold;text-align:center;border-radius:4px;font-size:16px;line-height:30px"
                                                                                 href="${loginLink}" target="_blank">
                                                                                 <span
                                                                                     style="padding:9px 19px;border-radius:4px;display:block">
@@ -191,7 +191,7 @@ public static class EmailUtils
                                                             style="padding-top:0px;padding-left:20px;padding-bottom:0px;padding-right:20px"
                                                             bgcolor="#ffffff">
                                                             <p
-                                                                style="color:#05192d;font-family:StudioFeixenSans,'StudioFeixenSans',Arial,sans-serif;font-size:16px;line-height:26px;font-weight:normal">
+                                                                style="color:#05192d;font-size:16px;line-height:26px;font-weight:normal">
                                                                 Hi {userName}, you can now reset your password by clicking the button below. 
                                                             </p>
                                                         </td>
@@ -210,9 +210,9 @@ public static class EmailUtils
                                                                 cellpadding="0" cellspacing="0" border="0">
                                                                 <tbody>
                                                                     <tr>
-                                                                        <td style="border-collapse:collapse;font-family:StudioFeixenSans,'StudioFeixenSans',Arial,sans-serif;font-size:16px;font-weight:bold;padding:0;border:0;text-align:center;border-radius:4px;color:#05192d;background-color:#027e7b;background-image:linear-gradient(#027e7b,#027e7b)"
+                                                                        <td style="border-collapse:collapse;font-size:16px;font-weight:bold;padding:0;border:0;text-align:center;border-radius:4px;color:#05192d;background-color:#027e7b;background-image:linear-gradient(#027e7b,#027e7b)"
                                                                             align="center"><a
-                                                                                style="text-decoration:none;color:#ffffff;font-family:StudioFeixenSans,'StudioFeixenSans',Arial,sans-serif;font-size:16px;font-weight:bold;text-align:center;border-radius:4px;font-size:16px;line-height:30px"
+                                                                                style="text-decoration:none;color:#ffffff;font-size:16px;font-weight:bold;text-align:center;border-radius:4px;font-size:16px;line-height:30px"
                                                                                 href="{resetPasswordLink}" target="_blank">
                                                                                 <span
                                                                                     style="padding:9px 19px;border-radius:4px;display:block">
@@ -312,7 +312,7 @@ public static class EmailUtils
         
                                                     <tr>
                                                         <td align="left" style="padding-top:0px;padding-left:20px;padding-bottom:0px;padding-right:20px" bgcolor="#ffffff">
-                                                            <p style="color:#05192d;font-family:StudioFeixenSans,'StudioFeixenSans',Arial,sans-serif;font-size:16px;line-height:26px;font-weight:normal">
+                                                            <p style="color:#05192d;font-size:16px;line-height:26px;font-weight:normal">
                                                                 Hi {userName}, your Makassed LMS password has been changed  successfully, if you weren't the one who changed it, please contact the administrators.
                                                             </p>
                                                         </td>

@@ -4,7 +4,6 @@ using MLMS.Domain.Common.Models;
 using MLMS.Domain.ExamSessions;
 using MLMS.Domain.Identity.Interfaces;
 using MLMS.Domain.SectionParts;
-using MLMS.Domain.UsersCourses;
 using MLMS.Domain.UserSectionParts;
 
 namespace MLMS.Domain.Exams;
@@ -66,10 +65,15 @@ public class ExamService(
         }
         
         var userId = userContext.Id!.Value;
+
+        if (await examRepository.IsSessionFinishedAsync(userId, examId))
+        {
+            return ExamErrors.SessionEnded;
+        }
         
         var examSession = await examRepository.GetCurrentSessionAsync(userId, examId);
         
-        var examQuestionIds = await examRepository.GetExamQuestionIdsAsync(examId);
+        var examQuestion = await examRepository.GetExamQuestionIdsAsync(examId);
         
         var examSessionQuestionChoices = (await examRepository.GetQuestionChoicesAsync(examSession.Id))
             .ToDictionary(x => x.QuestionId, x => x.ChoiceId);
@@ -77,7 +81,10 @@ public class ExamService(
         return new ExamSessionState
         {
             CheckpointQuestionId = examSession.CheckpointQuestionId,
-            Questions = examQuestionIds.Select(q => (q, examSessionQuestionChoices.TryGetValue(q, out var answer) && answer.HasValue)).ToList()
+            Questions = examQuestion.Select(q => (q.Id,
+                examSessionQuestionChoices.TryGetValue(q.Id, out var answer) && answer.HasValue, q.Index)).ToList(),
+            StartDateUtc = examSession.StartDateUtc,
+            DurationMinutes = examSession.Exam.DurationMinutes
         };
     }
 
@@ -89,6 +96,11 @@ public class ExamService(
         }
         
         var userId = userContext.Id!.Value;
+        
+        if (await examRepository.IsSessionFinishedAsync(userId, examId))
+        {
+            return ExamErrors.SessionEnded;
+        }
         
         if (!await examRepository.HasQuestionAsync(examId, questionId))
         {
@@ -118,6 +130,11 @@ public class ExamService(
         }
         
         var userId = userContext.Id!.Value;
+        
+        if (await examRepository.IsSessionFinishedAsync(userId, examId))
+        {
+            return ExamErrors.SessionEnded;
+        }
         
         if (!await examRepository.HasQuestionAsync(examId, questionId))
         {
@@ -178,9 +195,14 @@ public class ExamService(
 
         await dbTransactionProvider.ExecuteInTransactionAsync(async () =>
         {
-            var userExamState = await examRepository.GetUserExamStateAsync(userId, examId)!;
+            var userExamState = await examRepository.GetUserExamStateAsync(userId, examId)
+                ?? new UserExamState
+                {
+                    UserId = userId,
+                    ExamId = examId
+                };
 
-            userExamState!.Status = examStatus;
+            userExamState.Status = examStatus;
 
             examSession.IsDone = true;
             examSession.Grade = totalAnsweredPoints;
@@ -188,8 +210,28 @@ public class ExamService(
             await examRepository.UpdateExamStateAsync(userExamState);
             
             await examRepository.UpdateSessionAsync(examSession);
+
+            if (examStatus == ExamStatus.Passed)
+            {
+                await sectionPartRepository.SetUserDoneStatusAsync(userId, exam.SectionPartId,
+                    examStatus == ExamStatus.Passed);
+            }
         });
 
         return examStatus;
+    }
+
+    public async Task<ErrorOr<Exam>> GetByIdAsync(long id)
+    {
+        var exam = await examRepository.GetByIdAsync(id);
+
+        if (exam is null)
+        {
+            return ExamErrors.NotFound;
+        }
+        
+        exam.MaxGradePoints = exam.Questions.Sum(q => q.Points);
+
+        return exam;
     }
 }

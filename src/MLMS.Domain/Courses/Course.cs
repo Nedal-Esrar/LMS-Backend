@@ -1,7 +1,5 @@
 using MLMS.Domain.Common.Models;
 using MLMS.Domain.CourseAssignments;
-using MLMS.Domain.Departments;
-using MLMS.Domain.Majors;
 using MLMS.Domain.Sections;
 using MLMS.Domain.Users;
 using MLMS.Domain.UsersCourses;
@@ -26,9 +24,9 @@ public class Course : EntityBase<long>
     
     public DateTime? UpdatedAtUtc { get; set; }
 
-    public int CreatedById { get; set; }
+    public int? CreatedById { get; set; }
     
-    public User CreatedBy { get; set; }
+    public User? CreatedBy { get; set; }
 
     public double Progress
     {

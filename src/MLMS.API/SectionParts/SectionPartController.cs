@@ -5,13 +5,15 @@ using MLMS.API.Common;
 using MLMS.API.SectionParts.Requests;
 using MLMS.Domain.SectionParts;
 
+using static MLMS.API.Common.AuthorizationPolicies;
+
 namespace MLMS.API.SectionParts;
 
 [Route("api/v1/sections/{sectionId:long}/parts")]
 public class SectionPartController(ISectionPartService sectionPartService) : ApiControllerBase
 {
     [HttpPost]
-    [Authorize(Policy = AuthorizationPolicies.Admin)]
+    [Authorize(Policy = Admin)]
     public async Task<IActionResult> Create(long sectionId, CreateSectionPartRequest request)
     {
         var result = await sectionPartService.CreateAsync(request.ToDomain(sectionId));
@@ -20,7 +22,7 @@ public class SectionPartController(ISectionPartService sectionPartService) : Api
     }
     
     [HttpPut("{id:long}")]
-    [Authorize(Policy = AuthorizationPolicies.Admin)]
+    [Authorize(Policy = Admin)]
     public async Task<IActionResult> Update(long sectionId, long id, UpdateSectionPartRequest request)
     {
         var result = await sectionPartService.UpdateAsync(id, request.ToDomain(sectionId));
@@ -38,7 +40,7 @@ public class SectionPartController(ISectionPartService sectionPartService) : Api
     }
     
     [HttpDelete("{id:long}")]
-    [Authorize(Policy = AuthorizationPolicies.Admin)]
+    [Authorize(Policy = Admin)]
     public async Task<IActionResult> Delete(long sectionId, long id)
     {
         var result = await sectionPartService.DeleteAsync(sectionId, id);
@@ -47,7 +49,7 @@ public class SectionPartController(ISectionPartService sectionPartService) : Api
     }
     
     [HttpPatch("{id:long}/current-user/done")]
-    [Authorize(Policy = AuthorizationPolicies.Staff)]
+    [Authorize(Policy = Staff)]
     public async Task<IActionResult> ToggleUserDoneStatus(long sectionId, long id)
     {
         var result = await sectionPartService.ToggleUserDoneStatusAsync(sectionId, id);

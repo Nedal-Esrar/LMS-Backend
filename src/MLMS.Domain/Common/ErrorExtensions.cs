@@ -7,6 +7,7 @@ public static class ErrorExtensions
 {
     public static List<Error> ExtractErrors(this ValidationResult result)
     {
+        // TODO: enhance validation errors.
         if (result.Errors.Count == 0)
         {
             return [];

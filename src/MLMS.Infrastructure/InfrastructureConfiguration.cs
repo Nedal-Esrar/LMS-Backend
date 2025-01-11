@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -33,13 +34,15 @@ using MLMS.Infrastructure.Notifications;
 using MLMS.Infrastructure.SectionParts;
 using MLMS.Infrastructure.Sections;
 using MLMS.Infrastructure.UserCourses;
+using Sieve.Models;
 using Sieve.Services;
 
 namespace MLMS.Infrastructure;
 
 public static class InfrastructureConfiguration
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration,
+        IHostEnvironment environment)
     {
         services.AddIdentity<ApplicationUser, IdentityRole<int>>(options => 
         {
@@ -56,8 +59,13 @@ public static class InfrastructureConfiguration
         
         services.AddDbContext<LmsDbContext>(options =>
         {
-            options.UseSqlServer(configuration.GetConnectionString("LmsDb"))
-                .LogTo(Console.WriteLine, LogLevel.Information);
+            options.UseSqlServer(configuration.GetConnectionString("LmsDb"));
+            
+            if (environment.IsDevelopment())
+            {
+                options.LogTo(Console.WriteLine, LogLevel.Information)
+                    .EnableSensitiveDataLogging();
+            }
         });
 
         services.AddOptions<AuthSettings>()
@@ -112,8 +120,8 @@ public static class InfrastructureConfiguration
         services.AddScoped<IUserCourseRepository, UserCourseRepository>();
         services.AddScoped<IExamRepository, ExamRepository>();
         
-        services.AddOptions<SieveSettings>()
-            .BindConfiguration(nameof(SieveSettings));
+        services.AddOptions<SieveOptions>()
+            .BindConfiguration(nameof(SieveOptions));
         
         services.AddScoped<ISieveProcessor, LmsSieveProcessor>();
 

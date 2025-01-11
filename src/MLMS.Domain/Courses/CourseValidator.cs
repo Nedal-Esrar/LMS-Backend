@@ -15,7 +15,6 @@ public class CourseValidator : AbstractValidator<Course>
             .GreaterThan(0);
 
         RuleFor(x => x.ExpirationMonths)
-            .NotEmpty()
             .GreaterThan(0);
     }
 }

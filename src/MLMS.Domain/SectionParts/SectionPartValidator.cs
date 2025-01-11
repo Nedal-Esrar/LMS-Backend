@@ -22,7 +22,8 @@ public class SectionPartValidator : AbstractValidator<SectionPart>
         RuleFor(x => x.Link)
             .NotEmpty()
             .Must(BeAValidUrl)
-            .When(x => x.MaterialType == MaterialType.Link);
+            .When(x => x.MaterialType == MaterialType.Link)
+            .WithMessage("Not a valid Link.");
     }
     
     private bool BeAValidUrl(string? url)

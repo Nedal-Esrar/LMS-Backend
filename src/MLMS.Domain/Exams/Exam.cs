@@ -20,4 +20,6 @@ public class Exam : EntityBase<long>
     public List<UserExamState> UserExamStates { get; set; } = [];
     
     public List<ExamSession> ExamSessions { get; set; } = [];
+    
+    public int MaxGradePoints { get; set; }
 }

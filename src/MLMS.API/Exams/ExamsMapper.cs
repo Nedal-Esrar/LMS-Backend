@@ -18,7 +18,7 @@ public static partial class ExamsMapper
     private static partial Question ToDomain(this QuestionCreateRequest request);
     
     private static partial Question ToDomain(this QuestionUpdateRequest request);
-    
+
     private static partial QuestionResponse ToContract(this Question question);
     
     public static partial Exam ToDomain(this ExamCreateRequest request);
@@ -29,16 +29,29 @@ public static partial class ExamsMapper
     {
         var response = exam.ToContractInternal();
 
-        response.MaxGradePoints = exam.Questions.Select(q => q.Points).Sum();
+        response.MaxGradePoints = exam.MaxGradePoints;
         response.LastGottenGradePoints = exam.ExamSessions.FirstOrDefault()?.Grade ?? 0;
-        response.Status = exam.UserExamStates.First().Status;
+        response.Status = exam.UserExamStates.FirstOrDefault()?.Status ?? ExamStatus.NotTaken;
         
         return response;
     }
     
     private static partial ExamResponse ToContractInternal(this Exam exam);
-    
-    public static partial ExamSessionStateResponse ToContract(this ExamSessionState state);
+
+    public static ExamSessionStateResponse ToContract(this ExamSessionState state)
+    {
+        return new ExamSessionStateResponse
+        {
+            Questions = state.Questions.Select(q => new QuestionIsAnswered
+            {
+                Id = q.QuestionId,
+                IsAnswered = q.IsAnswered
+            }).ToList(),
+            CheckpointQuestionId = state.CheckpointQuestionId,
+            StartDateUtc = state.StartDateUtc,
+            DurationMinutes = state.DurationMinutes
+        };
+    }
 
     public static ExamSessionQuestionChoiceResponse ToContract(this ExamSessionQuestionChoice model)
     {
@@ -54,4 +67,15 @@ public static partial class ExamsMapper
     }
     
     private static partial SessionChoiceResponse ToSessionContract(this Choice choice);
+
+    public static ExamSimpleResponse ToSimpleContract(this Exam exam)
+    {
+        var response = exam.ToSimpleContractInternal();
+
+        response.QuestionsCount = exam.Questions.Count;
+
+        return response;
+    }
+    
+    private static partial ExamSimpleResponse ToSimpleContractInternal(this Exam exam);
 }

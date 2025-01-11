@@ -19,6 +19,8 @@ public interface ISectionPartRepository
     
     Task ToggleUserDoneStatusAsync(int userId, long id);
     
+    Task SetUserDoneStatusAsync(int userId, long id, bool isDone);
+    
     Task<List<UserExamState>> GetExamStatusesByCourseAndUserAsync(long id, int userId);
     
     Task CreateDoneStatesAsync(List<UserSectionPartDone> doneStates);

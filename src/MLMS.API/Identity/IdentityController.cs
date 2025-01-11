@@ -5,6 +5,8 @@ using MLMS.API.Identity.Requests;
 using MLMS.API.Identity.Responses;
 using MLMS.Domain.Identity.Interfaces;
 
+using static MLMS.API.Common.AuthorizationPolicies;
+
 namespace MLMS.API.Identity;
 
 [Route("api/v1/identity")]
@@ -30,7 +32,7 @@ public class IdentityController(IIdentityService identityService) : ApiControlle
     /// <response code="409">If the provided work ID has already registered.</response>
     /// <response code="404">If the major within department or department is not found is not found.</response>
     /// <response code="204">If the new user is registered successfully.</response>
-    [Authorize(Policy = AuthorizationPolicies.SuperAdmin)]
+    [Authorize(Policy = SuperAdmin)]
     [HttpPost("register")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

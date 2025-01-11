@@ -10,7 +10,7 @@ public class QuestionResponse
     
     public int Points { get; set; }
     
-    public FileResponse? File { get; set; }
+    public FileResponse? Image { get; set; }
 
     public List<ChoiceResponse> Choices { get; set; } = [];
 }

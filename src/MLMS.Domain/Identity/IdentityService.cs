@@ -95,7 +95,7 @@ public class IdentityService(
         {
             var userId = await userRepository.CreateAsync(user, passwordResult.Value);
 
-            var courseAssignments =
+            var courseAssignments = 
                 await courseAssignmentRepository.GetByMajorIdAsync(user.MajorId.Value);
 
             var userCourseEntities = courseAssignments.Select(courseAssignment => 
@@ -112,7 +112,7 @@ public class IdentityService(
             {
                 ToEmails = [user.Email],
                 Subject = "Your LMS account has been created successfully",
-                Body = EmailUtils.GetRegistrationEmailBody($"{user.FirstName} {user.MiddleName} {user.LastName}", user.WorkId, passwordResult.Value, $"{_clientOptions.BaseUrl}/{_clientOptions.LoginRoute}")
+                BodyHtml = EmailUtils.GetRegistrationEmailBody($"{user.FirstName} {user.MiddleName} {user.LastName}", user.WorkId, passwordResult.Value, $"{_clientOptions.BaseUrl}/{_clientOptions.LoginRoute}")
             });
         });
 
@@ -184,7 +184,7 @@ public class IdentityService(
             {
                 ToEmails = [userContext.Email],
                 Subject = "Your password has been changed",
-                Body = EmailUtils.GetPasswordChangedEmailBody($"{userContext.Name}")
+                BodyHtml = EmailUtils.GetPasswordChangedEmailBody($"{userContext.Name}")
             });
         });
 
@@ -206,7 +206,7 @@ public class IdentityService(
         {
             ToEmails = [user.Email],
             Subject = "Reset your Makassed LMS password",
-            Body = EmailUtils.GetResetPasswordEmailBody($"{user.FirstName} {user.MiddleName} {user.LastName}", $"{_clientOptions.BaseUrl}/{_clientOptions.ResetPasswordRoute}?token={token}&workId={user.WorkId}")
+            BodyHtml = EmailUtils.GetResetPasswordEmailBody($"{user.FirstName} {user.MiddleName} {user.LastName}", $"{_clientOptions.BaseUrl}/{_clientOptions.ResetPasswordRoute}?token={token}&workId={user.WorkId}")
         });
 
         return None.Value;
@@ -239,7 +239,7 @@ public class IdentityService(
             {
                 ToEmails = [user.Email],
                 Subject = "Your password has been changed",
-                Body = EmailUtils.GetPasswordChangedEmailBody($"{user.FirstName} {user.MiddleName} {user.LastName}")
+                BodyHtml = EmailUtils.GetPasswordChangedEmailBody($"{user.FirstName} {user.MiddleName} {user.LastName}")
             });
         });
 

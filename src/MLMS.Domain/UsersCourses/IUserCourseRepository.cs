@@ -22,4 +22,6 @@ public interface IUserCourseRepository
     Task UpdateAsync(List<UserCourse> userCourses);
     
     Task<PaginatedList<UserCourse>> GetByCourseIdAsync(long courseId, bool getOnlyCreatedByCurrentUser, SieveModel sieveModel);
+    
+    Task DeleteAsync(List<UserCourse> userCourses);
 }

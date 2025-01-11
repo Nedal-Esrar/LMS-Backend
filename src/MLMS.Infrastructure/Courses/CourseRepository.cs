@@ -59,7 +59,7 @@ public class CourseRepository(
             .Include(x => x.Sections)
                 .ThenInclude(x => x.SectionParts)
                 .ThenInclude(x => x.Exam)
-                .ThenInclude(x => x.ExamSessions.Where(ue => ue.UserId == userId)
+                .ThenInclude(x => x.ExamSessions.Where(ue => ue.UserId == userId && ue.IsDone)
                     .OrderByDescending(es => es.StartDateUtc)
                     .Take(1));
 
@@ -81,7 +81,7 @@ public class CourseRepository(
                 MiddleName = u.MiddleName,
                 LastName = u.LastName
             })
-            .FirstAsync();
+            .FirstOrDefaultAsync();
 
         return course;
     }
@@ -99,7 +99,8 @@ public class CourseRepository(
     public async Task<PaginatedList<Course>> GetAsync(SieveModel sieveModel)
     {
         var query = from c in context.Courses
-            join u in context.Users on c.CreatedById equals u.Id
+            join u in context.Users on c.CreatedById equals u.Id into userGroup
+            from u in userGroup.DefaultIfEmpty()
             select new Course
             {
                 Id = c.Id,
@@ -109,7 +110,7 @@ public class CourseRepository(
                 CreatedAtUtc = c.CreatedAtUtc,
                 UpdatedAtUtc = c.UpdatedAtUtc,
                 CreatedById = c.CreatedById,
-                CreatedBy = new User
+                CreatedBy = u == null ? null : new User
                 {
                     Id = u.Id, 
                     FirstName = u.FirstName,
@@ -233,5 +234,17 @@ public class CourseRepository(
         context.Courses.Remove(course);
 
         await context.SaveChangesAsync();
+    }
+
+    public async Task<List<long>> GetExamIdsByIdAsync(long id)
+    {
+        var query = from c in context.Courses
+            join s in context.Sections on c.Id equals s.CourseId
+            join sp in context.SectionParts on s.Id equals sp.SectionId
+            join e in context.Exams on sp.Id equals e.SectionPartId
+            where c.Id == id
+            select e.Id;
+
+        return await query.ToListAsync();
     }
 }

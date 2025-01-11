@@ -97,7 +97,7 @@ public class MajorService(
             return MajorErrors.NotFound;
         }
         
-        if (major.Name != updatedMajor.Name && !await majorRepository.ExistsByNameAsync(departmentId, updatedMajor.Name))
+        if (major.Name != updatedMajor.Name && await majorRepository.ExistsByNameAsync(departmentId, updatedMajor.Name))
         {
             return MajorErrors.NameAlreadyExists;
         }

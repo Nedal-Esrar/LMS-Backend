@@ -19,7 +19,7 @@ public class CourseSimplifiedResponse
     
     public DateTime? UpdatedAtUtc { get; set; }
     
-    public int CreatedById { get; set; } // mapped for admin.
+    public int? CreatedById { get; set; } // mapped for admin.
     
     public string? CreatedByName { get; set; } // mapped for admin.
     

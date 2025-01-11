@@ -6,6 +6,8 @@ using MLMS.API.Majors.Requests;
 using MLMS.Domain.Common.Models;
 using MLMS.Domain.Majors;
 
+using static MLMS.API.Common.AuthorizationPolicies;
+
 namespace MLMS.API.Majors;
 
 [Authorize]
@@ -13,7 +15,7 @@ namespace MLMS.API.Majors;
 public class MajorController(IMajorService majorService) : ApiControllerBase
 {
     [HttpPost]
-    [Authorize(Policy = AuthorizationPolicies.SuperAdmin)]
+    [Authorize(Policy = SuperAdmin)]
     public async Task<IActionResult> Create(int departmentId, CreateMajorRequest request)
     {
         var result = await majorService.CreateAsync(request.ToDomain(departmentId));
@@ -24,7 +26,7 @@ public class MajorController(IMajorService majorService) : ApiControllerBase
     }
     
     [HttpDelete("{id:int}")]
-    [Authorize(Policy = AuthorizationPolicies.SuperAdmin)]
+    [Authorize(Policy = SuperAdmin)]
     public async Task<IActionResult> Delete(int departmentId, int id)
     {
         var result = await majorService.DeleteAsync(departmentId, id);
@@ -33,7 +35,7 @@ public class MajorController(IMajorService majorService) : ApiControllerBase
     }
     
     [HttpPut("{id:int}")]
-    [Authorize(Policy = AuthorizationPolicies.SuperAdmin)]
+    [Authorize(Policy = SuperAdmin)]
     public async Task<IActionResult> Update(int departmentId, int id, UpdateMajorRequest request)
     {
         var result = await majorService.UpdateAsync(departmentId, id, request.ToDomain());

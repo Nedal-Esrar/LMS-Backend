@@ -17,7 +17,7 @@ public class CourseConfiguration : IEntityTypeConfiguration<Course>
         builder.HasOne<ApplicationUser>()
             .WithMany()
             .HasForeignKey(x => x.CreatedById)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.SetNull);
 
         builder.Ignore(x => x.CreatedBy);
 

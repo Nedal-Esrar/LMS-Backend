@@ -17,7 +17,7 @@ public interface IExamRepository
     
     Task<ExamSession> GetCurrentSessionAsync(int userId, long examId);
     
-    Task<List<long>> GetExamQuestionIdsAsync(long examId);
+    Task<List<Question>> GetExamQuestionIdsAsync(long examId);
     
     Task<List<ExamSessionQuestionChoice>> GetQuestionChoicesAsync(Guid examSessionId);
     
@@ -40,4 +40,6 @@ public interface IExamRepository
     Task UpdateSessionAsync(ExamSession examSession);
     
     Task ResetExamStatesByUserCoursesAsync(List<UserCourse> expiredUserCourses);
+    
+    Task<bool> IsSessionFinishedAsync(int userId, long examId);
 }

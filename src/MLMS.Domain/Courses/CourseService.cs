@@ -70,33 +70,50 @@ public class CourseService(
             return CourseErrors.NotCreatedByUser;
         }
 
-        var course = await courseRepository.GetDetailedByIdAsync(id)!;
-
-        if (userContext.Role != UserRole.Staff)
+        if (userContext.Role == UserRole.Staff)
         {
-            return course!;
-        }
-        
-        // Finish exam sessions that are not finished explicitly and expired.
-        var examIds = course!.Sections
-            .SelectMany(s => s.SectionParts)
-            .Where(sp => sp.MaterialType == MaterialType.Exam)
-            .Select(sp => sp.ExamId!.Value);
-
-        foreach (var examId in examIds)
-        {
-            if (await examRepository.IsSessionDueAsync(userContext.Id!.Value, examId))
+            // In this case, finish the current sessions if they are due for exams in this course.
+            var examIds = await courseRepository.GetExamIdsByIdAsync(id);
+            
+            foreach (var examId in examIds)
             {
-                await examService.FinishCurrentSessionAsync(examId);
+                if (await examRepository.IsSessionDueAsync(userContext.Id!.Value, examId))
+                {
+                    await examService.FinishCurrentSessionAsync(examId);
+                }
             }
         }
+        
+        var course = await courseRepository.GetDetailedByIdAsync(id)!;
+        
+        course!.Sections.ForEach(
+            s => s.SectionParts
+                .Where(sp => sp.MaterialType == MaterialType.Exam)
+                .ToList()
+                .ForEach(sp =>
+                {
+                    if (sp.Exam != null) sp.Exam.MaxGradePoints = sp.Exam.Questions.Sum(q => q.Points);
+                }));
 
+        if (userContext.Role == UserRole.Staff)
+        {
+            // eliminate questions for exams.
+            course!.Sections.ForEach(
+                s => s.SectionParts
+                    .Where(sp => sp.MaterialType == MaterialType.Exam)
+                    .ToList()
+                    .ForEach(sp =>
+                    {
+                        if (sp.Exam != null) sp.Exam.Questions = [];
+                    }));
+        }
+        
         return course!;
     }
 
     public async Task<ErrorOr<None>> EditAssignmentsAsync(long id, List<int> newAssignments)
     {
-        // TODO: UserSectionPartDone
+        // TODO: UserSectionPartDone, UserExamStates
         var course = await courseRepository.GetDetailedByIdAsync(id);
         
         if (course is null)
@@ -166,7 +183,7 @@ public class CourseService(
                 {
                     ToEmails = newUsersToAssign.Select(u => u.Email).ToList(),
                     Subject = "New course assigned to you.",
-                    Body = EmailUtils.GetAssignmentEmailBody(course.Name)
+                    BodyHtml = EmailUtils.GetAssignmentEmailBody(course.Name)
                 });
             }
 
@@ -176,7 +193,7 @@ public class CourseService(
                 {
                     ToEmails = oldUsersToUnassign.Select(u => u.Email).ToList(),
                     Subject = "New course assigned to you.",
-                    Body = EmailUtils.GetUnassignmentEmailBody(course.Name)
+                    BodyHtml = EmailUtils.GetUnassignmentEmailBody(course.Name)
                 });
             }
         });
@@ -373,26 +390,26 @@ public class CourseService(
             await notificationRepository.CreateAsync(expirationNotificationsToCreate);
 
             // create emails
-            // var userCoursesByCourseId = userCourses.GroupBy(uc => uc.Course)
-            //     .ToDictionary(uc => uc.Key, uc => uc.ToList());
-            //
-            // var sendEmailTasks = userCoursesByCourseId
-            //     .Select(ucs => Task.Run(() =>
-            //     {
-            //         var course = ucs.Key;
-            //
-            //         var emailsToSend = ucs.Value.Select(uc => uc.User.Email)
-            //             .ToList();
-            //
-            //         return emailService.SendAsync(new EmailRequest
-            //         {
-            //             ToEmails = emailsToSend,
-            //             Subject = $"Course {course.Name} has expired",
-            //             // Body = EmailUtils.GetCourseExpiredEmailBody(course.Name)
-            //         });
-            //     }));
-            //
-            // await Task.WhenAll(sendEmailTasks);
+            var userCoursesByCourseId = userCourses.GroupBy(uc => uc.Course)
+                .ToDictionary(uc => uc.Key, uc => uc.ToList());
+            
+            var sendEmailTasks = userCoursesByCourseId
+                .Select(ucs => Task.Run(() =>
+                {
+                    var course = ucs.Key;
+            
+                    var emailsToSend = ucs.Value.Select(uc => uc.User.Email)
+                        .ToList();
+            
+                    return emailService.SendAsync(new EmailRequest
+                    {
+                        ToEmails = emailsToSend,
+                        Subject = $"Course {course.Name} has expired",
+                        BodyHtml = EmailUtils.GetCourseExpiredEmailBody(course.Name, course.ExpirationMonths!.Value)
+                    });
+                }));
+            
+            await Task.WhenAll(sendEmailTasks);
         });
         
         return None.Value;
@@ -435,6 +452,12 @@ public class CourseService(
             // ]);
             
             // send an email.
+            await emailService.SendAsync(new EmailRequest
+            {
+                ToEmails = [user.Email],
+                Subject = "Course poke",
+                BodyHtml = EmailUtils.GetCoursePokeEmailBody(course.Name)
+            });
         });
 
         return None.Value;

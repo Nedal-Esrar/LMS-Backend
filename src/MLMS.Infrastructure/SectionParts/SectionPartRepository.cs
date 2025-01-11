@@ -91,9 +91,20 @@ public class SectionPartRepository(
         existingSectionPart.FileId = sectionPart.FileId;
         
         // if the updated type is exam, map questions and choices.
-        if (sectionPart.MaterialType == MaterialType.Exam)
+        if (existingSectionPart.MaterialType == MaterialType.Exam 
+            && sectionPart.MaterialType == MaterialType.Exam)
         {
             MapExam(existingSectionPart, sectionPart);
+        }
+        else if (existingSectionPart.MaterialType == MaterialType.Exam 
+                 && sectionPart.MaterialType != MaterialType.Exam)
+        {
+            context.Exams.Remove(existingSectionPart.Exam!);
+        }
+        else if (existingSectionPart.MaterialType != MaterialType.Exam 
+                 && sectionPart.MaterialType == MaterialType.Exam)
+        {
+            existingSectionPart.Exam = sectionPart.Exam;
         }
         
         await context.SaveChangesAsync();
@@ -131,6 +142,7 @@ public class SectionPartRepository(
             }
             else // to create.
             {
+                newQuestion.ExamId = sectionPart.ExamId!.Value;
                 context.Questions.Add(newQuestion);
             }
         }
@@ -170,9 +182,12 @@ public class SectionPartRepository(
                 // choice basic mapping
                 existingChoice.Text = newChoice.Text;
                 existingChoice.IsCorrect = newChoice.IsCorrect;
+
+                context.Choices.Update(existingChoice);
             }
             else // to create.
             {
+                newChoice.QuestionId = existingQuestion.Id;
                 context.Choices.Add(newChoice);
             }
         }
@@ -199,6 +214,27 @@ public class SectionPartRepository(
         await context.UserSectionPartDoneRelations
             .Where(x => x.UserId == userId && x.SectionPartId == id)
             .ExecuteUpdateAsync(u => u.SetProperty(x => x.IsDone, x => !x.IsDone));
+    }
+
+    public async Task SetUserDoneStatusAsync(int userId, long id, bool isDone)
+    {
+        if (!await context.UserSectionPartDoneRelations.AnyAsync(d => d.SectionPartId == id && d.UserId == userId))
+        {
+            context.UserSectionPartDoneRelations.Add(new UserSectionPartDone
+            {
+                SectionPartId = id,
+                UserId = userId,
+                IsDone = isDone
+            });
+
+            await context.SaveChangesAsync();
+
+            return;
+        }
+        
+        await context.UserSectionPartDoneRelations
+            .Where(x => x.UserId == userId && x.SectionPartId == id)
+            .ExecuteUpdateAsync(u => u.SetProperty(x => x.IsDone, isDone));
     }
 
     public async Task<List<UserExamState>> GetExamStatusesByCourseAndUserAsync(long id, int userId)

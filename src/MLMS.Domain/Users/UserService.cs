@@ -2,10 +2,12 @@ using ErrorOr;
 using MLMS.Domain.Common;
 using MLMS.Domain.Common.Interfaces;
 using MLMS.Domain.Common.Models;
+using MLMS.Domain.CourseAssignments;
 using MLMS.Domain.Departments;
 using MLMS.Domain.Files;
 using MLMS.Domain.Identity.Interfaces;
 using MLMS.Domain.Majors;
+using MLMS.Domain.UsersCourses;
 using Sieve.Models;
 
 namespace MLMS.Domain.Users;
@@ -17,7 +19,9 @@ public class UserService(
     IFileRepository fileRepository,
     IUserContext userContext,
     IDbTransactionProvider dbTransactionProvider,
-    IFileHandler fileHandler) : IUserService
+    IFileHandler fileHandler,
+    ICourseAssignmentRepository courseAssignmentRepository,
+    IUserCourseRepository userCourseRepository) : IUserService
 {
     private readonly UserValidator _userValidator = new();
     
@@ -52,11 +56,38 @@ public class UserService(
             return MajorErrors.NotFound;
         }
 
-        userToUpdate.MapUpdatedUser(user);
+        await dbTransactionProvider.ExecuteInTransactionAsync(async () =>
+        {
+            if (user.MajorId != userToUpdate.MajorId)
+            {
+                var oldMajorAssignments = (await courseAssignmentRepository.GetByMajorIdAsync(userToUpdate.MajorId!.Value))
+                    .Select(ca => ca.CourseId)
+                    .ToHashSet();
+                
+                var newMajorAssignments = (await courseAssignmentRepository.GetByMajorIdAsync(user.MajorId!.Value))
+                    .Select(ca => ca.CourseId)
+                    .ToHashSet();
+                
+                var coursesToAdd = newMajorAssignments.Except(oldMajorAssignments).ToList();
+                var coursesToRemove = oldMajorAssignments.Except(newMajorAssignments).ToList();
 
-        await userRepository.UpdateAsync(userToUpdate);
-        
-        // TODO: Handle course assignment for majors and department updates.
+                await userCourseRepository.CreateAsync(coursesToAdd.Select(c => new UserCourse
+                {
+                    CourseId = c,
+                    UserId = id
+                }).ToList());
+
+                await userCourseRepository.DeleteAsync(coursesToRemove.Select(c => new UserCourse
+                {
+                    CourseId = c,
+                    UserId = id
+                }).ToList());
+            }
+            
+            userToUpdate.MapUpdatedUser(user);
+
+            await userRepository.UpdateAsync(userToUpdate);
+        });
 
         return None.Value;
     }
@@ -106,7 +137,7 @@ public class UserService(
         
         var user = await userRepository.GetByIdAsync(userContext.Id!.Value);
         
-        var oldImage = user.ProfilePictureId is not null ? 
+        var oldImage = user!.ProfilePictureId is not null ? 
             await fileRepository.GetByIdAsync(user.ProfilePictureId!.Value)
             : null;
 

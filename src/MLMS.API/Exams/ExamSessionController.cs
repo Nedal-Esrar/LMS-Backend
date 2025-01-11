@@ -5,10 +5,12 @@ using MLMS.API.Exams.Requests;
 using MLMS.API.Exams.Responses;
 using MLMS.Domain.Exams;
 
+using static MLMS.API.Common.AuthorizationPolicies;
+
 namespace MLMS.API.Exams;
 
 [Route("api/v1/exams/{examId:long}/user/current-session")]
-[Authorize(Policy = AuthorizationPolicies.Staff)]
+[Authorize(Policy = Staff)]
 public class ExamSessionController(IExamService examService) : ApiControllerBase
 {
     [HttpPost("start")]

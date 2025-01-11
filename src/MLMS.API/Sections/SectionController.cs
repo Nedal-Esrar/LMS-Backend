@@ -4,10 +4,12 @@ using MLMS.API.Common;
 using MLMS.API.Sections.Requests;
 using MLMS.Domain.Sections;
 
+using static MLMS.API.Common.AuthorizationPolicies;
+
 namespace MLMS.API.Sections;
 
 [Route("api/v1/courses/{courseId:long}/sections")]
-[Authorize(Policy = AuthorizationPolicies.Admin)]
+[Authorize(Policy = Admin)]
 public class SectionController(ISectionService sectionService) : ApiControllerBase
 {
     [HttpPost]

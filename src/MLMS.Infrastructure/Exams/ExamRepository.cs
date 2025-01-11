@@ -58,16 +58,16 @@ public class ExamRepository(LmsDbContext context) : IExamRepository
     public async Task<ExamSession> GetCurrentSessionAsync(int userId, long examId)
     {
         return await context.ExamSessions
+            .Include(es => es.Exam)
             .Where(es => es.UserId == userId && es.ExamId == examId)
             .OrderByDescending(es => es.StartDateUtc)
             .FirstOrDefaultAsync()!;
     }
 
-    public async Task<List<long>> GetExamQuestionIdsAsync(long examId)
+    public async Task<List<Question>> GetExamQuestionIdsAsync(long examId)
     {
         return await context.Questions
             .Where(q => q.ExamId == examId)
-            .Select(q => q.Id)
             .ToListAsync();
     }
 
@@ -86,6 +86,10 @@ public class ExamRepository(LmsDbContext context) : IExamRepository
     public async Task<ExamSessionQuestionChoice?> GetSessionQuestionChoiceAsync(Guid examSessionId, long questionId)
     {
         return await context.ExamSessionQuestionChoices
+            .Include(esqc => esqc.Question)
+            .ThenInclude(q => q.Choices)
+            .Include(esqc => esqc.Question)
+            .ThenInclude(q => q.Image)
             .FirstOrDefaultAsync(es => es.ExamSessionId == examSessionId && es.QuestionId == questionId);
     }
 
@@ -118,7 +122,10 @@ public class ExamRepository(LmsDbContext context) : IExamRepository
 
     public async Task<Exam?> GetByIdAsync(long examId)
     {
-        return await context.Exams.FindAsync(examId);
+        return await context.Exams
+            .Include(e => e.Questions)
+            .ThenInclude(q => q.Choices)
+            .FirstOrDefaultAsync(e => e.Id == examId);
     }
 
     public async Task<UserExamState?> GetUserExamStateAsync(int userId, long examId)
@@ -129,8 +136,16 @@ public class ExamRepository(LmsDbContext context) : IExamRepository
 
     public async Task UpdateExamStateAsync(UserExamState userExamState)
     {
-        context.UserExamStateRelations.Update(userExamState);
-        
+        if (!await context.UserExamStateRelations.AnyAsync(ues =>
+            ues.UserId == userExamState.UserId && ues.ExamId == userExamState.ExamId))
+        {
+            context.UserExamStateRelations.Add(userExamState);
+        }
+        else
+        {
+            context.UserExamStateRelations.Update(userExamState);
+        }
+
         await context.SaveChangesAsync();
     }
 
@@ -152,5 +167,22 @@ public class ExamRepository(LmsDbContext context) : IExamRepository
             select ues;
 
         await query.ExecuteUpdateAsync(u => u.SetProperty(x => x.Status, ExamStatus.NotTaken));
+    }
+
+    public async Task<bool> IsSessionFinishedAsync(int userId, long examId)
+    {
+        var session = await context.ExamSessions
+            .Include(x => x.Exam)
+            .Where(es => es.UserId == userId && es.ExamId == examId)
+            .OrderByDescending(es => es.StartDateUtc)
+            .FirstOrDefaultAsync();
+
+        if (session is null)
+        {
+            return true;
+        }
+
+        return session.IsDone ||
+               (DateTime.UtcNow - session.StartDateUtc).Minutes >= session.Exam.DurationMinutes;
     }
 }

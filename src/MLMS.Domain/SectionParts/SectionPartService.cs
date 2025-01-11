@@ -52,7 +52,7 @@ public class SectionPartService(
 
         if (sectionPart.MaterialType == MaterialType.Exam)
         {
-            AssignQuestionAndChoicesIndexes(sectionPart.Exam!);
+            AssignQuestionAndChoicesIndexesForCreate(sectionPart.Exam!);
         }
     
         var createdSectionPart = default(SectionPart);
@@ -85,7 +85,7 @@ public class SectionPartService(
         return createdSectionPart!;
     }
 
-    private void AssignQuestionAndChoicesIndexes(Exam exam)
+    private void AssignQuestionAndChoicesIndexesForCreate(Exam exam)
     {
         var questionIndex = 0;
 
@@ -153,7 +153,7 @@ public class SectionPartService(
         {
             if (existingSectionPart.MaterialType != MaterialType.Exam)
             {
-                AssignQuestionAndChoicesIndexes(updatedSectionPart.Exam!);
+                AssignQuestionAndChoicesIndexesForCreate(updatedSectionPart.Exam!);
             }
             else
             {

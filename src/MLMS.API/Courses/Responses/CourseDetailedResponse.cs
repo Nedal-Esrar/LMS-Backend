@@ -20,7 +20,7 @@ public class CourseDetailedResponse
     
     public DateTime? UpdatedAtUtc { get; set; }
 
-    public int CreatedById { get; set; }
+    public int? CreatedById { get; set; }
     
     public string? CreatedByName { get; set; }
     

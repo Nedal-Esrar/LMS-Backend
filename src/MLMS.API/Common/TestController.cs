@@ -16,6 +16,6 @@ public class TestController(IWebHostEnvironment env) : ControllerBase
     [HttpGet]
     public IActionResult Get()
     {
-        return Ok(env.WebRootPath ?? "GG");
+        return Ok(env.WebRootPath);
     }
 }

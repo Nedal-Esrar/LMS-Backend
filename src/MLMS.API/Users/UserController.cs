@@ -7,12 +7,14 @@ using MLMS.API.Users.Responses;
 using MLMS.Domain.Common.Models;
 using MLMS.Domain.Users;
 
+using static MLMS.API.Common.AuthorizationPolicies;
+
 namespace MLMS.API.Users;
 
 [Route("api/v1/")]
 public class UserController(IUserService userService) : ApiControllerBase
 {
-    [Authorize(Policy = AuthorizationPolicies.SuperAdmin)]
+    [Authorize(Policy = SuperAdmin)]
     [HttpPost("users/search")]
     public async Task<IActionResult> Get(RetrievalRequest request)
     {
@@ -43,7 +45,7 @@ public class UserController(IUserService userService) : ApiControllerBase
     /// <response code="404">If the user is not found or major is not found or department is not found.</response>
     /// <response code="409">if the updated workId is already in use by another user.</response>
     /// <response code="204">Updated successfully.</response>
-    [Authorize(Policy = AuthorizationPolicies.SuperAdmin)]
+    [Authorize(Policy = SuperAdmin)]
     [HttpPut("users/{id:int}")]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -60,7 +62,7 @@ public class UserController(IUserService userService) : ApiControllerBase
     
     /// <response code="404">If the user is not found.</response>
     /// <response code="204">The user is deleted successfully.</response>
-    [Authorize(Policy = AuthorizationPolicies.SuperAdmin)]
+    [Authorize(Policy = SuperAdmin)]
     [HttpDelete("users/{id:int}")]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]

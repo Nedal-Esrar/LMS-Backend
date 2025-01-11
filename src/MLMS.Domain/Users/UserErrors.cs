@@ -10,5 +10,5 @@ public static class UserErrors
     
     public static Error WorkIdExists => Error.Conflict(
         code: "Users.WorkIdExists",
-        description: "another User with the same WorkId already exists."); 
+        description: "Another User with the same WorkId already exists."); 
 }

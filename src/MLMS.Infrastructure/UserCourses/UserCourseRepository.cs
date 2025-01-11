@@ -129,4 +129,11 @@ public class UserCourseRepository(
             }
         };
     }
+
+    public async Task DeleteAsync(List<UserCourse> userCourses)
+    {
+        context.UserCourses.RemoveRange(userCourses);
+        
+        await context.SaveChangesAsync();
+    }
 }

@@ -10,7 +10,7 @@ public class Question : EntityBase<long>
     
     public Guid? ImageId { get; set; }
     
-    public File Image { get; set; }
+    public File? Image { get; set; }
     
     public int Points { get; set; }
     

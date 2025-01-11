@@ -48,7 +48,7 @@ public class EmailService(IOptions<EmailSettings> emailSettings) : IEmailService
 
         var bodyBuilder = new BodyBuilder
         {
-            HtmlBody = emailRequest.Body
+            HtmlBody = emailRequest.BodyHtml
         };
 
         foreach (var attachment in emailRequest.Attachments)

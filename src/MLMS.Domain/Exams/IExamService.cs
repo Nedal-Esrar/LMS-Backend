@@ -18,4 +18,6 @@ public interface IExamService
     Task<ErrorOr<None>> AnswerQuestionAsync(long examId, long questionId, long choiceId);
     
     Task<ErrorOr<ExamStatus>> FinishCurrentSessionAsync(long examId);
+    
+    Task<ErrorOr<Exam>> GetByIdAsync(long id);
 }

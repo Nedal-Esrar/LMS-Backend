@@ -28,4 +28,6 @@ public interface ICourseRepository
     Task UpdateAsync(Course course);
     
     Task DeleteAsync(long id);
+    
+    Task<List<long>> GetExamIdsByIdAsync(long id);
 }

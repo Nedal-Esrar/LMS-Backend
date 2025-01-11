@@ -7,6 +7,8 @@ using MLMS.API.Identity;
 using MLMS.Domain.Identity;
 using MLMS.Domain.Identity.Interfaces;
 
+using static MLMS.API.Common.AuthorizationPolicies;
+
 namespace MLMS.API;
 
 public static class WebConfiguration
@@ -65,9 +67,9 @@ public static class WebConfiguration
         });
 
         services.AddAuthorizationBuilder()
-            .AddPolicy(AuthorizationPolicies.SuperAdmin, policy => policy.RequireRole(UserRole.Admin.ToString()))
-            .AddPolicy(AuthorizationPolicies.Staff, policy => policy.RequireRole(UserRole.Staff.ToString()))
-            .AddPolicy(AuthorizationPolicies.Admin, policy => policy.RequireRole(UserRole.Admin.ToString(), UserRole.SubAdmin.ToString()));
+            .AddPolicy(SuperAdmin, policy => policy.RequireRole(UserRole.Admin.ToString()))
+            .AddPolicy(Staff, policy => policy.RequireRole(UserRole.Staff.ToString()))
+            .AddPolicy(Admin, policy => policy.RequireRole(UserRole.Admin.ToString(), UserRole.SubAdmin.ToString()));
         
         services.AddDateOnlyTimeOnlyStringConverters();
 

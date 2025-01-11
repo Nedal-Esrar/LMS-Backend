@@ -6,7 +6,7 @@ public class QuestionCreateRequest
     
     public int Points { get; set; }
     
-    public Guid? FileId { get; set; }
+    public Guid? ImageId { get; set; }
 
     public List<ChoiceCreateRequest> Choices { get; set; } = [];
 }

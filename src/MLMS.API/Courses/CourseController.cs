@@ -1,4 +1,3 @@
-using ErrorOr;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MLMS.API.Common;
@@ -7,13 +6,15 @@ using MLMS.API.Courses.Responses;
 using MLMS.Domain.Common.Models;
 using MLMS.Domain.Courses;
 
+using static MLMS.API.Common.AuthorizationPolicies;
+
 namespace MLMS.API.Courses;
 
 [Route("api/v1/courses")]
 public class CourseController(ICourseService courseService) : ApiControllerBase
 {
     [HttpPost]
-    [Authorize(Policy = AuthorizationPolicies.Admin)]
+    [Authorize(Policy = Admin)]
     public async Task<IActionResult> Initialize(InitializeCourseRequest request)
     {
         var result = await courseService.InitializeAsync(request.ToDomain());
@@ -22,7 +23,7 @@ public class CourseController(ICourseService courseService) : ApiControllerBase
     }
     
     [HttpPut("{id:long}")]
-    [Authorize(Policy = AuthorizationPolicies.Admin)]
+    [Authorize(Policy = Admin)]
     public async Task<IActionResult> Update(long id, UpdateCourseRequest request)
     {
         var result = await courseService.UpdateAsync(id, request.ToDomain());
@@ -31,7 +32,7 @@ public class CourseController(ICourseService courseService) : ApiControllerBase
     }
 
     [HttpDelete("{id:long}")]
-    [Authorize(Policy = AuthorizationPolicies.Admin)]
+    [Authorize(Policy = Admin)]
     public async Task<IActionResult> Delete(long id)
     {
         var result = await courseService.DeleteAsync(id);
@@ -40,7 +41,7 @@ public class CourseController(ICourseService courseService) : ApiControllerBase
     }
 
     [HttpPut("{id:long}/assignments")]
-    [Authorize(Policy = AuthorizationPolicies.Admin)]
+    [Authorize(Policy = Admin)]
     public async Task<IActionResult> UpdateAssignments(long id, EditCourseAssignmentsRequest request)
     {
         var result = await courseService.EditAssignmentsAsync(id, request.Assignments);
@@ -49,7 +50,7 @@ public class CourseController(ICourseService courseService) : ApiControllerBase
     }
     
     [HttpPost("{id:long}/start")]
-    [Authorize(Policy = AuthorizationPolicies.Staff)]
+    [Authorize(Policy = Staff)]
     public async Task<IActionResult> Start(long id)
     {
         var result = await courseService.StartAsync(id);
@@ -58,7 +59,7 @@ public class CourseController(ICourseService courseService) : ApiControllerBase
     }
 
     [HttpPost("{id:long}/finish")]
-    [Authorize(Policy = AuthorizationPolicies.Staff)]
+    [Authorize(Policy = Staff)]
     public async Task<IActionResult> Finish(long id)
     {
         var result = await courseService.FinishAsync(id);
@@ -67,7 +68,7 @@ public class CourseController(ICourseService courseService) : ApiControllerBase
     }
     
     [HttpGet("{id:long}/is-finished")]
-    [Authorize(Policy = AuthorizationPolicies.Staff)]
+    [Authorize(Policy = Staff)]
     public async Task<IActionResult> CheckIfFinished(long id)
     {
         var result = await courseService.CheckIfFinishedAsync(id);
@@ -98,7 +99,7 @@ public class CourseController(ICourseService courseService) : ApiControllerBase
     }
     
     [HttpGet("{id:long}/assignments")]
-    [Authorize(Policy = AuthorizationPolicies.Admin)]
+    [Authorize(Policy = Admin)]
     public async Task<IActionResult> GetAssignments(long id)
     {
         var result = await courseService.GetAssignmentsByIdAsync(id);
@@ -107,7 +108,7 @@ public class CourseController(ICourseService courseService) : ApiControllerBase
     }
 
     [HttpPost("{id:long}/participants")]
-    [Authorize(Policy = AuthorizationPolicies.Admin)]
+    [Authorize(Policy = Admin)]
     public async Task<IActionResult> GetParticipants(long id, RetrievalRequest request)
     {
         var result = await courseService.GetParticipantsByIdAsync(id, request.ToSieveModel());
@@ -120,7 +121,7 @@ public class CourseController(ICourseService courseService) : ApiControllerBase
     }
     
     [HttpPost("{id:long}/participants/{userId:int}/late-notifications")]
-    [Authorize(Policy = AuthorizationPolicies.Admin)]
+    [Authorize(Policy = Admin)]
     public async Task<IActionResult> NotifyParticipant(long id, int userId)
     {
         var result = await courseService.NotifyParticipantAsync(id, userId);
