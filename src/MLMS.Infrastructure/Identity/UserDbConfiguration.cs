@@ -9,7 +9,7 @@ using MLMS.Infrastructure.Identity.Models;
 
 namespace MLMS.Infrastructure.Identity;
 
-public class UserConfiguration : IEntityTypeConfiguration<ApplicationUser>
+public class UserDbConfiguration : IEntityTypeConfiguration<ApplicationUser>
 {
     public void Configure(EntityTypeBuilder<ApplicationUser> builder)
     {
@@ -23,7 +23,7 @@ public class UserConfiguration : IEntityTypeConfiguration<ApplicationUser>
             .WithMany()
             .OnDelete(DeleteBehavior.NoAction);
 
-        builder.HasMany<RefreshToken>()
+        builder.HasMany<RefreshToken>(u => u.RefreshTokens)
             .WithOne()
             .HasForeignKey(rt => rt.UserId)
             .OnDelete(DeleteBehavior.Cascade);
@@ -42,5 +42,12 @@ public class UserConfiguration : IEntityTypeConfiguration<ApplicationUser>
             .WithOne()
             .HasForeignKey<ApplicationUser>(u => u.ProfilePictureId)
             .OnDelete(DeleteBehavior.SetNull);
+        
+        builder.Ignore(u => u.EmailConfirmed)
+            .Ignore(u => u.ConcurrencyStamp)
+            .Ignore(u => u.TwoFactorEnabled)
+            .Ignore(u => u.LockoutEnd)
+            .Ignore(u => u.LockoutEnabled)
+            .Ignore(u => u.AccessFailedCount);
     }
 }

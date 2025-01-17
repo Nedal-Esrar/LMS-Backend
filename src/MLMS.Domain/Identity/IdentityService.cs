@@ -166,7 +166,7 @@ public class IdentityService(
 
     public async Task<ErrorOr<None>> ChangePasswordAsync(string currentPassword, string newPassword)
     {
-        if (!await authService.IsOwnPasswordAsync(userContext.Id!.Value, currentPassword))
+        if (!await authService.IsOwnPasswordAsync(userContext.Id, currentPassword))
         {
             return IdentityErrors.WrongCurrentPassword;
         }
@@ -178,7 +178,7 @@ public class IdentityService(
         
         await dbTransactionProvider.ExecuteInTransactionAsync(async () =>
         {
-            await authService.ChangePasswordAsync(userContext.Id.Value, currentPassword, newPassword);
+            await authService.ChangePasswordAsync(userContext.Id, currentPassword, newPassword);
 
             await emailService.SendAsync(new EmailRequest
             {

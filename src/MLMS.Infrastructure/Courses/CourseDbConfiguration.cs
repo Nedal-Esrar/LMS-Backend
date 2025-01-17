@@ -6,7 +6,7 @@ using MLMS.Infrastructure.Identity.Models;
 
 namespace MLMS.Infrastructure.Courses;
 
-public class CourseConfiguration : IEntityTypeConfiguration<Course>
+public class CourseDbConfiguration : IEntityTypeConfiguration<Course>
 {
     public void Configure(EntityTypeBuilder<Course> builder)
     {

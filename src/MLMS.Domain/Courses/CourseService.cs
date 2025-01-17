@@ -43,7 +43,7 @@ public class CourseService(
             return CourseErrors.NameAlreadyExists;
         }
 
-        course.CreatedById = userContext.Id!.Value;
+        course.CreatedById = userContext.Id;
         course.CreatedAtUtc = DateTime.UtcNow;
 
         var createdCourse = await courseRepository.CreateAsync(course);
@@ -59,13 +59,13 @@ public class CourseService(
         }
 
         if (userContext.Role == UserRole.Staff &&
-            !await userCourseRepository.ExistsByCourseAndUserIdsAsync(id, userContext.Id!.Value))
+            !await userCourseRepository.ExistsByCourseAndUserIdsAsync(id, userContext.Id))
         {
             return CourseErrors.NotAssigned;
         }
 
         if (userContext.Role == UserRole.SubAdmin &&
-            !await courseRepository.IsCreatedByUserAsync(id, userContext.Id!.Value))
+            !await courseRepository.IsCreatedByUserAsync(id, userContext.Id))
         {
             return CourseErrors.NotCreatedByUser;
         }
@@ -77,7 +77,7 @@ public class CourseService(
             
             foreach (var examId in examIds)
             {
-                if (await examRepository.IsSessionDueAsync(userContext.Id!.Value, examId))
+                if (await examRepository.IsSessionDueAsync(userContext.Id, examId))
                 {
                     await examService.FinishCurrentSessionAsync(examId);
                 }
@@ -203,7 +203,7 @@ public class CourseService(
 
     public async Task<ErrorOr<PaginatedList<Course>>> GetAsync(SieveModel sieveModel)
     {
-        var userId = userContext.Id!.Value;
+        var userId = userContext.Id;
         
         return userContext.Role switch
         {
@@ -220,7 +220,7 @@ public class CourseService(
             return CourseErrors.NotFound;
         }
         
-        var userId = userContext.Id!.Value;
+        var userId = userContext.Id;
         
         var userCourse = await userCourseRepository.GetByUserAndCourseAsync(id, userId);
 
@@ -254,7 +254,7 @@ public class CourseService(
 
     public async Task<ErrorOr<(bool IsFinished, DateTime? FinishedAtUtc)>> CheckIfFinishedAsync(long id)
     {
-        var userCourse = await userCourseRepository.GetByUserAndCourseAsync(id, userContext.Id!.Value);
+        var userCourse = await userCourseRepository.GetByUserAndCourseAsync(id, userContext.Id);
 
         return (userCourse.Status == UserCourseStatus.Finished, userCourse.FinishedAtUtc);
     }
@@ -266,7 +266,7 @@ public class CourseService(
             return CourseErrors.NotFound;
         }
         
-        var userId = userContext.Id!.Value;
+        var userId = userContext.Id;
         
         var userCourse = await userCourseRepository.GetByUserAndCourseAsync(id, userId);
 
@@ -277,6 +277,7 @@ public class CourseService(
         
         userCourse.Status = UserCourseStatus.InProgress;
         userCourse.StartedAtUtc = DateTime.UtcNow;
+        userCourse.FinishedAtUtc = null;
         
         await userCourseRepository.UpdateAsync(userCourse);
 
@@ -335,7 +336,7 @@ public class CourseService(
 
     public async Task<ErrorOr<Dictionary<UserCourseStatus, int>>> GetCourseStatusForCurrentUserAsync()
     {
-        var userId = userContext.Id!.Value;
+        var userId = userContext.Id;
         
         var userCourseStatuses = await userCourseRepository.GetByUserIdAsync(userId);
 
@@ -365,11 +366,7 @@ public class CourseService(
 
         await dbTransactionProvider.ExecuteInTransactionAsync(async () =>
         {   
-            expiredUserCourses.ForEach(uc =>
-            {
-                uc.FinishedAtUtc = null;
-                uc.Status = UserCourseStatus.Expired;
-            });
+            expiredUserCourses.ForEach(uc => uc.Status = UserCourseStatus.Expired);
 
             await userCourseRepository.UpdateAsync(expiredUserCourses);
             
@@ -384,12 +381,13 @@ public class CourseService(
             {
                 Title = $"Course {uc.Course.Name} has expired",
                 Content = $"The course {uc.Course.Name} has expired. it has passed the time of {uc.Course.ExpirationMonths} months or more since started, please consider retaking it retake it.",
+                CreatedAtUtc = DateTime.UtcNow,
                 UserId = uc.UserId
             }).ToList();
 
             await notificationRepository.CreateAsync(expirationNotificationsToCreate);
 
-            // create emails
+            // send emails
             var userCoursesByCourseId = userCourses.GroupBy(uc => uc.Course)
                 .ToDictionary(uc => uc.Key, uc => uc.ToList());
             
@@ -444,12 +442,15 @@ public class CourseService(
         await dbTransactionProvider.ExecuteInTransactionAsync(async () =>
         {
             // create a notification.
-            // await notificationRepository.CreateAsync([
-            //     new Notification
-            //     {
-            //         
-            //     }
-            // ]);
+            await notificationRepository.CreateAsync([
+                new Notification
+                {
+                    UserId = userId,
+                    Title = "Course poke",
+                    Content = $"You have been poked for the course {course.Name}.",
+                    CreatedAtUtc = DateTime.UtcNow
+                }
+            ]);
             
             // send an email.
             await emailService.SendAsync(new EmailRequest

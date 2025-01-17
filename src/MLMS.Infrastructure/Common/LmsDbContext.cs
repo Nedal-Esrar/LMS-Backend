@@ -13,18 +13,7 @@ using MLMS.Domain.SectionParts;
 using MLMS.Domain.Sections;
 using MLMS.Domain.UsersCourses;
 using MLMS.Domain.UserSectionParts;
-using MLMS.Infrastructure.CourseAssignments;
-using MLMS.Infrastructure.Courses;
-using MLMS.Infrastructure.Departments;
-using MLMS.Infrastructure.Exams;
-using MLMS.Infrastructure.Files;
-using MLMS.Infrastructure.Identity;
 using MLMS.Infrastructure.Identity.Models;
-using MLMS.Infrastructure.Majors;
-using MLMS.Infrastructure.SectionParts;
-using MLMS.Infrastructure.Sections;
-using MLMS.Infrastructure.UserCourses;
-using MLMS.Infrastructure.UserSectionParts;
 using File = MLMS.Domain.Files.File;
 
 namespace MLMS.Infrastructure.Common;
@@ -70,22 +59,7 @@ public class LmsDbContext(DbContextOptions options)
     {
         base.OnModelCreating(builder);
 
-        builder.ApplyConfiguration(new DepartmentConfiguration());
-        builder.ApplyConfiguration(new MajorConfiguration());
-        builder.ApplyConfiguration(new UserConfiguration());
-        builder.ApplyConfiguration(new FileConfiguration());
-        builder.ApplyConfiguration(new CourseAssignmentConfiguration());
-        builder.ApplyConfiguration(new CourseConfiguration());
-        builder.ApplyConfiguration(new ChoiceConfiguration());
-        builder.ApplyConfiguration(new QuestionConfiguration());
-        builder.ApplyConfiguration(new SectionConfiguration());
-        builder.ApplyConfiguration(new SectionPartConfiguration());
-        builder.ApplyConfiguration(new UserCourseConfiguration());
-        builder.ApplyConfiguration(new UserSectionPartDoneConfiguration());
-        builder.ApplyConfiguration(new UserExamStateConfiguration());
-        builder.ApplyConfiguration(new ExamConfiguration());
-        builder.ApplyConfiguration(new ExamSessionConfiguration());
-        builder.ApplyConfiguration(new ExamSessionQuestionChoiceConfiguration());
-        builder.ApplyConfiguration(new RefreshTokenConfiguration());
+        builder.ApplyLmsDbConfiguration()
+            .ConfigureIdentity();
     }
 }

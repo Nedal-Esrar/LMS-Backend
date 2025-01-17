@@ -51,7 +51,7 @@ public class SectionPartRepository(
 
     public async Task<SectionPart?> GetByIdAsync(long id)
     {
-        var userId = userContext.Id!.Value;
+        var userId = userContext.Id;
         
         var query = context.SectionParts.Where(sp => sp.Id == id)
             .Include(x => x.File)

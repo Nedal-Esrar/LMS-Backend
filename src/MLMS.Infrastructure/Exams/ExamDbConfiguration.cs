@@ -5,7 +5,7 @@ using MLMS.Domain.SectionParts;
 
 namespace MLMS.Infrastructure.Exams;
 
-public class ExamConfiguration : IEntityTypeConfiguration<Exam>
+public class ExamDbConfiguration : IEntityTypeConfiguration<Exam>
 {
     public void Configure(EntityTypeBuilder<Exam> builder)
     {

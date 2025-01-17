@@ -11,12 +11,12 @@ public class NotificationService(
 {
     public async Task<ErrorOr<int>> CountUnreadAsync()
     {
-        return await notificationRepository.CountUnreadForUserAsync(userContext.Id!.Value);
+        return await notificationRepository.CountUnreadForUserAsync(userContext.Id);
     }
 
     public async Task<ErrorOr<None>> MarkAsReadAsync(Guid id)
     {
-        if (!await notificationRepository.ExistsAsync(userContext.Id!.Value, id))
+        if (!await notificationRepository.ExistsAsync(userContext.Id, id))
         {
             return NotificationErrors.NotFound;
         }
@@ -28,12 +28,12 @@ public class NotificationService(
 
     public async Task<ErrorOr<PaginatedList<Notification>>> GetAsync(SieveModel sieveModel)
     {
-        return await notificationRepository.GetForUserAsync(userContext.Id!.Value, sieveModel);
+        return await notificationRepository.GetForUserAsync(userContext.Id, sieveModel);
     }
 
     public async Task<ErrorOr<None>> MarkAllAsReadAsync()
     {
-        await notificationRepository.MarkAllAsReadAsync(userContext.Id!.Value);
+        await notificationRepository.MarkAllAsReadAsync(userContext.Id);
 
         return None.Value;
     }

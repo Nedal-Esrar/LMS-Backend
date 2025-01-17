@@ -248,7 +248,7 @@ public class SectionPartService(
             return SectionPartErrors.NotFound;
         }
         
-        await sectionPartRepository.ToggleUserDoneStatusAsync(userContext.Id!.Value, id);
+        await sectionPartRepository.ToggleUserDoneStatusAsync(userContext.Id, id);
 
         return None.Value;
     }

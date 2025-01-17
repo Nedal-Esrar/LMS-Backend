@@ -3,13 +3,13 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MLMS.Domain.Departments;
 using MLMS.Domain.Majors;
 
-namespace MLMS.Infrastructure.Departments;
+namespace MLMS.Infrastructure.Majors;
 
-public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
+public class MajorDbConfiguration : IEntityTypeConfiguration<Major>
 {
-    public void Configure(EntityTypeBuilder<Department> builder)
+    public void Configure(EntityTypeBuilder<Major> builder)
     {
-        builder.ToTable("Department");
+        builder.ToTable("Major");
         
         builder.HasKey(x => x.Id);
 

@@ -39,8 +39,8 @@ public class EmailService(IOptions<EmailSettings> emailSettings) : IEmailService
     private MimeMessage CreateEmail(EmailRequest emailRequest)
     {
         var emailMessage = new MimeMessage();
-
-        emailMessage.From.Add(MailboxAddress.Parse(_emailSettings.FromEmail));
+        
+        emailMessage.From.Add(new MailboxAddress(_emailSettings.FromEmail, _emailSettings.FromEmail));
 
         emailMessage.To.AddRange(emailRequest.ToEmails.Select(MailboxAddress.Parse));
 
@@ -50,12 +50,6 @@ public class EmailService(IOptions<EmailSettings> emailSettings) : IEmailService
         {
             HtmlBody = emailRequest.BodyHtml
         };
-
-        foreach (var attachment in emailRequest.Attachments)
-        {
-            bodyBuilder.Attachments.Add(attachment.Name, attachment.File,
-                new ContentType(attachment.MediaType, attachment.SubMediaType));
-        }
 
         emailMessage.Body = bodyBuilder.ToMessageBody();
 

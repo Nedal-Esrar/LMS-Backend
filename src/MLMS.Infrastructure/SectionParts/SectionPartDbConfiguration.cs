@@ -4,7 +4,7 @@ using MLMS.Domain.SectionParts;
 
 namespace MLMS.Infrastructure.SectionParts;
 
-public class SectionPartConfiguration : IEntityTypeConfiguration<SectionPart>
+public class SectionPartDbConfiguration : IEntityTypeConfiguration<SectionPart>
 {
     public void Configure(EntityTypeBuilder<SectionPart> builder)
     {

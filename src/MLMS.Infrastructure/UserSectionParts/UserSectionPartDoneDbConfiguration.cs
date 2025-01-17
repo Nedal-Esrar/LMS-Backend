@@ -6,7 +6,7 @@ using MLMS.Infrastructure.Identity.Models;
 
 namespace MLMS.Infrastructure.UserSectionParts;
 
-public class UserSectionPartDoneConfiguration : IEntityTypeConfiguration<UserSectionPartDone>
+public class UserSectionPartDoneDbConfiguration : IEntityTypeConfiguration<UserSectionPartDone>
 {
     public void Configure(EntityTypeBuilder<UserSectionPartDone> builder)
     {

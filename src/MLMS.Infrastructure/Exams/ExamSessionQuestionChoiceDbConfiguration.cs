@@ -4,7 +4,7 @@ using MLMS.Domain.Exams;
 
 namespace MLMS.Infrastructure.Exams;
 
-public class ExamSessionQuestionChoiceConfiguration : IEntityTypeConfiguration<ExamSessionQuestionChoice>
+public class ExamSessionQuestionChoiceDbConfiguration : IEntityTypeConfiguration<ExamSessionQuestionChoice>
 {
     public void Configure(EntityTypeBuilder<ExamSessionQuestionChoice> builder)
     {

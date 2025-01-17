@@ -4,7 +4,7 @@ using MLMS.Domain.Notifications;
 
 namespace MLMS.Infrastructure.Notifications;
 
-public class NotificationConfiguration : IEntityTypeConfiguration<Notification>
+public class NotificationDbConfiguration : IEntityTypeConfiguration<Notification>
 {
     public void Configure(EntityTypeBuilder<Notification> builder)
     {

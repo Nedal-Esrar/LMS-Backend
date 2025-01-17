@@ -91,7 +91,7 @@ public class UserCourseRepository(
 
         if (getOnlyCreatedByCurrentUser)
         {
-            baseQuery = baseQuery.Where(x => x.uc.Course.CreatedById == userContext.Id!.Value);
+            baseQuery = baseQuery.Where(x => x.uc.Course.CreatedById == userContext.Id);
         }
 
         var query = from q in baseQuery

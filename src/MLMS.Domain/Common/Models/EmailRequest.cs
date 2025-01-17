@@ -7,6 +7,4 @@ public class EmailRequest
     public string Subject { get; set; } = string.Empty;
 
     public string BodyHtml { get; set; } = string.Empty;
-
-    public List<Attachment> Attachments { get; set; } = [];
 }

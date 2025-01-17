@@ -135,7 +135,7 @@ public class UserService(
             return FileErrors.NotImage;
         }
         
-        var user = await userRepository.GetByIdAsync(userContext.Id!.Value);
+        var user = await userRepository.GetByIdAsync(userContext.Id);
         
         var oldImage = user!.ProfilePictureId is not null ? 
             await fileRepository.GetByIdAsync(user.ProfilePictureId!.Value)

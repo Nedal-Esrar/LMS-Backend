@@ -1,16 +1,18 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MLMS.Domain.ExamSessions;
+using MLMS.Domain.UserSectionParts;
 using MLMS.Infrastructure.Identity.Models;
 
 namespace MLMS.Infrastructure.Exams;
 
-public class ExamSessionConfiguration : IEntityTypeConfiguration<ExamSession>
+public class UserExamStateDbConfiguration : IEntityTypeConfiguration<UserExamState>
 {
-    public void Configure(EntityTypeBuilder<ExamSession> builder)
+    public void Configure(EntityTypeBuilder<UserExamState> builder)
     {
-        builder.ToTable("ExamSession");
+        builder.ToTable("UserExamState");
         
+        builder.HasKey(ue => new { ue.UserId, ue.ExamId });
+
         builder.HasOne<ApplicationUser>()
             .WithMany()
             .HasForeignKey(x => x.UserId)

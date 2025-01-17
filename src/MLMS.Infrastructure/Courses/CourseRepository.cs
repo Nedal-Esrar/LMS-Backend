@@ -30,7 +30,7 @@ public class CourseRepository(
 
     public async Task<Course?> GetDetailedByIdAsync(long id)
     {
-        var userId = userContext.Id!.Value;
+        var userId = userContext.Id;
 
         var query = context.Courses.Where(c => c.Id == id)
             .Include(x => x.UsersCourses.Where(uc => uc.UserId == userId))

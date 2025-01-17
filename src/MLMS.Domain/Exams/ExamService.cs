@@ -21,7 +21,7 @@ public class ExamService(
             return ExamErrors.NotFound;
         }
         
-        var userId = userContext.Id!.Value;
+        var userId = userContext.Id;
         
         if (await examRepository.IsSessionStartedAsync(userId, examId))
         {
@@ -47,7 +47,7 @@ public class ExamService(
             return ExamErrors.NotFound;
         }
         
-        var userId = userContext.Id!.Value;
+        var userId = userContext.Id;
         
         if (await examRepository.IsSessionDueAsync(userId, examId))
         {
@@ -64,7 +64,7 @@ public class ExamService(
             return ExamErrors.NotFound;
         }
         
-        var userId = userContext.Id!.Value;
+        var userId = userContext.Id;
 
         if (await examRepository.IsSessionFinishedAsync(userId, examId))
         {
@@ -95,7 +95,7 @@ public class ExamService(
             return ExamErrors.NotFound;
         }
         
-        var userId = userContext.Id!.Value;
+        var userId = userContext.Id;
         
         if (await examRepository.IsSessionFinishedAsync(userId, examId))
         {
@@ -129,7 +129,7 @@ public class ExamService(
             return ExamErrors.NotFound;
         }
         
-        var userId = userContext.Id!.Value;
+        var userId = userContext.Id;
         
         if (await examRepository.IsSessionFinishedAsync(userId, examId))
         {
@@ -165,7 +165,7 @@ public class ExamService(
             return ExamErrors.NotFound;
         }
         
-        var userId = userContext.Id!.Value;
+        var userId = userContext.Id;
         
         var examSession = await examRepository.GetCurrentSessionAsync(userId, examId);
         

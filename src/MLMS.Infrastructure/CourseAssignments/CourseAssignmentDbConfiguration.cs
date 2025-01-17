@@ -5,7 +5,7 @@ using MLMS.Domain.CourseAssignments;
 
 namespace MLMS.Infrastructure.CourseAssignments;
 
-public class CourseAssignmentConfiguration : IEntityTypeConfiguration<CourseAssignment>
+public class CourseAssignmentDbConfiguration : IEntityTypeConfiguration<CourseAssignment>
 {
     public void Configure(EntityTypeBuilder<CourseAssignment> builder)
     {
