@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MLMS.Domain.Common.Models;
 using MLMS.Domain.Notifications;
-using MLMS.Infrastructure.Common;
+using MLMS.Infrastructure.Persistence;
 using Sieve.Models;
 using Sieve.Services;
 

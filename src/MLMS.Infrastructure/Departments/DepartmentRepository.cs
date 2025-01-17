@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using MLMS.Domain.Common.Interfaces;
 using MLMS.Domain.Common.Models;
 using MLMS.Domain.Departments;
-using MLMS.Infrastructure.Common;
+using MLMS.Infrastructure.Persistence;
 using Sieve.Models;
 using Sieve.Services;
 

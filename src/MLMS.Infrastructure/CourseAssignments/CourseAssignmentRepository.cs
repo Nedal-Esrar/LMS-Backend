@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using MLMS.Domain.CourseAssignments;
-using MLMS.Infrastructure.Common;
+using MLMS.Infrastructure.Persistence;
 
 namespace MLMS.Infrastructure.CourseAssignments;
 

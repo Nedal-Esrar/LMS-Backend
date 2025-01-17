@@ -1,11 +1,10 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MLMS.Domain.Common.Models;
-using MLMS.Domain.Identity;
 using MLMS.Domain.Identity.Interfaces;
 using MLMS.Domain.Users;
-using MLMS.Infrastructure.Common;
 using MLMS.Infrastructure.Identity.Models;
+using MLMS.Infrastructure.Persistence;
 using Sieve.Models;
 using Sieve.Services;
 

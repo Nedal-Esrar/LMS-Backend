@@ -3,7 +3,7 @@ using MLMS.Domain.Exams;
 using MLMS.Domain.ExamSessions;
 using MLMS.Domain.UsersCourses;
 using MLMS.Domain.UserSectionParts;
-using MLMS.Infrastructure.Common;
+using MLMS.Infrastructure.Persistence;
 
 namespace MLMS.Infrastructure.Exams;
 

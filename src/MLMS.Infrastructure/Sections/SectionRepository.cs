@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using MLMS.Domain.Sections;
 using MLMS.Domain.Users;
-using MLMS.Infrastructure.Common;
 using MLMS.Infrastructure.Identity;
+using MLMS.Infrastructure.Persistence;
 
 namespace MLMS.Infrastructure.Sections;
 

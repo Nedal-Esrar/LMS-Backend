@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using MLMS.Domain.Files;
-using MLMS.Infrastructure.Common;
+using MLMS.Infrastructure.Persistence;
 using File = MLMS.Domain.Files.File;
 
 namespace MLMS.Infrastructure.Files;

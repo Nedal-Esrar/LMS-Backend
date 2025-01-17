@@ -3,7 +3,7 @@ using MLMS.Domain.Common.Models;
 using MLMS.Domain.Courses;
 using MLMS.Domain.Identity.Interfaces;
 using MLMS.Domain.Users;
-using MLMS.Infrastructure.Common;
+using MLMS.Infrastructure.Persistence;
 using Sieve.Models;
 using Sieve.Services;
 
