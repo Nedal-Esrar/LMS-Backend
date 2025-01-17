@@ -1,6 +1,4 @@
-using System.Security.Cryptography;
 using ErrorOr;
-using FluentValidation;
 using MLMS.Domain.Common;
 using MLMS.Domain.Common.Models;
 using MLMS.Domain.Departments;
@@ -9,13 +7,14 @@ using Sieve.Models;
 namespace MLMS.Domain.Majors;
 
 public class MajorService(
-    IValidator<Major> majorValidator,
     IMajorRepository majorRepository,
     IDepartmentRepository departmentRepository) : IMajorService
 {
+    private readonly MajorValidator _majorValidator = new();
+    
     public async Task<ErrorOr<Major>> CreateAsync(Major major)
     {
-        var validationResult = await majorValidator.ValidateAsync(major);
+        var validationResult = await _majorValidator.ValidateAsync(major);
 
         if (!validationResult.IsValid)
         {
@@ -83,7 +82,7 @@ public class MajorService(
             return DepartmentErrors.NotFound;
         }
 
-        var validationResult = await majorValidator.ValidateAsync(updatedMajor);
+        var validationResult = await _majorValidator.ValidateAsync(updatedMajor);
 
         if (!validationResult.IsValid)
         {

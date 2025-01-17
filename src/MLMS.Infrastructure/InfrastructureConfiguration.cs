@@ -44,88 +44,21 @@ public static class InfrastructureConfiguration
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration,
         IHostEnvironment environment)
     {
-        services.AddIdentity<ApplicationUser, IdentityRole<int>>(options => 
-        {
-            options.Password.RequiredLength = 8;
-            options.Password.RequireDigit = true;
-            options.Password.RequireUppercase = true;
-            options.Password.RequireNonAlphanumeric = true;
-            options.User.RequireUniqueEmail = false;
-        })
-        .AddEntityFrameworkStores<LmsDbContext>()
-        .AddDefaultTokenProviders();
-
-        services.Configure<DataProtectionTokenProviderOptions>(opt => opt.TokenLifespan = TimeSpan.FromHours(1));
+        services.ConfigurePersistence(configuration, environment)
+            .ConfigureAuth(configuration)
+            .ConfigureEmail(configuration)
+            .ConfigureSieve(configuration)
+            .ConfigureCoursesExpiryJob();
         
-        services.AddDbContext<LmsDbContext>(options =>
-        {
-            options.UseSqlServer(configuration.GetConnectionString("LmsDb"));
-            
-            if (environment.IsDevelopment())
-            {
-                options.LogTo(Console.WriteLine, LogLevel.Information)
-                    .EnableSensitiveDataLogging();
-            }
-        });
-
-        services.AddOptions<AuthSettings>()
-            .BindConfiguration(nameof(AuthSettings));
-        
-        services.AddOptions<EmailSettings>()
-            .BindConfiguration(nameof(EmailSettings));
-
-        services.AddAuthentication(options =>
-        {
-            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-        })
-        .AddJwtBearer(options =>
-        {
-            using var scope = services.BuildServiceProvider().CreateScope();
-            
-            var config = scope.ServiceProvider
-                .GetRequiredService<IOptions<AuthSettings>>().Value;
-
-            var key = Encoding.UTF8.GetBytes(config.Secret);
-
-            options.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
-                ValidIssuer = config.Issuer,
-                ValidAudience = config.Audience,
-                IssuerSigningKey = new SymmetricSecurityKey(key),
-                ClockSkew = TimeSpan.Zero
-            };
-        });
-
-        services.AddScoped<ITokenGenerator, TokenGenerator>();
-        services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<IMajorRepository, MajorRepository>();
-        services.AddScoped<IDepartmentRepository, DepartmentRepository>();
-        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
-        services.AddScoped<IEmailService, EmailService>();
-        services.AddScoped<IAuthService, AuthService>();
-        services.AddScoped<IDbTransactionProvider, DbTransactionProvider>();
-        services.AddScoped<IFileRepository, FileRepository>();
-        services.AddScoped<IFileHandler, FileHandler>();
-        services.AddScoped<INotificationRepository, NotificationRepository>();
-        services.AddScoped<ICourseAssignmentRepository, CourseAssignmentRepository>();
-        services.AddScoped<ICourseRepository, CourseRepository>();
-        services.AddScoped<ISectionPartRepository, SectionPartRepository>();
-        services.AddScoped<ISectionRepository, SectionRepository>();
-        services.AddScoped<IUserCourseRepository, UserCourseRepository>();
-        services.AddScoped<IExamRepository, ExamRepository>();
-        
+        return services;
+    }
+    
+    private static IServiceCollection ConfigureSieve(this IServiceCollection services, IConfiguration configuration)
+    {
         services.AddOptions<SieveOptions>()
             .BindConfiguration(nameof(SieveOptions));
         
         services.AddScoped<ISieveProcessor, LmsSieveProcessor>();
-
-        services.ConfigureCoursesExpiryJob();
         
         return services;
     }

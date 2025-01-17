@@ -1,5 +1,4 @@
 using ErrorOr;
-using FluentValidation;
 using MLMS.Domain.Common;
 using MLMS.Domain.Common.Models;
 using Sieve.Models;
@@ -7,12 +6,13 @@ using Sieve.Models;
 namespace MLMS.Domain.Departments;
 
 public class DepartmentService(
-    IValidator<Department> departmentValidator,
     IDepartmentRepository departmentRepository) : IDepartmentService
 {
+    private readonly DepartmentValidator _departmentValidator = new();
+    
     public async Task<ErrorOr<Department>> CreateAsync(Department department)
     {
-        var validationResult = await departmentValidator.ValidateAsync(department);
+        var validationResult = await _departmentValidator.ValidateAsync(department);
 
         if (!validationResult.IsValid)
         {
@@ -55,7 +55,7 @@ public class DepartmentService(
 
     public async Task<ErrorOr<None>> UpdateAsync(int id, Department toDomain)
     {
-        var validationResult = await departmentValidator.ValidateAsync(toDomain);
+        var validationResult = await _departmentValidator.ValidateAsync(toDomain);
 
         if (!validationResult.IsValid)
         {

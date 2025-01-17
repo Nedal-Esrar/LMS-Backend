@@ -16,15 +16,34 @@ public static class WebConfiguration
     public static IServiceCollection AddWeb(this IServiceCollection services)
     {
         services.AddHttpContextAccessor();
-
         services.AddScoped<IUserContext, UserContext>();
         
         services.AddProblemDetails()
             .AddExceptionHandler<GlobalExceptionHandler>();
         
         services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen();
+        services.ConfigureSwagger();
+
+        services.AddAuthorizationPolicies();
         
+        services.AddDateOnlyTimeOnlyStringConverters();
+
+        services.AddControllers()
+            .AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            })
+            .AddNewtonsoftJson(options =>
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+
+        services.ConfigureCors();
+
+        return services;
+    }
+    
+    private static IServiceCollection ConfigureSwagger(this IServiceCollection services)
+    {
         services.AddSwaggerGen(setup =>
         {
             setup.SwaggerDoc("v1", new OpenApiInfo { Title = "LMS API", Version = "v1" });
@@ -66,32 +85,29 @@ public static class WebConfiguration
             setup.UseDateOnlyTimeOnlyStringConverters();
         });
 
+        return services;
+    }
+
+    private static IServiceCollection AddAuthorizationPolicies(this IServiceCollection services)
+    {
         services.AddAuthorizationBuilder()
             .AddPolicy(SuperAdmin, policy => policy.RequireRole(UserRole.Admin.ToString()))
             .AddPolicy(Staff, policy => policy.RequireRole(UserRole.Staff.ToString()))
             .AddPolicy(Admin, policy => policy.RequireRole(UserRole.Admin.ToString(), UserRole.SubAdmin.ToString()));
-        
-        services.AddDateOnlyTimeOnlyStringConverters();
 
-        services.AddControllers()
-            .AddJsonOptions(options =>
-            {
-                options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-            })
-            .AddNewtonsoftJson(options =>
-                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
-        
+        return services;
+    }
+    
+    private static IServiceCollection ConfigureCors(this IServiceCollection services)
+    {
         services.AddCors(c =>
         {
-            c.AddPolicy("AllowAll",
-                options =>
-                    options
-                        .AllowAnyOrigin()
-                        .AllowAnyMethod()
-                        .AllowAnyHeader());
+            c.AddDefaultPolicy(options =>
+                options.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader());
         });
-
+        
         return services;
     }
 }

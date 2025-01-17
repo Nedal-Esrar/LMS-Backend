@@ -11,4 +11,6 @@ public class AuthSettings
     public double AccessTokenLifeTimeMinutes { get; set; }
     
     public double RefreshTokenLifeTimeDays { get; set; }
+    
+    public double ResetPasswordTokenLifeTimeMinutes { get; set; }
 }
