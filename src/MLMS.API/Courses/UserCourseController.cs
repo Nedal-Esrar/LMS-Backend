@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MLMS.API.Common;
@@ -7,7 +8,8 @@ using static MLMS.API.Common.AuthorizationPolicies;
 
 namespace MLMS.API.Courses;
 
-[Route("api/v1/user/courses-status")]
+[Route("user/courses-status")]
+[ApiVersion("1.0")]
 [Authorize(Policy = Staff)]
 public class UserCourseController(ICourseService courseService) : ApiControllerBase
 {

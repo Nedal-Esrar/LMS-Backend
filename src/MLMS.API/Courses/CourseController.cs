@@ -115,7 +115,7 @@ public class CourseController(ICourseService courseService) : ApiControllerBase
             participants => Ok(participants.ToContractPaginatedList(CourseMapper.ToParticipantContract)), Problem);
     }
     
-    [HttpPost("{id:long}/participants/{userId:int}/late-notifications")]
+    [HttpPost("{id:long}/participants/{userId:int}/poke")]
     [Authorize(Policy = Admin)]
     public async Task<IActionResult> NotifyParticipant(long id, int userId)
     {

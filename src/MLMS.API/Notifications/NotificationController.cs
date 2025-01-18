@@ -37,7 +37,7 @@ public class NotificationController(INotificationService notificationService) : 
         return result.Match(_ => NoContent(), Problem);
     }
 
-    [HttpPost]
+    [HttpPost("search")]
     public async Task<IActionResult> Get(RetrievalRequest request)
     {
         var result = await notificationService.GetAsync(request.ToSieveModel());
