@@ -3,8 +3,10 @@ using MLMS.Domain.Common;
 using MLMS.Domain.Common.Interfaces;
 using MLMS.Domain.Common.Models;
 using MLMS.Domain.CourseAssignments;
+using MLMS.Domain.Email;
 using MLMS.Domain.Exams;
 using MLMS.Domain.Identity;
+using MLMS.Domain.Identity.Enums;
 using MLMS.Domain.Identity.Interfaces;
 using MLMS.Domain.Notifications;
 using MLMS.Domain.SectionParts;
@@ -381,7 +383,7 @@ public class CourseService(
             {
                 Title = $"Course {uc.Course.Name} has expired",
                 Content = $"The course {uc.Course.Name} has expired. it has passed the time of {uc.Course.ExpirationMonths} months or more since started, please consider retaking it retake it.",
-                CreatedAtUtc = DateTime.UtcNow,
+                CreatedAtUtc = now,
                 UserId = uc.UserId
             }).ToList();
 

@@ -1,7 +1,7 @@
 using System.Text;
 using ErrorOr;
 
-namespace MLMS.Domain.Identity;
+namespace MLMS.Domain.Identity.Services;
 
 public class PasswordGenerationService : IPasswordGenerationService
 {
@@ -9,8 +9,8 @@ public class PasswordGenerationService : IPasswordGenerationService
     private const string Uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private const string Digits = "0123456789";
     private const string SpecialChars = "!@#$%^&*()_+-=[]{}|;':\",.<>?";
-    
-    private const string CharsCombined = Lowercase + Uppercase + Digits + SpecialChars;
+
+    private const string CharsCombined = $"{Lowercase}{Uppercase}{Digits}{SpecialChars}";
     
     public ErrorOr<string> GenerateStrongPassword(int length)
     {

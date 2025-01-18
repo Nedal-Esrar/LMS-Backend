@@ -1,4 +1,4 @@
-namespace MLMS.Domain.Common.Models;
+namespace MLMS.Domain.Identity.Models;
 
 public class AccessToken
 {

@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -11,7 +12,8 @@ using static MLMS.API.Common.AuthorizationPolicies;
 
 namespace MLMS.API.Users;
 
-[Route("api/v1/")]
+[Route("")]
+[ApiVersion("1.0")]
 public class UserController(IUserService userService) : ApiControllerBase
 {
     [Authorize(Policy = SuperAdmin)]
@@ -19,12 +21,8 @@ public class UserController(IUserService userService) : ApiControllerBase
     public async Task<IActionResult> Get(RetrievalRequest request)
     {
         var result = await userService.GetAsync(request.ToSieveModel());
-
-        return result.Match(users => Ok(new PaginatedList<UserResponse>
-        {
-            Items = users.Items.Select(u => u.ToContract()).ToList(),
-            Metadata = users.Metadata
-        }), Problem);
+        
+        return result.Match(users => Ok(users.ToContractPaginatedList(UserMapper.ToContract)), Problem);
     }
     
     /// <response code="404">If the user is not found.</response>

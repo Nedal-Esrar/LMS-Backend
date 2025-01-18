@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MLMS.API.Common;
@@ -8,7 +9,8 @@ using static MLMS.API.Common.AuthorizationPolicies;
 
 namespace MLMS.API.Sections;
 
-[Route("api/v1/courses/{courseId:long}/sections")]
+[Route("courses/{courseId:long}/sections")]
+[ApiVersion("1.0")]
 [Authorize(Policy = Admin)]
 public class SectionController(ISectionService sectionService) : ApiControllerBase
 {

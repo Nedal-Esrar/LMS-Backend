@@ -1,3 +1,4 @@
+using MLMS.Domain.Exams;
 using MLMS.Domain.UsersCourses;
 using MLMS.Domain.UserSectionParts;
 

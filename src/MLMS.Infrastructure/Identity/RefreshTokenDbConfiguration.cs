@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MLMS.Domain.Common.Models;
+using MLMS.Domain.Identity.Models;
 
 namespace MLMS.Infrastructure.Identity;
 

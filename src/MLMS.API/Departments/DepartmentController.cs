@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MLMS.API.Common;
@@ -10,7 +11,8 @@ using static MLMS.API.Common.AuthorizationPolicies;
 namespace MLMS.API.Departments;
 
 [Authorize]
-[Route("api/v1/departments")]
+[Route("departments")]
+[ApiVersion("1.0")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class DepartmentController(IDepartmentService departmentService) : ApiControllerBase
 {
@@ -56,11 +58,8 @@ public class DepartmentController(IDepartmentService departmentService) : ApiCon
     public async Task<IActionResult> Get(RetrievalRequest request)
     {
         var result = await departmentService.GetAsync(request.ToSieveModel());
-        
-        return result.Match(departments => Ok(new PaginatedList<DepartmentResponse>
-        {
-            Items = departments.Items.Select(d => d.ToContract()).ToList(),
-            Metadata = departments.Metadata
-        }), Problem);
+
+        return result.Match(departments => Ok(departments.ToContractPaginatedList(DepartmentMapper.ToContract)),
+            Problem);
     }
 }

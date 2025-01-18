@@ -1,5 +1,3 @@
-using System.Reflection;
-using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using MLMS.Domain.Courses;
 using MLMS.Domain.Departments;
@@ -7,6 +5,8 @@ using MLMS.Domain.Exams;
 using MLMS.Domain.Files;
 using MLMS.Domain.Identity;
 using MLMS.Domain.Identity.Interfaces;
+using MLMS.Domain.Identity.Models;
+using MLMS.Domain.Identity.Services;
 using MLMS.Domain.Majors;
 using MLMS.Domain.Notifications;
 using MLMS.Domain.SectionParts;

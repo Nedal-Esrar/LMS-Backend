@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MLMS.Domain.Common.Models;
 using MLMS.Domain.Departments;
+using MLMS.Domain.Identity.Models;
 using MLMS.Domain.Majors;
 using MLMS.Domain.Notifications;
 using MLMS.Infrastructure.Identity.Models;

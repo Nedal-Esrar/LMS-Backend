@@ -1,6 +1,7 @@
 using FluentValidation;
 using MLMS.Domain.Common;
 using MLMS.Domain.Identity;
+using MLMS.Domain.Identity.Validators;
 
 namespace MLMS.Domain.Users;
 

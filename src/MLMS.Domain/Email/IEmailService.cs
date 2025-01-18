@@ -1,6 +1,4 @@
-using MLMS.Domain.Common.Models;
-
-namespace MLMS.Domain.Common.Interfaces;
+namespace MLMS.Domain.Email;
 
 public interface IEmailService
 {

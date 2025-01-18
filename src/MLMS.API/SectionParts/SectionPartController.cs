@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +10,8 @@ using static MLMS.API.Common.AuthorizationPolicies;
 
 namespace MLMS.API.SectionParts;
 
-[Route("api/v1/sections/{sectionId:long}/parts")]
+[Route("sections/{sectionId:long}/parts")]
+[ApiVersion("1.0")]
 public class SectionPartController(ISectionPartService sectionPartService) : ApiControllerBase
 {
     [HttpPost]

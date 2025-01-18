@@ -1,4 +1,4 @@
-namespace MLMS.Domain.Identity;
+namespace MLMS.Domain.Identity.Models;
 
 public class ClientOptions
 {

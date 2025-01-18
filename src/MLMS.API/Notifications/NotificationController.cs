@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MLMS.API.Common;
@@ -8,7 +9,8 @@ using MLMS.Domain.Notifications;
 namespace MLMS.API.Notifications;
 
 [Authorize]
-[Route("api/v1/user/notifications")]
+[Route("user/notifications")]
+[ApiVersion("1.0")]
 public class NotificationController(INotificationService notificationService) : ApiControllerBase
 {
     [HttpGet("unread/count")]
@@ -39,11 +41,8 @@ public class NotificationController(INotificationService notificationService) : 
     public async Task<IActionResult> Get(RetrievalRequest request)
     {
         var result = await notificationService.GetAsync(request.ToSieveModel());
-        
-        return result.Match(notifications => Ok(new PaginatedList<NotificationResponse>
-        {
-            Items = notifications.Items.Select(n => n.ToContract()).ToList(),
-            Metadata = notifications.Metadata
-        }), Problem);
+
+        return result.Match(notifications => Ok(notifications.ToContractPaginatedList(NotificationMapper.ToContract)),
+            Problem);
     }
 }

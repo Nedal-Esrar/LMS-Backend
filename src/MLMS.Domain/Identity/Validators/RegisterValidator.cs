@@ -1,5 +1,5 @@
 using FluentValidation;
-using MLMS.Domain.Common;
+using MLMS.Domain.Identity.Enums;
 using MLMS.Domain.Users;
 
 namespace MLMS.Domain.Identity.Validators;

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MLMS.Domain.Identity;
 using MLMS.Domain.Identity.Interfaces;
+using MLMS.Domain.Identity.Models;
 using MLMS.Domain.Users;
 using MLMS.Infrastructure.Identity.Models;
 

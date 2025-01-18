@@ -1,7 +1,4 @@
-using MLMS.Domain.Exams;
-using MLMS.Domain.SectionParts;
-
-namespace MLMS.Domain.UserSectionParts;
+namespace MLMS.Domain.Exams;
 
 public class UserExamState
 {

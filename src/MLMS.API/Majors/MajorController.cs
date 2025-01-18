@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MLMS.API.Common;
@@ -11,7 +12,8 @@ using static MLMS.API.Common.AuthorizationPolicies;
 namespace MLMS.API.Majors;
 
 [Authorize]
-[Route("api/v1/departments/{departmentId:int}/majors")]
+[Route("departments/{departmentId:int}/majors")]
+[ApiVersion("1.0")]
 public class MajorController(IMajorService majorService) : ApiControllerBase
 {
     [HttpPost]
@@ -55,11 +57,7 @@ public class MajorController(IMajorService majorService) : ApiControllerBase
     public async Task<IActionResult> GetByDepartmentAsync(int departmentId, RetrievalRequest request)
     {
         var result = await majorService.GetByDepartmentAsync(departmentId, request.ToSieveModel());
-
-        return result.Match(majors => Ok(new PaginatedList<MajorResponse>
-        {
-            Items = majors.Items.Select(m => m.ToContract()).ToList(),
-            Metadata = majors.Metadata
-        }), Problem);
+        
+        return result.Match(majors => Ok(majors.ToContractPaginatedList(MajorMapper.ToContract)), Problem);
     }
 }

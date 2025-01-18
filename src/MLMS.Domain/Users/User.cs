@@ -1,6 +1,7 @@
 using MLMS.Domain.Common.Models;
 using MLMS.Domain.Departments;
 using MLMS.Domain.Identity;
+using MLMS.Domain.Identity.Enums;
 using MLMS.Domain.Majors;
 using File = MLMS.Domain.Files.File;
 

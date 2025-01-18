@@ -1,4 +1,5 @@
 using MLMS.Domain.Identity;
+using MLMS.Domain.Identity.Enums;
 
 namespace MLMS.API.Identity.Requests;
 

@@ -1,5 +1,6 @@
 using MLMS.Domain.Departments;
 using MLMS.Domain.Identity;
+using MLMS.Domain.Identity.Enums;
 using MLMS.Domain.Majors;
 
 namespace MLMS.API.Users.Requests;

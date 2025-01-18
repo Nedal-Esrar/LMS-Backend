@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using MimeKit;
 using MLMS.Domain.Common.Interfaces;
 using MLMS.Domain.Common.Models;
+using MLMS.Domain.Email;
 
 namespace MLMS.Infrastructure.Email;
 
@@ -38,6 +39,7 @@ public class EmailService(IOptions<EmailSettings> emailSettings) : IEmailService
     
     private MimeMessage CreateEmail(EmailRequest emailRequest)
     {
+        // TODO: fix sender email being shown strangely as the username email for gmail.
         var emailMessage = new MimeMessage();
         
         emailMessage.From.Add(new MailboxAddress(_emailSettings.FromEmail, _emailSettings.FromEmail));

@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace MLMS.Domain.Common;
+namespace MLMS.Domain.Identity.Validators;
 
 public static class ValidationExtensions
 {
@@ -17,7 +17,7 @@ public static class ValidationExtensions
     public static IRuleBuilderOptions<T, string> StrongPassword<T>(this IRuleBuilderOptions<T, string> ruleBuilder)
     {
         return ruleBuilder
-            .Must(Utilities.IsStrongPassword)
+            .Must(PasswordUtils.IsStrongPassword)
             .WithMessage("Weak Password");
     }
     

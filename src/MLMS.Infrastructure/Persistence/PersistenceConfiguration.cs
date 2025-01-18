@@ -36,7 +36,7 @@ internal static class PersistenceConfiguration
     internal static IServiceCollection ConfigurePersistence(this IServiceCollection services, IConfiguration configuration,
         IHostEnvironment environment)
     {
-        // Confiugre Identity.
+        // Configure Identity.
         services.AddIdentity<ApplicationUser, IdentityRole<int>>(options => 
         {
             options.Password.RequiredLength = 8;

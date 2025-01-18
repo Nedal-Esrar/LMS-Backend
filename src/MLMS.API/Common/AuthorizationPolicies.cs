@@ -1,4 +1,4 @@
-using MLMS.Domain.Identity;
+using MLMS.Domain.Identity.Enums;
 
 namespace MLMS.API.Common;
 

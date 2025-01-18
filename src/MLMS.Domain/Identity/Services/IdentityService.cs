@@ -5,13 +5,15 @@ using MLMS.Domain.Common.Interfaces;
 using MLMS.Domain.Common.Models;
 using MLMS.Domain.CourseAssignments;
 using MLMS.Domain.Departments;
+using MLMS.Domain.Email;
 using MLMS.Domain.Identity.Interfaces;
+using MLMS.Domain.Identity.Models;
 using MLMS.Domain.Identity.Validators;
 using MLMS.Domain.Majors;
 using MLMS.Domain.Users;
 using MLMS.Domain.UsersCourses;
 
-namespace MLMS.Domain.Identity;
+namespace MLMS.Domain.Identity.Services;
 
 public class IdentityService(
     IUserRepository userRepository,
@@ -171,7 +173,7 @@ public class IdentityService(
             return IdentityErrors.WrongCurrentPassword;
         }
 
-        if (!Utilities.IsStrongPassword(newPassword))
+        if (!PasswordUtils.IsStrongPassword(newPassword))
         {
             return IdentityErrors.WeakPassword;
         }
@@ -221,7 +223,7 @@ public class IdentityService(
             return UserErrors.NotFound;
         }
 
-        if (!Utilities.IsStrongPassword(newPassword))
+        if (!PasswordUtils.IsStrongPassword(newPassword))
         {
             return IdentityErrors.WeakPassword;
         }

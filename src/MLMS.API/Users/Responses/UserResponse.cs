@@ -2,6 +2,7 @@ using MLMS.API.Departments.Requests;
 using MLMS.API.Files.Responses;
 using MLMS.API.Majors.Requests;
 using MLMS.Domain.Identity;
+using MLMS.Domain.Identity.Enums;
 
 namespace MLMS.API.Users.Responses;
 

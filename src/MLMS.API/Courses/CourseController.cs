@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MLMS.API.Common;
@@ -10,7 +11,8 @@ using static MLMS.API.Common.AuthorizationPolicies;
 
 namespace MLMS.API.Courses;
 
-[Route("api/v1/courses")]
+[Route("courses")]
+[ApiVersion("1.0")]
 public class CourseController(ICourseService courseService) : ApiControllerBase
 {
     [HttpPost]
@@ -90,12 +92,8 @@ public class CourseController(ICourseService courseService) : ApiControllerBase
     public async Task<IActionResult> Get(RetrievalRequest request)
     {
         var result = await courseService.GetAsync(request.ToSieveModel());
-        
-        return result.Match(courses => Ok(new PaginatedList<CourseSimplifiedResponse>
-        {
-            Items = courses.Items.Select(d => d.ToSimplifiedContract()).ToList(),
-            Metadata = courses.Metadata
-        }), Problem);
+
+        return result.Match(courses => Ok(courses.ToContractPaginatedList(CourseMapper.ToSimplifiedContract)), Problem);
     }
     
     [HttpGet("{id:long}/assignments")]
@@ -112,12 +110,9 @@ public class CourseController(ICourseService courseService) : ApiControllerBase
     public async Task<IActionResult> GetParticipants(long id, RetrievalRequest request)
     {
         var result = await courseService.GetParticipantsByIdAsync(id, request.ToSieveModel());
-        
-        return result.Match(participants => Ok(new PaginatedList<CourseParticipantResponse>
-        {
-            Items = participants.Items.Select(uc => uc.ToParticipantContract()).ToList(),
-            Metadata = participants.Metadata
-        }), Problem);
+
+        return result.Match(
+            participants => Ok(participants.ToContractPaginatedList(CourseMapper.ToParticipantContract)), Problem);
     }
     
     [HttpPost("{id:long}/participants/{userId:int}/late-notifications")]

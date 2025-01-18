@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MLMS.API.Common;
@@ -9,7 +10,8 @@ using static MLMS.API.Common.AuthorizationPolicies;
 
 namespace MLMS.API.Identity;
 
-[Route("api/v1/identity")]
+[Route("identity")]
+[ApiVersion("1.0")]
 public class IdentityController(IIdentityService identityService) : ApiControllerBase
 {
     /// <response code="400">If the provided work ID is empty or password is less than 8 characters and missing a lowercase, uppercase, digit, or a special character</response>

@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using MLMS.Domain.Identity;
+using MLMS.Domain.Identity.Enums;
 using MLMS.Domain.Identity.Interfaces;
 
 namespace MLMS.API.Identity;

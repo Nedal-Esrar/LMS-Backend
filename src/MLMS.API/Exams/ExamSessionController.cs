@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MLMS.API.Common;
@@ -9,7 +10,8 @@ using static MLMS.API.Common.AuthorizationPolicies;
 
 namespace MLMS.API.Exams;
 
-[Route("api/v1/exams/{examId:long}/user/current-session")]
+[Route("exams/{examId:long}/user/current-session")]
+[ApiVersion("1.0")]
 [Authorize(Policy = Staff)]
 public class ExamSessionController(IExamService examService) : ApiControllerBase
 {

@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MLMS.API.Common;
@@ -6,7 +7,8 @@ using MLMS.Domain.Files;
 
 namespace MLMS.API.Files;
 
-[Route("api/v1/files")]
+[Route("files")]
+[ApiVersion("1.0")]
 public class FileController(IFileService fileService, IWebHostEnvironment webHostEnvironment) : ApiControllerBase
 {
     [Authorize]

@@ -1,4 +1,4 @@
-namespace MLMS.Domain.Identity;
+namespace MLMS.Domain.Identity.Enums;
 
 public enum Gender
 {
