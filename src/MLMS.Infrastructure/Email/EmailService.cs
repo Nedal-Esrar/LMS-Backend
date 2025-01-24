@@ -2,8 +2,6 @@ using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
-using MLMS.Domain.Common.Interfaces;
-using MLMS.Domain.Common.Models;
 using MLMS.Domain.Email;
 
 namespace MLMS.Infrastructure.Email;

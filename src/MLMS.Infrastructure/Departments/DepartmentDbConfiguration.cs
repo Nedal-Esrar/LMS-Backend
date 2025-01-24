@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MLMS.Domain.Departments;
-using MLMS.Domain.Majors;
 
 namespace MLMS.Infrastructure.Departments;
 

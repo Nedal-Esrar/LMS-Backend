@@ -1,10 +1,9 @@
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using MLMS.API.Common;
 using MLMS.API.Courses.Requests;
-using MLMS.API.Courses.Responses;
-using MLMS.Domain.Common.Models;
 using MLMS.Domain.Courses;
 
 using static MLMS.API.Common.AuthorizationPolicies;
@@ -120,6 +119,19 @@ public class CourseController(ICourseService courseService) : ApiControllerBase
     public async Task<IActionResult> NotifyParticipant(long id, int userId)
     {
         var result = await courseService.NotifyParticipantAsync(id, userId);
+
+        return result.Match(_ => NoContent(), Problem);
+    }
+    
+    [HttpPatch("{id:long}/manager")]
+    [Authorize(Policy = Admin)]
+    public async Task<IActionResult> ChangeManager(long id, JsonPatchDocument<ChangeManagerRequest> patchDocument)
+    {
+        var request = new ChangeManagerRequest();
+        
+        patchDocument.ApplyTo(request, ModelState);
+        
+        var result = await courseService.ChangeManagerAsync(id, request.SubAdminId);
 
         return result.Match(_ => NoContent(), Problem);
     }

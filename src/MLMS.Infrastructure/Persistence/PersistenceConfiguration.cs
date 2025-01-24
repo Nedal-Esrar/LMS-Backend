@@ -33,7 +33,8 @@ namespace MLMS.Infrastructure.Persistence;
 
 internal static class PersistenceConfiguration
 {
-    internal static IServiceCollection ConfigurePersistence(this IServiceCollection services, IConfiguration configuration,
+    internal static IServiceCollection ConfigurePersistence(this IServiceCollection services, 
+        IConfiguration configuration,
         IHostEnvironment environment)
     {
         // Configure Identity.

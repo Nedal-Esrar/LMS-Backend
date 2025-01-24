@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MLMS.Domain.Common.Interfaces;
 using MLMS.Domain.Email;
 
 namespace MLMS.Infrastructure.Email;

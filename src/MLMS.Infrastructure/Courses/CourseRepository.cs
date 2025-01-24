@@ -247,4 +247,11 @@ public class CourseRepository(
 
         return await query.ToListAsync();
     }
+
+    public async Task ChangeManagerAsync(long id, int subAdminId)
+    {
+        await context.Courses
+            .Where(c => c.Id == id)
+            .ExecuteUpdateAsync(spc => spc.SetProperty(n => n.CreatedById, subAdminId));
+    }
 }

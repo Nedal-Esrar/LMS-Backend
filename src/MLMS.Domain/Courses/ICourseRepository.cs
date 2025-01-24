@@ -30,4 +30,6 @@ public interface ICourseRepository
     Task DeleteAsync(long id);
     
     Task<List<long>> GetExamIdsByIdAsync(long id);
+    
+    Task ChangeManagerAsync(long id, int subAdminId);
 }

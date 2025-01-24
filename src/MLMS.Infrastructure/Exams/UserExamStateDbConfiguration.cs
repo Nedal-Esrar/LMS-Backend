@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MLMS.Domain.Exams;
-using MLMS.Domain.UserSectionParts;
 using MLMS.Infrastructure.Identity.Models;
 
 namespace MLMS.Infrastructure.Exams;

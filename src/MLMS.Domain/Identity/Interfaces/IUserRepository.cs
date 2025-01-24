@@ -24,4 +24,8 @@ public interface IUserRepository
     Task<PaginatedList<User>> GetAsync(SieveModel sieveModel);
     
     Task<List<User>> GetByMajorsAsync(List<int> majors);
+    
+    Task<bool> ExistsByIdAsync(int userId);
+    
+    Task<bool> IsSubAdminAsync(int userId);
 }

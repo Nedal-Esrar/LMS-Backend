@@ -465,4 +465,26 @@ public class CourseService(
 
         return None.Value;
     }
+
+    public async Task<ErrorOr<None>> ChangeManagerAsync(long id, int subAdminId)
+    {
+        if (!await courseRepository.ExistsByIdAsync(id))
+        {
+            return CourseErrors.NotFound;
+        }
+        
+        if (!await userRepository.ExistsByIdAsync(subAdminId))
+        {
+            return UserErrors.NotFound;
+        }
+        
+        if (!await userRepository.IsSubAdminAsync(subAdminId))
+        {
+            return UserErrors.NotSubAdmin;
+        }
+        
+        await courseRepository.ChangeManagerAsync(id, subAdminId);
+
+        return None.Value;
+    }
 }

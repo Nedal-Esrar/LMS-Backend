@@ -14,11 +14,7 @@ internal static class CoursesExpiryJobConfiguration
             options.AddJob<CheckCoursesExpiryJob>(jobKey)
                 .AddTrigger(trigger => trigger.ForJob(jobKey)
                     .WithCronSchedule("0 0 1,15 * * ?"));
-        });
-
-        services.AddQuartzHostedService(options =>
-        {
-            options.WaitForJobsToComplete = true;
-        });
+        })
+        .AddQuartzHostedService(options => options.WaitForJobsToComplete = true);
     }
 }

@@ -35,4 +35,6 @@ public interface ICourseService
     Task<ErrorOr<PaginatedList<UserCourse>>> GetParticipantsByIdAsync(long id, SieveModel sieveModel);
     
     Task<ErrorOr<None>> NotifyParticipantAsync(long id, int userId);
+    
+    Task<ErrorOr<None>> ChangeManagerAsync(long id, int subAdminId);
 }

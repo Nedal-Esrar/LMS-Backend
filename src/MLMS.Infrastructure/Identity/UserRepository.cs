@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MLMS.Domain.Common.Models;
+using MLMS.Domain.Identity.Enums;
 using MLMS.Domain.Identity.Interfaces;
 using MLMS.Domain.Users;
 using MLMS.Infrastructure.Identity.Models;
@@ -13,7 +14,6 @@ namespace MLMS.Infrastructure.Identity;
 public class UserRepository(
     LmsDbContext context,
     UserManager<ApplicationUser> userManager,
-    RoleManager<IdentityRole<int>> roleManager,
     ISieveProcessor sieveProcessor) : IUserRepository
 {
     public async Task<User?> GetByIdAsync(int id)
@@ -132,6 +132,16 @@ public class UserRepository(
                 .ToListAsync())
             .Select(u => u.ToDomain())
             .ToList();
+    }
+
+    public async Task<bool> ExistsByIdAsync(int userId)
+    {
+        return await context.Users.AnyAsync(u => u.Id == userId);
+    }
+
+    public async Task<bool> IsSubAdminAsync(int userId)
+    {
+        return await context.Users.AnyAsync(u => u.Id == userId && u.Role.Name == UserRole.SubAdmin.ToString());
     }
 
     public async Task UpdateProfilePictureAsync(int id, Guid imageId)

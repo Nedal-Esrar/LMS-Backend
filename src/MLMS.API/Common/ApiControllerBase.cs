@@ -21,7 +21,7 @@ public abstract class ApiControllerBase : ControllerBase
             : ConstructValidationProblem(errors);
     }
     
-    private IActionResult ConstructValidationProblem(List<Error> errors)
+    private ActionResult ConstructValidationProblem(List<Error> errors)
     {
         var modelStateDictionary = new ModelStateDictionary();
         
@@ -30,7 +30,7 @@ public abstract class ApiControllerBase : ControllerBase
         return ValidationProblem(modelStateDictionary);
     }
 
-    private IActionResult ConstructProblem(List<Error> errors)
+    private ObjectResult ConstructProblem(List<Error> errors)
     {
         HttpContext.Items.Add("errors", errors);
 
@@ -46,7 +46,10 @@ public abstract class ApiControllerBase : ControllerBase
             _ => StatusCodes.Status500InternalServerError
         };
         
-        var detail = errorToConsider.Metadata!.Values.FirstOrDefault()?.ToString();
+        var detail = errorToConsider.Metadata!
+            .Values
+            .FirstOrDefault()?
+            .ToString();
 
         return Problem(
             statusCode: statusCode,
