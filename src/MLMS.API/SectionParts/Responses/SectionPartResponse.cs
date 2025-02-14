@@ -23,5 +23,5 @@ public class SectionPartResponse
     
     public ExamResponse? Exam { get; set; }
     
-    public bool IsDone { get; set; }
+    public SectionPartStatus Status { get; set; }
 }

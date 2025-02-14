@@ -13,5 +13,5 @@ public interface ISectionPartService
     
     Task<ErrorOr<SectionPart>> GetByIdAsync(long sectionId, long id);
     
-    Task<ErrorOr<None>> ToggleUserDoneStatusAsync(long sectionId, long id);
+    Task<ErrorOr<None>> ChangeUserSectionPartStatusAsync(long sectionId, long id, SectionPartStatus status);
 }

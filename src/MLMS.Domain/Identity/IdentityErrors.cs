@@ -23,4 +23,8 @@ public static class IdentityErrors
     public static Error InvalidResetPasswordToken => Error.Unauthorized(
         code: "Identity.InvalidResetPasswordToken",
         description: "Invalid reset password token provided.");
+    
+    public static Error UserNotActive => Error.Forbidden(
+        code: "Identity.UserNotActive",
+        description: "User is not active.");
 }

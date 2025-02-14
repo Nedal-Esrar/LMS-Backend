@@ -1,5 +1,6 @@
 using ErrorOr;
 using MLMS.Domain.ExamSessions;
+using MLMS.Domain.SectionParts;
 using MLMS.Domain.UsersCourses;
 using MLMS.Domain.UserSectionParts;
 
@@ -42,4 +43,6 @@ public interface IExamRepository
     Task ResetExamStatesByUserCoursesAsync(List<UserCourse> expiredUserCourses);
     
     Task<bool> IsSessionFinishedAsync(int userId, long examId);
+    
+    Task<SectionPart?> GetSectionPartByExamIdAsync(long examId);
 }

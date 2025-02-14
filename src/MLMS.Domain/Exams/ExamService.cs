@@ -213,8 +213,10 @@ public class ExamService(
 
             if (examStatus == ExamStatus.Passed)
             {
-                await sectionPartRepository.SetUserDoneStatusAsync(userId, exam.SectionPartId,
-                    examStatus == ExamStatus.Passed);
+                var sectionPart = await examRepository.GetSectionPartByExamIdAsync(examId);
+                
+                await sectionPartRepository.SetUserStatusAsync(userId, sectionPart!.Id,
+                    SectionPartStatus.Done);
             }
         });
 

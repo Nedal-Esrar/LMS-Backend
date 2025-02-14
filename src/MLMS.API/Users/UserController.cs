@@ -61,14 +61,18 @@ public class UserController(IUserService userService) : ApiControllerBase
     /// <response code="404">If the user is not found.</response>
     /// <response code="204">The user is deleted successfully.</response>
     [Authorize(Policy = SuperAdmin)]
-    [HttpDelete("users/{id:int}")]
+    [HttpPatch("users/{id:int}/activation")]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<IActionResult> ChangeStatus(int id, JsonPatchDocument<ChangeUserActivationRequest> patchDocument)
     {
-        var response = await userService.DeleteAsync(id);
+        var request = new ChangeUserActivationRequest();
+        
+        patchDocument.ApplyTo(request, ModelState);
+        
+        var response = await userService.ChangeUserStatusAsync(id, request.IsActive);
 
         return response.Match(_ => NoContent(), Problem);
     }

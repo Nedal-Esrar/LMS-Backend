@@ -45,5 +45,7 @@ public class ApplicationUser : IdentityUser<int>
     
     public Guid? ProfilePictureId { get; set; }
     
-    public File ProfilePicture { get; set; }
+    public File? ProfilePicture { get; set; }
+    
+    public bool IsActive { get; set; }
 }

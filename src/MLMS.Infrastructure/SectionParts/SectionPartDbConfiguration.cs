@@ -17,7 +17,7 @@ public class SectionPartDbConfiguration : IEntityTypeConfiguration<SectionPart>
             .OnDelete(DeleteBehavior.SetNull);
 
         builder.HasOne(x => x.Exam)
-            .WithOne(x => x.SectionPart)
+            .WithOne()
             .HasForeignKey<SectionPart>(x => x.ExamId)
             .OnDelete(DeleteBehavior.Cascade);
     }

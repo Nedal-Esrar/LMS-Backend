@@ -35,7 +35,7 @@ internal static class PersistenceExtensions
             .ApplyConfiguration(new SectionDbConfiguration())
             .ApplyConfiguration(new SectionPartDbConfiguration())
             .ApplyConfiguration(new UserCourseDbConfiguration())
-            .ApplyConfiguration(new UserSectionPartDoneDbConfiguration())
+            .ApplyConfiguration(new UserSectionPartDbConfiguration())
             .ApplyConfiguration(new UserExamStateDbConfiguration())
             .ApplyConfiguration(new ExamDbConfiguration())
             .ApplyConfiguration(new ExamSessionDbConfiguration())

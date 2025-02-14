@@ -195,15 +195,15 @@ public class SectionPartRepository(
         context.Questions.Update(existingQuestion);
     }
 
-    public async Task ToggleUserDoneStatusAsync(int userId, long id)
+    public async Task SetUserStatusAsync(int userId, long id, SectionPartStatus status)
     {
-        if (!await context.UserSectionPartDoneRelations.AnyAsync(d => d.SectionPartId == id && d.UserId == userId))
+        if (!await context.UserSectionPartRelations.AnyAsync(d => d.SectionPartId == id && d.UserId == userId))
         {
-            context.UserSectionPartDoneRelations.Add(new UserSectionPartDone
+            context.UserSectionPartRelations.Add(new UserSectionPart
             {
                 SectionPartId = id,
                 UserId = userId,
-                IsDone = true
+                Status = status
             });
 
             await context.SaveChangesAsync();
@@ -211,30 +211,9 @@ public class SectionPartRepository(
             return;
         }
         
-        await context.UserSectionPartDoneRelations
+        await context.UserSectionPartRelations
             .Where(x => x.UserId == userId && x.SectionPartId == id)
-            .ExecuteUpdateAsync(u => u.SetProperty(x => x.IsDone, x => !x.IsDone));
-    }
-
-    public async Task SetUserDoneStatusAsync(int userId, long id, bool isDone)
-    {
-        if (!await context.UserSectionPartDoneRelations.AnyAsync(d => d.SectionPartId == id && d.UserId == userId))
-        {
-            context.UserSectionPartDoneRelations.Add(new UserSectionPartDone
-            {
-                SectionPartId = id,
-                UserId = userId,
-                IsDone = isDone
-            });
-
-            await context.SaveChangesAsync();
-
-            return;
-        }
-        
-        await context.UserSectionPartDoneRelations
-            .Where(x => x.UserId == userId && x.SectionPartId == id)
-            .ExecuteUpdateAsync(u => u.SetProperty(x => x.IsDone, isDone));
+            .ExecuteUpdateAsync(u => u.SetProperty(x => x.Status, status));
     }
 
     public async Task<List<UserExamState>> GetExamStatusesByCourseAndUserAsync(long id, int userId)
@@ -251,9 +230,9 @@ public class SectionPartRepository(
             .ToListAsync();
     }
 
-    public async Task CreateDoneStatesAsync(List<UserSectionPartDone> doneStates)
+    public async Task CreateDoneStatesAsync(List<UserSectionPart> doneStates)
     {
-        context.UserSectionPartDoneRelations.AddRange(doneStates);
+        context.UserSectionPartRelations.AddRange(doneStates);
         
         await context.SaveChangesAsync();
     }
@@ -269,7 +248,7 @@ public class SectionPartRepository(
     {
         var query = from ue in context.UserExamStateRelations
             join e in context.Exams on ue.ExamId equals e.Id
-            join sp in context.SectionParts on e.SectionPartId equals sp.Id
+            join sp in context.SectionParts on e.Id equals sp.ExamId
             where sp.Id == id
             select ue;
 
@@ -281,10 +260,39 @@ public class SectionPartRepository(
         var query = from uc in expiredUserCourses.AsQueryable()
             join s in context.Sections on uc.CourseId equals s.CourseId
             join sp in context.SectionParts on s.Id equals sp.SectionId
-            join usp in context.UserSectionPartDoneRelations on sp.Id equals usp.SectionPartId
+            join usp in context.UserSectionPartRelations on sp.Id equals usp.SectionPartId
             where usp.UserId == uc.UserId
             select usp;
 
-        await query.ExecuteUpdateAsync(u => u.SetProperty(x => x.IsDone, false));
+        await query.ExecuteUpdateAsync(u => u.SetProperty(x => x.Status, SectionPartStatus.NotViewed));
+    }
+
+    public async Task<UserSectionPart> GetStatusByIdAndUserAsync(long id, int userId)
+    {
+        var userSectionPart = await context.UserSectionPartRelations
+            .Where(d => d.SectionPartId == id && d.UserId == userId)
+            .FirstOrDefaultAsync();
+        if (userSectionPart is null)
+        {
+            userSectionPart = new UserSectionPart
+            {
+                SectionPartId = id,
+                UserId = userId,
+                Status = SectionPartStatus.NotViewed
+            };
+            
+            context.UserSectionPartRelations.Add(userSectionPart);
+
+            await context.SaveChangesAsync();
+        }
+
+        return userSectionPart;
+    }
+
+    public async Task UpdateStatusAsync(UserSectionPart userStatus)
+    {
+        context.UserSectionPartRelations.Update(userStatus);
+        
+        await context.SaveChangesAsync();
     }
 }

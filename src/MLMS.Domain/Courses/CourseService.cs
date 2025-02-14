@@ -226,7 +226,7 @@ public class CourseService(
         
         var userCourse = await userCourseRepository.GetByUserAndCourseAsync(id, userId);
 
-        if (userCourse.Status != UserCourseStatus.InProgress)
+        if (userCourse.Status != UserCourseStatus.InProgress && userCourse.Status != UserCourseStatus.Failed)
         {
             return CourseErrors.NotInProgress;
         }

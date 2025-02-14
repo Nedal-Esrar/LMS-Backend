@@ -50,11 +50,15 @@ public class SectionPartController(ISectionPartService sectionPartService) : Api
         return result.Match(_ => NoContent(), Problem);
     }
     
-    [HttpPatch("{id:long}/current-user/done")]
+    [HttpPatch("{id:long}/current-user/status")]
     [Authorize(Policy = Staff)]
-    public async Task<IActionResult> ToggleUserDoneStatus(long sectionId, long id)
+    public async Task<IActionResult> ToggleUserDoneStatus(long sectionId, long id, 
+        JsonPatchDocument<ChangeSectionPartStatusForUserRequest> patchDocument)
     {
-        var result = await sectionPartService.ToggleUserDoneStatusAsync(sectionId, id);
+        var request = new ChangeSectionPartStatusForUserRequest();
+        patchDocument.ApplyTo(request);
+        
+        var result = await sectionPartService.ChangeUserSectionPartStatusAsync(sectionId, id, request.Status);
     
         return result.Match(_ => NoContent(), Problem);
     }

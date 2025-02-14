@@ -3,7 +3,7 @@ using MLMS.Domain.Users;
 
 namespace MLMS.Domain.UserSectionParts;
 
-public class UserSectionPartDone
+public class UserSectionPart
 {
     public int UserId { get; set; }
     
@@ -11,5 +11,5 @@ public class UserSectionPartDone
     
     public SectionPart SectionPart { get; set; }
     
-    public bool IsDone { get; set; }
+    public SectionPartStatus Status { get; set; }
 }

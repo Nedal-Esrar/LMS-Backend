@@ -34,7 +34,7 @@ public static partial class SectionPartMapper
         var response = sectionPart.ToContractInternal();
         
         response.Exam = sectionPart.Exam?.ToContract();
-        response.IsDone = sectionPart.UserSectionPartStatuses.FirstOrDefault()?.IsDone ?? false;
+        response.Status = sectionPart.UserSectionPartStatuses.FirstOrDefault()?.Status ?? SectionPartStatus.NotViewed;
 
         return response;
     }

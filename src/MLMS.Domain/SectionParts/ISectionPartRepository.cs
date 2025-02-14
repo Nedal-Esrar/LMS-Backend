@@ -18,17 +18,17 @@ public interface ISectionPartRepository
     
     Task UpdateAsync(SectionPart sectionPart);
     
-    Task ToggleUserDoneStatusAsync(int userId, long id);
-    
-    Task SetUserDoneStatusAsync(int userId, long id, bool isDone);
+    Task SetUserStatusAsync(int userId, long id, SectionPartStatus status);
     
     Task<List<UserExamState>> GetExamStatusesByCourseAndUserAsync(long id, int userId);
     
-    Task CreateDoneStatesAsync(List<UserSectionPartDone> doneStates);
+    Task CreateDoneStatesAsync(List<UserSectionPart> doneStates);
     
     Task CreateExamStatesAsync(List<UserExamState> examStates);
     
     Task DeleteExamStatesByIdAsync(long id);
     
     Task ResetDoneStatesByUserCoursesAsync(List<UserCourse> expiredUserCourses);
+    
+    Task<UserSectionPart> GetStatusByIdAndUserAsync(long id, int userContextId);
 }

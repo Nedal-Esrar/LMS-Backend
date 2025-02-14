@@ -22,4 +22,8 @@ public static class SectionPartErrors
     public static Error QuestionWithMultipleCorrectChoices => Error.Validation(
         code: "SectionPart.QuestionWithMultipleCorrectChoices",
         description: "Question can have only one correct choice.");
+
+    public static Error InvalidSectionPartStatusTransition => Error.Conflict(
+        code: "SectionPart.InvalidSectionPartStatusTransition",
+        description: "Invalid section part status transition.");
 }

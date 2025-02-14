@@ -82,18 +82,6 @@ public class UserRepository(
         return await context.Users.AnyAsync(u => u.Id == id);
     }
 
-    public async Task DeleteAsync(int id)
-    {
-        var user = await context.Users.FirstOrDefaultAsync(u => u.Id == id);
-
-        if (user is null)
-        {
-            return;
-        }
-
-        await userManager.DeleteAsync(user);
-    }
-
     public async Task<PaginatedList<User>> GetAsync(SieveModel sieveModel)
     {
         var query = context.Users
@@ -142,6 +130,12 @@ public class UserRepository(
     public async Task<bool> IsSubAdminAsync(int userId)
     {
         return await context.Users.AnyAsync(u => u.Id == userId && u.Role.Name == UserRole.SubAdmin.ToString());
+    }
+
+    public async Task ChangeUserStatusAsync(int id, bool isActive)
+    {
+        await context.Users.Where(u => u.Id == id)
+            .ExecuteUpdateAsync(spc => spc.SetProperty(n => n.IsActive, isActive));
     }
 
     public async Task UpdateProfilePictureAsync(int id, Guid imageId)

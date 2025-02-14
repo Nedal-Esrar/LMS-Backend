@@ -7,7 +7,6 @@ using MLMS.Domain.Files;
 using MLMS.Domain.Identity.Interfaces;
 using MLMS.Domain.Sections;
 using MLMS.Domain.UserSectionParts;
-using File = MLMS.Domain.Files.File;
 
 namespace MLMS.Domain.SectionParts;
 
@@ -64,11 +63,11 @@ public class SectionPartService(
         
             var users = await sectionRepository.GetUsersBySectionIdAsync(sectionPart.SectionId);
             
-            await sectionPartRepository.CreateDoneStatesAsync(users.Select(u => new UserSectionPartDone
+            await sectionPartRepository.CreateDoneStatesAsync(users.Select(u => new UserSectionPart
             {
                 UserId = u.Id,
                 SectionPartId = sectionPart.Id,
-                IsDone = false
+                Status = SectionPartStatus.NotViewed
             }).ToList());
         
             if (sectionPart.MaterialType == MaterialType.Exam)
@@ -241,14 +240,46 @@ public class SectionPartService(
         return await sectionPartRepository.GetByIdAsync(id)!;
     }
 
-    public async Task<ErrorOr<None>> ToggleUserDoneStatusAsync(long sectionId, long id)
+    public async Task<ErrorOr<None>> ChangeUserSectionPartStatusAsync(long sectionId, long id,
+        SectionPartStatus status)
     {
         if (!await sectionPartRepository.ExistsAsync(sectionId, id))
         {
             return SectionPartErrors.NotFound;
         }
+
+        var userStatus = await sectionPartRepository.GetStatusByIdAndUserAsync(id, userContext.Id);
+
+        if (userStatus.Status == status)
+        {
+            return SectionPartErrors.InvalidSectionPartStatusTransition;
+        }
+
+        switch (userStatus.Status)
+        {
+            case SectionPartStatus.NotViewed:
+                if (status == SectionPartStatus.Done)
+                {
+                    return SectionPartErrors.InvalidSectionPartStatusTransition;
+                }
+                break;
+            case SectionPartStatus.Viewed:
+                if (status == SectionPartStatus.NotViewed)
+                {
+                    return SectionPartErrors.InvalidSectionPartStatusTransition;
+                }
+                break;
+            case SectionPartStatus.Done:
+                if (status == SectionPartStatus.NotViewed)
+                {
+                    return SectionPartErrors.InvalidSectionPartStatusTransition;
+                }
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
         
-        await sectionPartRepository.ToggleUserDoneStatusAsync(userContext.Id, id);
+        await sectionPartRepository.SetUserStatusAsync(userContext.Id, id, status);
 
         return None.Value;
     }

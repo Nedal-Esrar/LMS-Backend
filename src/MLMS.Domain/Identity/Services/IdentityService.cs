@@ -49,6 +49,11 @@ public class IdentityService(
         {
             return IdentityErrors.InvalidCredentials;
         }
+
+        if (!user.IsActive)
+        {
+            return IdentityErrors.UserNotActive;
+        }
         
         var accessToken = tokenGenerator.GenerateAccessToken(user);
         var refreshToken = tokenGenerator.GenerateRefreshToken(user.Id);
@@ -95,6 +100,7 @@ public class IdentityService(
 
         await dbTransactionProvider.ExecuteInTransactionAsync(async () =>
         {
+            user.IsActive = true;
             var userId = await userRepository.CreateAsync(user, passwordResult.Value);
 
             var courseAssignments = 

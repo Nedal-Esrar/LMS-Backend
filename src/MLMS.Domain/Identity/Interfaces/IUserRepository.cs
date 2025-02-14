@@ -19,8 +19,6 @@ public interface IUserRepository
     
     Task<bool> ExistsAsync(int id);
     
-    Task DeleteAsync(int id);
-    
     Task<PaginatedList<User>> GetAsync(SieveModel sieveModel);
     
     Task<List<User>> GetByMajorsAsync(List<int> majors);
@@ -28,4 +26,6 @@ public interface IUserRepository
     Task<bool> ExistsByIdAsync(int userId);
     
     Task<bool> IsSubAdminAsync(int userId);
+    
+    Task ChangeUserStatusAsync(int id, bool isActive);
 }

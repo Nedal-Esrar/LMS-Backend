@@ -35,4 +35,6 @@ public class UserResponse
     public DepartmentResponse? Department { get; set; }
     
     public FileResponse? ProfilePicture { get; set; }
+    
+    public bool IsActive { get; set; }
 }

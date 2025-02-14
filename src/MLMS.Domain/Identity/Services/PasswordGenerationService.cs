@@ -16,7 +16,7 @@ public class PasswordGenerationService : IPasswordGenerationService
     {
         if (length < 8)
         {
-            return Error.Validation("Password length must be at least 8 characters.");
+            return Error.Validation("Password.ShortLength", "Password length must be at least 8 characters.");
         }
 
         var random = new Random();

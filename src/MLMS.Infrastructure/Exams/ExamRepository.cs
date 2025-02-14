@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MLMS.Domain.Exams;
 using MLMS.Domain.ExamSessions;
+using MLMS.Domain.SectionParts;
 using MLMS.Domain.UsersCourses;
 using MLMS.Domain.UserSectionParts;
 using MLMS.Infrastructure.Persistence;
@@ -184,5 +185,12 @@ public class ExamRepository(LmsDbContext context) : IExamRepository
 
         return session.IsDone ||
                (DateTime.UtcNow - session.StartDateUtc).Minutes >= session.Exam.DurationMinutes;
+    }
+
+    public async Task<SectionPart?> GetSectionPartByExamIdAsync(long examId)
+    {
+        return await context.SectionParts
+            .Where(sp => sp.ExamId == examId)
+            .FirstOrDefaultAsync();
     }
 }

@@ -45,5 +45,8 @@ public class UserSieveConfiguration : ISieveConfiguration
         mapper.Property<ApplicationUser>(u => u.Department.Name)
             .HasName("department")
             .CanFilter();
+
+        mapper.Property<ApplicationUser>(u => u.IsActive)
+            .CanFilter();
     }
 }

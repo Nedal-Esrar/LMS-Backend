@@ -4,6 +4,7 @@ using MLMS.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MLMS.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(LmsDbContext))]
-    partial class LmsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250201151704_CleanupUnnecessarySectionPartIdInExam")]
+    partial class CleanupUnnecessarySectionPartIdInExam
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -414,7 +417,7 @@ namespace MLMS.Infrastructure.Persistence.Migrations
                     b.ToTable("Section", (string)null);
                 });
 
-            modelBuilder.Entity("MLMS.Domain.UserSectionParts.UserSectionPart", b =>
+            modelBuilder.Entity("MLMS.Domain.UserSectionParts.UserSectionPartDone", b =>
                 {
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -422,14 +425,14 @@ namespace MLMS.Infrastructure.Persistence.Migrations
                     b.Property<long>("SectionPartId")
                         .HasColumnType("bigint");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<bool>("IsDone")
+                        .HasColumnType("bit");
 
                     b.HasKey("UserId", "SectionPartId");
 
                     b.HasIndex("SectionPartId");
 
-                    b.ToTable("UserSectionPart", (string)null);
+                    b.ToTable("UserSectionPartDone", (string)null);
                 });
 
             modelBuilder.Entity("MLMS.Domain.UsersCourses.UserCourse", b =>
@@ -754,7 +757,7 @@ namespace MLMS.Infrastructure.Persistence.Migrations
                     b.Navigation("Course");
                 });
 
-            modelBuilder.Entity("MLMS.Domain.UserSectionParts.UserSectionPart", b =>
+            modelBuilder.Entity("MLMS.Domain.UserSectionParts.UserSectionPartDone", b =>
                 {
                     b.HasOne("MLMS.Domain.SectionParts.SectionPart", "SectionPart")
                         .WithMany("UserSectionPartStatuses")

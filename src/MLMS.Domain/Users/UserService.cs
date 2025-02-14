@@ -60,13 +60,17 @@ public class UserService(
         {
             if (user.MajorId != userToUpdate.MajorId)
             {
-                var oldMajorAssignments = (await courseAssignmentRepository.GetByMajorIdAsync(userToUpdate.MajorId!.Value))
+                var oldMajorAssignments = userToUpdate.MajorId.HasValue
+                    ? (await courseAssignmentRepository.GetByMajorIdAsync(userToUpdate.MajorId!.Value))
                     .Select(ca => ca.CourseId)
-                    .ToHashSet();
-                
-                var newMajorAssignments = (await courseAssignmentRepository.GetByMajorIdAsync(user.MajorId!.Value))
+                    .ToHashSet()
+                    : new HashSet<long>();
+
+                var newMajorAssignments = user.MajorId.HasValue
+                    ? (await courseAssignmentRepository.GetByMajorIdAsync(user.MajorId!.Value))
                     .Select(ca => ca.CourseId)
-                    .ToHashSet();
+                    .ToHashSet()
+                    : new HashSet<long>();
                 
                 var coursesToAdd = newMajorAssignments.Except(oldMajorAssignments).ToList();
                 var coursesToRemove = oldMajorAssignments.Except(newMajorAssignments).ToList();
@@ -102,18 +106,6 @@ public class UserService(
         }
 
         return user;
-    }
-
-    public async Task<ErrorOr<None>> DeleteAsync(int id)
-    {
-        if (!await userRepository.ExistsAsync(id))
-        {
-            return UserErrors.NotFound;
-        }
-
-        await userRepository.DeleteAsync(id);
-        
-        return None.Value;
     }
 
     public async Task<ErrorOr<PaginatedList<User>>> GetAsync(SieveModel sieveModel)
@@ -157,6 +149,18 @@ public class UserService(
                 await fileHandler.DeleteAsync(oldImage!.Path);
             }
         });
+
+        return None.Value;
+    }
+
+    public async Task<ErrorOr<None>> ChangeUserStatusAsync(int id, bool isActive)
+    {
+        if (!await userRepository.ExistsAsync(id))
+        {
+            return UserErrors.NotFound;
+        }
+        
+        await userRepository.ChangeUserStatusAsync(id, isActive);
 
         return None.Value;
     }

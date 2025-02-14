@@ -6,11 +6,11 @@ using MLMS.Infrastructure.Identity.Models;
 
 namespace MLMS.Infrastructure.UserSectionParts;
 
-public class UserSectionPartDoneDbConfiguration : IEntityTypeConfiguration<UserSectionPartDone>
+public class UserSectionPartDbConfiguration : IEntityTypeConfiguration<UserSectionPart>
 {
-    public void Configure(EntityTypeBuilder<UserSectionPartDone> builder)
+    public void Configure(EntityTypeBuilder<UserSectionPart> builder)
     {
-        builder.ToTable("UserSectionPartDone");
+        builder.ToTable("UserSectionPart");
         
         builder.HasKey(ud => new { ud.UserId, ud.SectionPartId });
         

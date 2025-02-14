@@ -241,7 +241,7 @@ public class CourseRepository(
         var query = from c in context.Courses
             join s in context.Sections on c.Id equals s.CourseId
             join sp in context.SectionParts on s.Id equals sp.SectionId
-            join e in context.Exams on sp.Id equals e.SectionPartId
+            join e in context.Exams on sp.ExamId equals e.Id
             where c.Id == id
             select e.Id;
 

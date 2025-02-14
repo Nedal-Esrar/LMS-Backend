@@ -39,5 +39,7 @@ public class User : EntityBase<int>
     
     public Guid? ProfilePictureId { get; set; }
     
-    public File ProfilePicture { get; set; }
+    public File? ProfilePicture { get; set; }
+    
+    public bool IsActive { get; set; }
 }

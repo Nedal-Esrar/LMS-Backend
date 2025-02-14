@@ -46,7 +46,7 @@ public class LmsDbContext(DbContextOptions options)
     
     public DbSet<UserCourse> UserCourses { get; set; }
     
-    public DbSet<UserSectionPartDone> UserSectionPartDoneRelations { get; set; }
+    public DbSet<UserSectionPart> UserSectionPartRelations { get; set; }
     
     public DbSet<Exam> Exams { get; set; }
     

@@ -1,5 +1,6 @@
 using MLMS.Domain.Common.Models;
 using MLMS.Domain.CourseAssignments;
+using MLMS.Domain.SectionParts;
 using MLMS.Domain.Sections;
 using MLMS.Domain.Users;
 using MLMS.Domain.UsersCourses;
@@ -43,8 +44,10 @@ public class Course : EntityBase<long>
             {
                 return 0.0;
             }
-            
-            var doneSectionParts = Sections.Sum(s => s.SectionParts.Count(sp => sp.UserSectionPartStatuses.FirstOrDefault()?.IsDone ?? false));
+
+            var doneSectionParts = Sections.Sum(s => s.SectionParts.Count(sp =>
+                (sp.UserSectionPartStatuses.FirstOrDefault()?.Status ?? SectionPartStatus.NotViewed) ==
+                SectionPartStatus.Done));
             
             return 1.0 * doneSectionParts / totalSectionParts;
         }
