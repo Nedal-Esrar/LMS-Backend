@@ -28,6 +28,8 @@ public class Course : EntityBase<long>
     public int? CreatedById { get; set; }
     
     public User? CreatedBy { get; set; }
+    
+    public bool IsDeleted { get; set; }
 
     public double Progress
     {

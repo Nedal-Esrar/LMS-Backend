@@ -85,6 +85,7 @@ public class UserRepository(
     public async Task<PaginatedList<User>> GetAsync(SieveModel sieveModel)
     {
         var query = context.Users
+            .IgnoreQueryFilters()
             .Include(u => u.Role)
             .Include(u => u.Major)
             .Include(u => u.Department)

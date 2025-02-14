@@ -16,7 +16,7 @@ public class UserDbConfiguration : IEntityTypeConfiguration<ApplicationUser>
     {
         builder.ToTable("User");
 
-        // builder.HasQueryFilter(u => u.IsActive);
+        builder.HasQueryFilter(u => u.IsActive);
         
         builder.HasOne<Major>(u => u.Major)
             .WithMany()

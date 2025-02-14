@@ -224,16 +224,8 @@ public class CourseRepository(
 
     public async Task DeleteAsync(long id)
     {
-        var course = await GetByIdAsync(id);
-
-        if (course is null)
-        {
-            return;
-        }
-
-        context.Courses.Remove(course);
-
-        await context.SaveChangesAsync();
+        await context.Courses.Where(c => c.Id == id)
+            .ExecuteUpdateAsync(spc => spc.SetProperty(c => c.IsDeleted, false));
     }
 
     public async Task<List<long>> GetExamIdsByIdAsync(long id)

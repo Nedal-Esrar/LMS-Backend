@@ -11,6 +11,8 @@ public class CourseDbConfiguration : IEntityTypeConfiguration<Course>
     public void Configure(EntityTypeBuilder<Course> builder)
     {
         builder.ToTable("Course");
+
+        builder.HasQueryFilter(c => !c.IsDeleted);
         
         builder.HasKey(x => x.Id);
         
