@@ -79,7 +79,9 @@ public class UserRepository(
 
     public async Task<bool> ExistsAsync(int id)
     {
-        return await context.Users.AnyAsync(u => u.Id == id);
+        return await context.Users
+            .IgnoreQueryFilters()
+            .AnyAsync(u => u.Id == id);
     }
 
     public async Task<PaginatedList<User>> GetAsync(SieveModel sieveModel)
@@ -90,6 +92,7 @@ public class UserRepository(
             .Include(u => u.Major)
             .Include(u => u.Department)
             .Include(u => u.ProfilePicture)
+            .Where(u => u.Role.Name != UserRole.Admin.ToString())
             .AsQueryable();
 
         var totalItems = await sieveProcessor.Apply(sieveModel, query, applyPagination: false).CountAsync();
@@ -135,21 +138,8 @@ public class UserRepository(
 
     public async Task ChangeUserStatusAsync(int id, bool isActive)
     {
-        await context.Users.Where(u => u.Id == id)
+        await context.Users.IgnoreQueryFilters()
+            .Where(u => u.Id == id)
             .ExecuteUpdateAsync(spc => spc.SetProperty(n => n.IsActive, isActive));
-    }
-
-    public async Task UpdateProfilePictureAsync(int id, Guid imageId)
-    {
-        var user = await context.Users.FindAsync(id);
-
-        if (user is null)
-        {
-            return;
-        }
-
-        user.ProfilePictureId = imageId;
-
-        await context.SaveChangesAsync();
     }
 }
