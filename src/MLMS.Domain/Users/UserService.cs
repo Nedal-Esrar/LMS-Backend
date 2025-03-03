@@ -1,8 +1,10 @@
 using ErrorOr;
 using MLMS.Domain.Common;
+using MLMS.Domain.Common.Exceptions;
 using MLMS.Domain.Common.Interfaces;
 using MLMS.Domain.Common.Models;
 using MLMS.Domain.CourseAssignments;
+using MLMS.Domain.Courses;
 using MLMS.Domain.Departments;
 using MLMS.Domain.Files;
 using MLMS.Domain.Identity.Interfaces;
@@ -14,14 +16,12 @@ namespace MLMS.Domain.Users;
 
 public class UserService(
     IUserRepository userRepository,
-    IDepartmentRepository departmentRepository,
-    IMajorRepository majorRepository,
-    IFileRepository fileRepository,
+    IDepartmentService departmentService,
+    IMajorService majorService,
+    IFileService fileService,
     IUserContext userContext,
     IDbTransactionProvider dbTransactionProvider,
-    IFileHandler fileHandler,
-    ICourseAssignmentRepository courseAssignmentRepository,
-    IUserCourseRepository userCourseRepository) : IUserService
+    ICourseAssignmentService courseAssignmentService) : IUserService
 {
     private readonly UserValidator _userValidator = new();
     
@@ -45,47 +45,31 @@ public class UserService(
         {
             return UserErrors.WorkIdExists;
         }
+
+        var departmentExistenceResult = await departmentService.CheckExistenceAsync(user.DepartmentId!.Value);
         
-        if (!await departmentRepository.ExistsAsync(user.DepartmentId!.Value))
+        if (departmentExistenceResult.IsError)
         {
-            return DepartmentErrors.NotFound;
+            return departmentExistenceResult.Errors;
         }
         
-        if (!await majorRepository.ExistsAsync(user.DepartmentId.Value, user.MajorId!.Value))
+        var majorExistenceResult = await majorService.CheckExistenceAsync(user.DepartmentId!.Value, user.MajorId!.Value);
+        
+        if (majorExistenceResult.IsError)
         {
-            return MajorErrors.NotFound;
+            return majorExistenceResult.Errors;
         }
 
         await dbTransactionProvider.ExecuteInTransactionAsync(async () =>
         {
             if (user.MajorId != userToUpdate.MajorId)
             {
-                var oldMajorAssignments = userToUpdate.MajorId.HasValue
-                    ? (await courseAssignmentRepository.GetByMajorIdAsync(userToUpdate.MajorId!.Value))
-                    .Select(ca => ca.CourseId)
-                    .ToHashSet()
-                    : new HashSet<long>();
+                var assignmentResult = await courseAssignmentService.UpdateByUserAsync(id, userToUpdate.MajorId!.Value, user.MajorId!.Value);
 
-                var newMajorAssignments = user.MajorId.HasValue
-                    ? (await courseAssignmentRepository.GetByMajorIdAsync(user.MajorId!.Value))
-                    .Select(ca => ca.CourseId)
-                    .ToHashSet()
-                    : new HashSet<long>();
-                
-                var coursesToAdd = newMajorAssignments.Except(oldMajorAssignments).ToList();
-                var coursesToRemove = oldMajorAssignments.Except(newMajorAssignments).ToList();
-
-                await userCourseRepository.CreateAsync(coursesToAdd.Select(c => new UserCourse
+                if (assignmentResult.IsError)
                 {
-                    CourseId = c,
-                    UserId = id
-                }).ToList());
-
-                await userCourseRepository.DeleteAsync(coursesToRemove.Select(c => new UserCourse
-                {
-                    CourseId = c,
-                    UserId = id
-                }).ToList());
+                    throw new UnoccasionalErrorException(assignmentResult.Errors);
+                }
             }
             
             userToUpdate.MapUpdatedUser(user);
@@ -115,38 +99,31 @@ public class UserService(
 
     public async Task<ErrorOr<None>> SetProfilePictureAsync(Guid imageId)
     {
-        var image = await fileRepository.GetByIdAsync(imageId);
+        var imageRetrievalResult = await fileService.GetByIdAsync(imageId);
 
-        if (image is null)
+        if (imageRetrievalResult.IsError)
         {
-            return FileErrors.NotFound;
+            return imageRetrievalResult.Errors;
         }
 
-        if (!image.IsImage())
+        if (!imageRetrievalResult.Value.IsImage())
         {
             return FileErrors.NotImage;
         }
         
         var user = await userRepository.GetByIdAsync(userContext.Id);
-        
-        var oldImage = user!.ProfilePictureId is not null ? 
-            await fileRepository.GetByIdAsync(user.ProfilePictureId!.Value)
-            : null;
 
         await dbTransactionProvider.ExecuteInTransactionAsync(async () =>
         {
-            if (user!.ProfilePictureId.HasValue)
-            {
-                await fileRepository.DeleteAsync(user.ProfilePictureId!.Value);
-            }
-
-            user.ProfilePictureId = imageId;
+            var oldImageId = user!.ProfilePictureId;
+            
+            user!.ProfilePictureId = imageId;
 
             await userRepository.UpdateAsync(user);
             
-            if (oldImage is not null)
+            if (oldImageId.HasValue)
             {
-                await fileHandler.DeleteAsync(oldImage!.Path);
+                await fileService.DeleteAsync(oldImageId!.Value);
             }
         });
 
@@ -163,5 +140,51 @@ public class UserService(
         await userRepository.ChangeUserStatusAsync(id, isActive);
 
         return None.Value;
+    }
+
+    public async Task<ErrorOr<List<User>>> GetBySectionIdAsync(long sectionId)
+    {
+        return await userRepository.GetBySectionIdAsync(sectionId);
+    }
+
+    public async Task<ErrorOr<bool>> CheckExistenceByWorkIdAsync(string workId)
+    {
+        return await userRepository.ExistsByWorkIdAsync(workId);
+    }
+
+    public async Task<ErrorOr<int>> CreateAsync(User user, string password)
+    {
+        return await userRepository.CreateAsync(user, password);
+    }
+
+    public async Task<ErrorOr<User>> GetByWorkIdAsync(string workId)
+    {
+        var user = await userRepository.GetByWorkIdAsync(workId);
+
+        if (user is null)
+        {
+            return UserErrors.NotFound;
+        }
+
+        return user;
+    }
+
+    public async Task<ErrorOr<None>> CheckExistenceByIdAsync(int id)
+    {
+        var userExists = await userRepository.ExistsAsync(id);
+        
+        return userExists ? None.Value : UserErrors.NotFound;
+    }
+
+    public async Task<ErrorOr<None>> CheckIfSubAdminAsync(int subAdminId)
+    {
+        var isSubAdmin = await userRepository.IsSubAdminAsync(subAdminId);
+        
+        return isSubAdmin ? None.Value : UserErrors.NotSubAdmin;
+    }
+
+    public async Task<ErrorOr<List<User>>> GetByMajorsAsync(List<int> majorIds)
+    {
+        return await userRepository.GetByMajorsAsync(majorIds);
     }
 }

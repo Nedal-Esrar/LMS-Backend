@@ -7,7 +7,7 @@ namespace MLMS.Domain.Sections;
 
 public class SectionService(
     ISectionRepository sectionRepository,
-    ICourseRepository courseRepository) : ISectionService
+    ICourseService courseService) : ISectionService
 {
     private readonly SectionValidator _sectionValidator = new();
     
@@ -19,10 +19,12 @@ public class SectionService(
         {
             return validationResult.ExtractErrors();
         }
-        
-        if (!await courseRepository.ExistsByIdAsync(section.CourseId))
+
+        var courseExistenceResult = await courseService.CheckExistenceAsync(section.CourseId);
+
+        if (courseExistenceResult.IsError)
         {
-            return CourseErrors.NotFound;
+            return courseExistenceResult.Errors;
         }
         
         if (await sectionRepository.ExistsByTitleAsync(section.CourseId, section.Title))
@@ -56,9 +58,11 @@ public class SectionService(
             // handle later.
         }
         
-        if (!await courseRepository.ExistsByIdAsync(section.CourseId))
+        var courseExistenceResult = await courseService.CheckExistenceAsync(section.CourseId);
+
+        if (courseExistenceResult.IsError)
         {
-            return CourseErrors.NotFound;
+            return courseExistenceResult.Errors;
         }
         
         if (section.Title != existingSection.Title && await sectionRepository.ExistsByTitleAsync(section.CourseId, section.Title))
@@ -93,5 +97,12 @@ public class SectionService(
         await sectionRepository.DeleteAsync(id);
 
         return None.Value;
+    }
+
+    public async Task<ErrorOr<None>> CheckExistenceAsync(long id)
+    {
+        return await sectionRepository.ExistsAsync(id) ? 
+            None.Value : 
+            SectionErrors.NotFound;
     }
 }

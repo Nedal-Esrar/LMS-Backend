@@ -15,4 +15,6 @@ public interface IDepartmentService
     Task<ErrorOr<PaginatedList<Department>>> GetAsync(SieveModel sieveModel);
     
     Task<ErrorOr<None>> UpdateAsync(int id, Department toDomain);
+    
+    Task<ErrorOr<None>> CheckExistenceAsync(int id);
 }

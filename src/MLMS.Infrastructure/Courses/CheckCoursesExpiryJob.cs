@@ -6,14 +6,14 @@ namespace MLMS.Infrastructure.Courses;
 
 [DisallowConcurrentExecution]
 public class CheckCoursesExpiryJob(
-    ICourseService courseService,
+    ICourseExpiryService courseExpiryService,
     ILogger<CheckCoursesExpiryJob> logger) : IJob
 {
     public async Task Execute(IJobExecutionContext context)
     {
         try
         {
-            await courseService.CheckCoursesExpiryAsync();
+            await courseExpiryService.CheckCoursesExpiryAsync();
         }
         catch (Exception ex)
         {

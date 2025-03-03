@@ -13,4 +13,6 @@ public interface INotificationService
     Task<ErrorOr<PaginatedList<Notification>>> GetAsync(SieveModel sieveModel);
     
     Task<ErrorOr<None>> MarkAllAsReadAsync();
+
+    Task<ErrorOr<None>> CreateAsync(List<Notification> notifications);
 }

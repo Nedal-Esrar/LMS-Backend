@@ -216,20 +216,6 @@ public class SectionPartRepository(
             .ExecuteUpdateAsync(u => u.SetProperty(x => x.Status, status));
     }
 
-    public async Task<List<UserExamState>> GetExamStatusesByCourseAndUserAsync(long id, int userId)
-    {
-        var query = from c in context.Courses
-            join s in context.Sections on c.Id equals s.CourseId
-            join sp in context.SectionParts on s.Id equals sp.SectionId
-            join e in context.Exams on sp.ExamId equals e.Id
-            join usp in context.UserExamStateRelations on e.Id equals usp.ExamId
-            where c.Id == id && usp.UserId == userId
-            select usp;
-        
-        return await query.AsNoTracking()
-            .ToListAsync();
-    }
-
     public async Task CreateDoneStatesAsync(List<UserSectionPart> doneStates)
     {
         context.UserSectionPartRelations.AddRange(doneStates);

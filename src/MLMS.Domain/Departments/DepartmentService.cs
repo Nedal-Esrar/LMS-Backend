@@ -75,4 +75,11 @@ public class DepartmentService(
 
         return None.Value;
     }
+
+    public async Task<ErrorOr<None>> CheckExistenceAsync(int id)
+    {
+        return await departmentRepository.ExistsAsync(id) ? 
+            None.Value : 
+            DepartmentErrors.NotFound;
+    }
 }

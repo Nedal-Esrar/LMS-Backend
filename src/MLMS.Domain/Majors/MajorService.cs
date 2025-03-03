@@ -8,7 +8,7 @@ namespace MLMS.Domain.Majors;
 
 public class MajorService(
     IMajorRepository majorRepository,
-    IDepartmentRepository departmentRepository) : IMajorService
+    IDepartmentService departmentService) : IMajorService
 {
     private readonly MajorValidator _majorValidator = new();
     
@@ -21,9 +21,11 @@ public class MajorService(
             return validationResult.ExtractErrors();
         }
         
-        if (!await departmentRepository.ExistsAsync(major.DepartmentId)) 
+        var existenceResult = await departmentService.CheckExistenceAsync(major.DepartmentId);
+
+        if (existenceResult.IsError)
         {
-            return DepartmentErrors.NotFound;
+            return existenceResult.Errors;
         }
 
         if (await majorRepository.ExistsByNameAsync(major.DepartmentId, major.Name))
@@ -38,9 +40,11 @@ public class MajorService(
 
     public async Task<ErrorOr<None>> DeleteAsync(int departmentId, int id) 
     {
-        if (!await departmentRepository.ExistsAsync(departmentId)) 
+        var existenceResult = await departmentService.CheckExistenceAsync(departmentId);
+
+        if (existenceResult.IsError)
         {
-            return DepartmentErrors.NotFound;
+            return existenceResult.Errors;
         }
         
         if (!await majorRepository.ExistsAsync(departmentId, id))
@@ -55,9 +59,11 @@ public class MajorService(
 
     public async Task<ErrorOr<Major>> GetByIdAsync(int departmentId, int id)
     {
-        if (!await departmentRepository.ExistsAsync(departmentId)) 
+        var existenceResult = await departmentService.CheckExistenceAsync(departmentId);
+
+        if (existenceResult.IsError)
         {
-            return DepartmentErrors.NotFound;
+            return existenceResult.Errors;
         }
         
         var major = await majorRepository.GetByIdAsync(departmentId, id);
@@ -67,9 +73,11 @@ public class MajorService(
 
     public async Task<ErrorOr<PaginatedList<Major>>> GetByDepartmentAsync(int departmentId, SieveModel sieveModel)
     {
-        if (!await departmentRepository.ExistsAsync(departmentId)) 
+        var existenceResult = await departmentService.CheckExistenceAsync(departmentId);
+
+        if (existenceResult.IsError)
         {
-            return DepartmentErrors.NotFound;
+            return existenceResult.Errors;
         }
         
         return await majorRepository.GetByDepartmentAsync(departmentId, sieveModel);
@@ -77,9 +85,11 @@ public class MajorService(
 
     public async Task<ErrorOr<None>> UpdateAsync(int departmentId, int id, Major updatedMajor)
     {
-        if (!await departmentRepository.ExistsAsync(departmentId))
+        var existenceResult = await departmentService.CheckExistenceAsync(departmentId);
+
+        if (existenceResult.IsError)
         {
-            return DepartmentErrors.NotFound;
+            return existenceResult.Errors;
         }
 
         var validationResult = await _majorValidator.ValidateAsync(updatedMajor);
@@ -106,5 +116,12 @@ public class MajorService(
         await majorRepository.UpdateAsync(major);
 
         return None.Value;
+    }
+
+    public async Task<ErrorOr<None>> CheckExistenceAsync(int departmentId, int id)
+    {
+        return await majorRepository.ExistsAsync(departmentId, id) ? 
+            None.Value : 
+            MajorErrors.NotFound;
     }
 }

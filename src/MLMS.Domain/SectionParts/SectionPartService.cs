@@ -1,19 +1,23 @@
 using ErrorOr;
 using MLMS.Domain.Common;
+using MLMS.Domain.Common.Exceptions;
 using MLMS.Domain.Common.Interfaces;
 using MLMS.Domain.Common.Models;
 using MLMS.Domain.Exams;
 using MLMS.Domain.Files;
 using MLMS.Domain.Identity.Interfaces;
 using MLMS.Domain.Sections;
+using MLMS.Domain.Users;
+using MLMS.Domain.UsersCourses;
 using MLMS.Domain.UserSectionParts;
 
 namespace MLMS.Domain.SectionParts;
 
 public class SectionPartService(
     ISectionPartRepository sectionPartRepository,
-    ISectionRepository sectionRepository,
-    IFileRepository fileRepository,
+    ISectionService sectionService,
+    IUserService userService,
+    IFileService fileService,
     IUserContext userContext,
     IDbTransactionProvider dbTransactionProvider) : ISectionPartService
 {
@@ -27,22 +31,24 @@ public class SectionPartService(
         {
             return validationResult.ExtractErrors();
         }
+
+        var sectionExistenceResult = await sectionService.CheckExistenceAsync(sectionPart.SectionId);
         
-        if (!await sectionRepository.ExistsAsync(sectionPart.SectionId))
+        if (sectionExistenceResult.IsError)
         {
-            return SectionErrors.NotFound;
+            return sectionExistenceResult.Errors;
         }
         
-        var materialValidationError = sectionPart.MaterialType switch
+        var materialValidationResult = sectionPart.MaterialType switch
         {
             MaterialType.File => await ValidateForFileTypeAsync(sectionPart),
             MaterialType.Exam => await ValidateForExamTypeAsync(sectionPart.Exam!),
-            _ => null
+            _ => None.Value
         };
 
-        if (materialValidationError is not null)
+        if (materialValidationResult.IsError)
         {
-            return materialValidationError.Value;
+            return materialValidationResult.Errors;
         }
 
         WipeAdditionalInfo(sectionPart);
@@ -61,7 +67,14 @@ public class SectionPartService(
             // TODO: separate repository for exams?
             createdSectionPart = await sectionPartRepository.CreateAsync(sectionPart);
         
-            var users = await sectionRepository.GetUsersBySectionIdAsync(sectionPart.SectionId);
+            var usersRetrievalResult = await userService.GetBySectionIdAsync(sectionPart.SectionId);
+
+            if (usersRetrievalResult.IsError)
+            {
+                throw new UnoccasionalErrorException(usersRetrievalResult.Errors);
+            }
+
+            var users = usersRetrievalResult.Value;
             
             await sectionPartRepository.CreateDoneStatesAsync(users.Select(u => new UserSectionPart
             {
@@ -128,22 +141,29 @@ public class SectionPartService(
         {
             return SectionPartErrors.NotFound;
         }
+        
+        var sectionExistenceResult = await sectionService.CheckExistenceAsync(updatedSectionPart.SectionId);
+        
+        if (sectionExistenceResult.IsError)
+        {
+            return sectionExistenceResult.Errors;
+        }
 
         if (existingSectionPart.SectionId != updatedSectionPart.SectionId)
         {
             // to be handled soon.
         }
 
-        var materialValidationError = updatedSectionPart.MaterialType switch
+        var materialValidationResult = updatedSectionPart.MaterialType switch
         {
             MaterialType.File => await ValidateForFileTypeAsync(updatedSectionPart),
             MaterialType.Exam => await ValidateForExamTypeAsync(updatedSectionPart.Exam!),
-            _ => null
+            _ => None.Value
         };
         
-        if (materialValidationError is not null)
+        if (materialValidationResult.IsError)
         {
-            return materialValidationError.Value;
+            return materialValidationResult.Errors;
         }
 
         WipeAdditionalInfo(updatedSectionPart);
@@ -166,7 +186,14 @@ public class SectionPartService(
             if (updatedSectionPart.MaterialType == MaterialType.Exam && 
                 existingSectionPart.MaterialType != MaterialType.Exam)
             {
-                var users = await sectionRepository.GetUsersBySectionIdAsync(updatedSectionPart.SectionId);
+                var usersRetrievalResult = await userService.GetBySectionIdAsync(updatedSectionPart.SectionId);
+
+                if (usersRetrievalResult.IsError)
+                {
+                    throw new UnoccasionalErrorException(usersRetrievalResult.Errors);
+                }
+
+                var users = usersRetrievalResult.Value;
             
                 await sectionPartRepository.CreateExamStatesAsync(users.Select(u => new UserExamState
                 {
@@ -284,6 +311,13 @@ public class SectionPartService(
         return None.Value;
     }
 
+    public async Task<ErrorOr<None>> ResetDoneStatesByUserCoursesAsync(List<UserCourse> userCourses)
+    {
+        await sectionPartRepository.ResetDoneStatesByUserCoursesAsync(userCourses);
+
+        return None.Value;
+    }
+
     private void WipeAdditionalInfo(SectionPart sectionPart)
     {
         switch (sectionPart.MaterialType)
@@ -305,7 +339,7 @@ public class SectionPartService(
         }
     }
 
-    private async Task<Error?> ValidateForExamTypeAsync(Exam exam)
+    private async Task<ErrorOr<None>> ValidateForExamTypeAsync(Exam exam)
     {
         if (exam.Questions.Any(q => q.Choices.Count == 1))
         {
@@ -336,29 +370,24 @@ public class SectionPartService(
                 continue;
             }
             
-            var imageFile = await fileRepository.GetByIdAsync(question.ImageId.Value);
+            var imageRetrievalResult = await fileService.GetByIdAsync(question.ImageId.Value);
 
-            if (imageFile is null)
+            if (imageRetrievalResult.IsError)
             {
-                return FileErrors.NotFound;
+                return imageRetrievalResult.Errors;
             }
 
-            if (!imageFile.IsImage())
+            if (!imageRetrievalResult.Value.IsImage())
             {
                 return FileErrors.NotImage;
             }
         }
         
-        return null;
+        return None.Value;
     }
 
-    private async Task<Error?> ValidateForFileTypeAsync(SectionPart sectionPart)
+    private async Task<ErrorOr<None>> ValidateForFileTypeAsync(SectionPart sectionPart)
     {
-        if (!await fileRepository.ExistsAsync(sectionPart.FileId!.Value))
-        {
-            return FileErrors.NotFound;
-        }
-
-        return null;
+        return await fileService.CheckExistenceAsync(sectionPart.FileId!.Value);
     }
 }

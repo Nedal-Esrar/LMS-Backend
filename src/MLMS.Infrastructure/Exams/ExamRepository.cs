@@ -1,3 +1,4 @@
+using ErrorOr;
 using Microsoft.EntityFrameworkCore;
 using MLMS.Domain.Exams;
 using MLMS.Domain.ExamSessions;
@@ -192,5 +193,29 @@ public class ExamRepository(LmsDbContext context) : IExamRepository
         return await context.SectionParts
             .Where(sp => sp.ExamId == examId)
             .FirstOrDefaultAsync();
+    }
+
+    public async Task ChangeExamDoneStatusAsync(long examId, SectionPartStatus doneStatus)
+    {
+        var query = from sp in context.SectionParts
+            join spds in context.UserSectionPartRelations on sp.Id equals spds.SectionPartId
+            where sp.ExamId == examId
+            select spds;
+        
+        await query.ExecuteUpdateAsync(sp => sp.SetProperty(x => x.Status, doneStatus));
+    }
+
+    public async Task<ErrorOr<List<UserExamState>>> GetExamStatusesByCourseAndUserAsync(long id, int userId)
+    {
+        var query = from c in context.Courses
+            join s in context.Sections on c.Id equals s.CourseId
+            join sp in context.SectionParts on s.Id equals sp.SectionId
+            join e in context.Exams on sp.ExamId equals e.Id
+            join usp in context.UserExamStateRelations on e.Id equals usp.ExamId
+            where c.Id == id && usp.UserId == userId
+            select usp;
+        
+        return await query.AsNoTracking()
+            .ToListAsync();
     }
 }

@@ -1,3 +1,4 @@
+using ErrorOr;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MLMS.Domain.Common.Models;
@@ -141,5 +142,20 @@ public class UserRepository(
         await context.Users.IgnoreQueryFilters()
             .Where(u => u.Id == id)
             .ExecuteUpdateAsync(spc => spc.SetProperty(n => n.IsActive, isActive));
+    }
+
+    public async Task<ErrorOr<List<User>>> GetBySectionIdAsync(long sectionId)
+    {
+        var query = from u in context.Users.Include(u => u.Role)
+            join uc in context.UserCourses on u.Id equals uc.UserId
+            join c in context.Courses on uc.CourseId equals c.Id
+            join s in context.Sections on c.Id equals s.CourseId
+            where s.Id == sectionId
+            select u;
+
+        return (await query.AsNoTracking()
+                .ToListAsync())
+            .Select(u => u.ToDomain())
+            .ToList();
     }
 }

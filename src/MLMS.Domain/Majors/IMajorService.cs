@@ -15,4 +15,6 @@ public interface IMajorService
     Task<ErrorOr<PaginatedList<Major>>> GetByDepartmentAsync(int departmentId, SieveModel sieveModel);
     
     Task<ErrorOr<None>> UpdateAsync(int departmentId, int id, Major major);
+    
+    Task<ErrorOr<None>> CheckExistenceAsync(int departmentId, int id);
 }
