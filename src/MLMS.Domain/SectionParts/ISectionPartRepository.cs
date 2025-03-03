@@ -20,8 +20,6 @@ public interface ISectionPartRepository
     
     Task SetUserStatusAsync(int userId, long id, SectionPartStatus status);
     
-    Task<List<UserExamState>> GetExamStatusesByCourseAndUserAsync(long id, int userId);
-    
     Task CreateDoneStatesAsync(List<UserSectionPart> doneStates);
     
     Task CreateExamStatesAsync(List<UserExamState> examStates);

@@ -12,4 +12,6 @@ public interface ISectionService
     Task<ErrorOr<Section>> GetByIdAsync(long courseId, long id);
     
     Task<ErrorOr<None>> DeleteAsync(long courseId, long id);
+    
+    Task<ErrorOr<None>> CheckExistenceAsync(long id);
 }

@@ -37,4 +37,11 @@ public class NotificationService(
 
         return None.Value;
     }
+
+    public async Task<ErrorOr<None>> CreateAsync(List<Notification> notifications)
+    {
+        await notificationRepository.CreateAsync(notifications);
+
+        return None.Value;
+    }
 }

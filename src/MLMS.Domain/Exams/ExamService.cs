@@ -4,15 +4,14 @@ using MLMS.Domain.Common.Models;
 using MLMS.Domain.ExamSessions;
 using MLMS.Domain.Identity.Interfaces;
 using MLMS.Domain.SectionParts;
-using MLMS.Domain.UserSectionParts;
+using MLMS.Domain.UsersCourses;
 
 namespace MLMS.Domain.Exams;
 
 public class ExamService(
     IExamRepository examRepository,
     IUserContext userContext,
-    IDbTransactionProvider dbTransactionProvider,
-    ISectionPartRepository sectionPartRepository) : IExamService
+    IDbTransactionProvider dbTransactionProvider) : IExamService
 {
     public async Task<ErrorOr<None>> StartSessionAsync(long examId)
     {
@@ -213,10 +212,7 @@ public class ExamService(
 
             if (examStatus == ExamStatus.Passed)
             {
-                var sectionPart = await examRepository.GetSectionPartByExamIdAsync(examId);
-                
-                await sectionPartRepository.SetUserStatusAsync(userId, sectionPart!.Id,
-                    SectionPartStatus.Done);
+                await examRepository.ChangeExamDoneStatusAsync(examId, SectionPartStatus.Done);
             }
         });
 
@@ -235,5 +231,22 @@ public class ExamService(
         exam.MaxGradePoints = exam.Questions.Sum(q => q.Points);
 
         return exam;
+    }
+
+    public async Task<ErrorOr<bool>> IsSessionDueAsync(int userId, long examId)
+    {
+        return await examRepository.IsSessionDueAsync(userId, examId);
+    }
+
+    public async Task<ErrorOr<List<UserExamState>>> GetExamStatusesByCourseAndUserAsync(long id, int userId)
+    {
+        return await examRepository.GetExamStatusesByCourseAndUserAsync(id, userId);
+    }
+
+    public async Task<ErrorOr<None>> ResetExamStatesByUserCoursesAsync(List<UserCourse> userCourses)
+    {
+        await examRepository.ResetExamStatesByUserCoursesAsync(userCourses);
+
+        return None.Value;
     }
 }

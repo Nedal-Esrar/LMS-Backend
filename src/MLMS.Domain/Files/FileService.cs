@@ -39,4 +39,23 @@ public class FileService(
 
         return None.Value;
     }
+
+    public async Task<ErrorOr<File>> GetByIdAsync(Guid id)
+    {
+        var file = await fileRepository.GetByIdAsync(id);
+        
+        if (file is null)
+        {
+            return FileErrors.NotFound;
+        }
+
+        return file;
+    }
+
+    public async Task<ErrorOr<None>> CheckExistenceAsync(Guid id)
+    {
+        return await fileRepository.ExistsAsync(id) ? 
+            None.Value : 
+            FileErrors.NotFound;
+    }
 }

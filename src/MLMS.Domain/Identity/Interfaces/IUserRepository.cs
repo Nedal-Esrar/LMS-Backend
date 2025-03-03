@@ -28,4 +28,6 @@ public interface IUserRepository
     Task<bool> IsSubAdminAsync(int userId);
     
     Task ChangeUserStatusAsync(int id, bool isActive);
+    
+    Task<ErrorOr<List<User>>> GetBySectionIdAsync(long sectionId);
 }

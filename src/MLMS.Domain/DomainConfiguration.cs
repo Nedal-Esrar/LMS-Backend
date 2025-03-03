@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using MLMS.Domain.CourseAssignments;
 using MLMS.Domain.Courses;
 using MLMS.Domain.Departments;
 using MLMS.Domain.Exams;
@@ -30,6 +31,8 @@ public static class DomainConfiguration
         services.AddScoped<ISectionPartService, SectionPartService>();
         services.AddScoped<ISectionService, SectionService>();
         services.AddScoped<IExamService, ExamService>();
+        services.AddScoped<ICourseAssignmentService, CourseAssignmentService>();
+        services.AddScoped<ICourseExpiryService, CourseExpiryService>();
 
         services.AddOptions<ClientOptions>()
             .BindConfiguration(nameof(ClientOptions));

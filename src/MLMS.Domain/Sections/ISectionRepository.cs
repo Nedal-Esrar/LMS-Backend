@@ -20,6 +20,4 @@ public interface ISectionRepository
     Task<Section?> GetByIdAsync(long id);
     
     Task DeleteAsync(long id);
-    
-    Task<List<User>> GetUsersBySectionIdAsync(long sectionId);
 }

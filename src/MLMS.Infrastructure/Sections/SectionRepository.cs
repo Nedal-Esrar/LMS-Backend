@@ -66,19 +66,4 @@ public class SectionRepository(LmsDbContext context) : ISectionRepository
         
         await context.SaveChangesAsync();
     }
-
-    public async Task<List<User>> GetUsersBySectionIdAsync(long sectionId)
-    {
-        var query = from u in context.Users.Include(u => u.Role)
-            join uc in context.UserCourses on u.Id equals uc.UserId
-            join c in context.Courses on uc.CourseId equals c.Id
-            join s in context.Sections on c.Id equals s.CourseId
-            where s.Id == sectionId
-            select u;
-
-        return (await query.AsNoTracking()
-            .ToListAsync())
-            .Select(u => u.ToDomain())
-            .ToList();
-    }
 }

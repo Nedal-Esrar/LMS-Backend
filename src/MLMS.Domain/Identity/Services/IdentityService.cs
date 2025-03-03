@@ -1,6 +1,7 @@
 using ErrorOr;
 using Microsoft.Extensions.Options;
 using MLMS.Domain.Common;
+using MLMS.Domain.Common.Exceptions;
 using MLMS.Domain.Common.Interfaces;
 using MLMS.Domain.Common.Models;
 using MLMS.Domain.CourseAssignments;
@@ -11,24 +12,22 @@ using MLMS.Domain.Identity.Models;
 using MLMS.Domain.Identity.Validators;
 using MLMS.Domain.Majors;
 using MLMS.Domain.Users;
-using MLMS.Domain.UsersCourses;
 
 namespace MLMS.Domain.Identity.Services;
 
 public class IdentityService(
-    IUserRepository userRepository,
+    IUserService userService,
     IAuthService authService,
     ITokenGenerator tokenGenerator,
-    IMajorRepository majorRepository,
-    IDepartmentRepository departmentRepository,
+    IMajorService majorService,
+    IDepartmentService departmentService,
     IPasswordGenerationService passwordGenerator,
     IDbTransactionProvider dbTransactionProvider,
     IEmailService emailService,
     IRefreshTokenRepository refreshTokenRepository,
     IUserContext userContext,
     IOptions<ClientOptions> clientOptions,
-    IUserCourseRepository userCourseRepository,
-    ICourseAssignmentRepository courseAssignmentRepository) : IIdentityService
+    ICourseAssignmentService courseAssignmentService) : IIdentityService
 {
     private readonly LoginValidator _loginValidator = new();
     private readonly RegisterValidator _registerValidator = new();
@@ -75,20 +74,34 @@ public class IdentityService(
         {
             return validationResult.ExtractErrors();
         }
+
+        var userExistenceResult = await userService.CheckExistenceByWorkIdAsync(user.WorkId);
+
+        if (userExistenceResult.IsError)
+        {
+            return userExistenceResult.Errors;
+        }
+
+        var userWithSameWorkIdExists = userExistenceResult.Value;
         
-        if (await userRepository.ExistsByWorkIdAsync(user.WorkId))
+        if (userWithSameWorkIdExists)
         {
             return UserErrors.WorkIdExists;
         }
 
-        if (!await departmentRepository.ExistsAsync(user.DepartmentId!.Value))
+        var departmentExistenceResult = await departmentService.CheckExistenceAsync(user.DepartmentId!.Value);
+
+        if (departmentExistenceResult.IsError)
         {
-            return DepartmentErrors.NotFound;
+            return departmentExistenceResult.Errors;
         }
-        
-        if (!await majorRepository.ExistsAsync(user.DepartmentId.Value, user.MajorId!.Value))
+
+        var majorExistenceResult =
+            await majorService.CheckExistenceAsync(user.DepartmentId!.Value, user.MajorId!.Value);
+
+        if (majorExistenceResult.IsError)
         {
-            return MajorErrors.NotFound;
+            return majorExistenceResult.Errors;
         }
         
         var passwordResult = passwordGenerator.GenerateStrongPassword(length: 8);
@@ -101,20 +114,21 @@ public class IdentityService(
         await dbTransactionProvider.ExecuteInTransactionAsync(async () =>
         {
             user.IsActive = true;
-            var userId = await userRepository.CreateAsync(user, passwordResult.Value);
+            var userCreationResult = await userService.CreateAsync(user, passwordResult.Value);
 
-            var courseAssignments = 
-                await courseAssignmentRepository.GetByMajorIdAsync(user.MajorId.Value);
+            if (userCreationResult.IsError)
+            {
+                throw new UnoccasionalErrorException(userCreationResult.Errors);
+            }
 
-            var userCourseEntities = courseAssignments.Select(courseAssignment => 
-                new UserCourse
-                {
-                    UserId = userId, 
-                    CourseId = courseAssignment.CourseId, 
-                    Status = UserCourseStatus.NotStarted
-                }).ToList();
+            var userId = userCreationResult.Value;
 
-            await userCourseRepository.CreateAsync(userCourseEntities);
+            var assignmentsCreationResult = await courseAssignmentService.CreateAssignmentsAsync(userId, user.MajorId.Value);
+
+            if (assignmentsCreationResult.IsError)
+            {
+                throw new UnoccasionalErrorException(assignmentsCreationResult.Errors);
+            }
 
             await emailService.SendAsync(new EmailRequest
             {
@@ -143,7 +157,14 @@ public class IdentityService(
             return IdentityErrors.InvalidRefreshToken;
         }
 
-        var user = await userRepository.GetByIdAsync(refreshTokenModel.UserId);
+        var userRetrievalResult = await userService.GetByIdAsync(refreshTokenModel.UserId);
+
+        if (userRetrievalResult.IsError)
+        {
+            return userRetrievalResult.Errors;
+        }
+
+        var user = userRetrievalResult.Value;
 
         var accessToken = tokenGenerator.GenerateAccessToken(user!);
         var newRefreshToken = tokenGenerator.GenerateRefreshToken(user!.Id);
@@ -201,12 +222,14 @@ public class IdentityService(
 
     public async Task<ErrorOr<None>> ForgotPasswordAsync(string workId)
     {
-        var user = await userRepository.GetByWorkIdAsync(workId);
+        var userRetrievalResult = await userService.GetByWorkIdAsync(workId);
 
-        if (user is null)
+        if (userRetrievalResult.IsError)
         {
-            return UserErrors.NotFound;
+            return userRetrievalResult.Errors;
         }
+
+        var user = userRetrievalResult.Value;
         
         var token = await authService.GenerateResetPasswordTokenAsync(user.Id);
         
@@ -222,12 +245,14 @@ public class IdentityService(
 
     public async Task<ErrorOr<None>> ResetPasswordAsync(string workId, string newPassword, string token)
     {
-        var user = await userRepository.GetByWorkIdAsync(workId);
+        var userRetrievalResult = await userService.GetByWorkIdAsync(workId);
 
-        if (user is null)
+        if (userRetrievalResult.IsError)
         {
-            return UserErrors.NotFound;
+            return userRetrievalResult.Errors;
         }
+
+        var user = userRetrievalResult.Value;
 
         if (!PasswordUtils.IsStrongPassword(newPassword))
         {
@@ -256,12 +281,14 @@ public class IdentityService(
 
     public async Task<ErrorOr<bool>> ValidateResetPasswordTokenAsync(string workId, string token)
     {
-        var user = await userRepository.GetByWorkIdAsync(workId);
+        var userRetrievalResult = await userService.GetByWorkIdAsync(workId);
 
-        if (user is null)
+        if (userRetrievalResult.IsError)
         {
-            return UserErrors.NotFound;
+            return userRetrievalResult.Errors;
         }
+
+        var user = userRetrievalResult.Value;
         
         return await authService.ValidateResetPasswordToken(user.Id, token);
     }

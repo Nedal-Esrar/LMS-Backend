@@ -45,4 +45,8 @@ public interface IExamRepository
     Task<bool> IsSessionFinishedAsync(int userId, long examId);
     
     Task<SectionPart?> GetSectionPartByExamIdAsync(long examId);
+    
+    Task ChangeExamDoneStatusAsync(long examId, SectionPartStatus doneStatus);
+    
+    Task<ErrorOr<List<UserExamState>>> GetExamStatusesByCourseAndUserAsync(long id, int userId);
 }
