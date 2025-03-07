@@ -1,0 +1,35 @@
+name: Build, publish and deploy to MonsterASP.NET
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build_and_deploy:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+          
+      - name: Install dependencies
+        run: dotnet restore
+        
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Publish
+        run: dotnet publish --configuration Release --output ./publish --runtime win-x86 
+        
+      - name: Test with .NET
+        run: dotnet test
+
+      - name: Deploy to MonsterASP.NET via WebDeploy
+        uses: rasmusbuchholdt/simply-web-deploy@2.1.0
+        with:
+          website-name: ${{ secrets.WEBSITE_NAME }}
+          server-computer-name: ${{ secrets.SERVER_COMPUTER_NAME }}
+          server-username: ${{ secrets.SERVER_USERNAME }}
+          server-password: ${{ secrets.SERVER_PASSWORD }}
